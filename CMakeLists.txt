@@ -1,0 +1,210 @@
+PROJECT(LIBFBI)
+
+# require at least cmake 2.6
+cmake_minimum_required(VERSION 2.6)
+
+# include macro definitions
+INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/cmake/macros/require_out_of_src_build.cmake)
+
+#############################################################################
+# versioning
+#############################################################################
+set(VERSION_MAJOR 1)
+set(VERSION_MINOR 0)
+
+# get SVN revision
+EXECUTE_PROCESS(
+	COMMAND "svnversion"
+    WORKING_DIRECTORY ${LIBFBI_SOURCE_DIR}
+    RESULT_VARIABLE svnversion_failed
+    OUTPUT_VARIABLE SVNVERSION
+    ERROR_QUIET
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+IF(svnversion_failed)
+    SET(SVNVERSIONSTR "r0")
+ELSE(svnversion_failed)
+    SET(SVNVERSIONSTR "r${SVNVERSION}")
+ENDIF(svnversion_failed)
+
+# construct version string
+STRING(REGEX REPLACE ":" "_" VERSION_PATCH ${SVNVERSIONSTR})
+SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
+
+
+
+#############################################################################
+# build libraries
+#############################################################################
+
+# require boost
+SET(Boost_USE_STATIC_LIBS OFF)
+SET(Boost_USE_MULTITHREAD OFF)
+FIND_PACKAGE(Boost COMPONENTS program_options system REQUIRED)
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
+
+
+# require out-of-source build
+MACRO_REQUIRE_OUT_OF_SRC_BUILD("LIBFBI requires out-of-source builds.")
+
+SET(CMAKE_CXX0X_FLAGS "-std=c++0x" )
+# more warnings against everything
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wconversion -Wall " )
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX0X_FLAGS}" )
+
+
+TRY_COMPILE (HAS_UNIFORM_INT_DISTRIBUTION
+    ${CMAKE_BINARY_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/testrandom.cxx
+    )
+
+CONFIGURE_FILE(
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/fbi/config.h.cmake 
+    ${LIBFBI_BINARY_DIR}/include/fbi/config.h
+)
+
+# add subdirs
+ADD_SUBDIRECTORY(examples)
+
+OPTION(ENABLE_COVERAGE "Enable GCov coverage analysis (defines a 'coverage' target and enforces static build of ms++)" OFF)
+OPTION(ENABLE_BENCHMARK "Do benchmarking and plotting" ON)
+
+
+#############################################################################
+# scp
+#############################################################################
+
+ADD_CUSTOM_TARGET(synchtdocs COMMAND rsync -Cavz ${LIBFBI_SOURCE_DIR}/htdocs ${SF_USER},libfbi@web.sourceforge.net:)
+ADD_CUSTOM_TARGET(syncdocs COMMAND rsync -Cavz ${LIBFBI_BINARY_DIR}/doc/html ${SF_USER},libfbi@web.sourceforge.net:htdocs/doc)
+
+ADD_DEPENDENCIES(syncdocs doc)
+
+
+#############################################################################
+# regression tests
+#############################################################################
+SET(UPDATE_TYPE svn)
+INCLUDE(CTest)
+ENABLE_TESTING()
+ADD_SUBDIRECTORY(test)
+
+
+#############################################################################
+# code coverage analysis
+#############################################################################
+IF (ENABLE_COVERAGE)
+    SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
+    CONFIGURE_FILE(${LIBFBI_SOURCE_DIR}/cmake/scripts/coverage.sh.in
+        ${LIBFBI_BINARY_DIR}/cmake/scripts/coverage.sh
+        @ONLY IMMEDIATE
+    )
+    CONFIGURE_FILE(${LIBFBI_SOURCE_DIR}/cmake/scripts/unit_coverage.sh.in
+        ${LIBFBI_BINARY_DIR}/cmake/scripts/unit_coverage.sh
+        @ONLY IMMEDIATE
+    )
+    ADD_CUSTOM_TARGET(
+        coverage COMMAND /bin/bash ${LIBFBI_BINARY_DIR}/cmake/scripts/coverage.sh
+    )
+ENDIF(ENABLE_COVERAGE)
+
+
+#############################################################################
+# time per number of nodes analysis
+#############################################################################
+IF (ENABLE_BENCHMARK)
+    CONFIGURE_FILE(${LIBFBI_SOURCE_DIR}/test/testdata.zip
+        ${LIBFBI_BINARY_DIR}/test/testdata.zip
+        COPYONLY
+    )
+    CONFIGURE_FILE(${LIBFBI_SOURCE_DIR}/test/scripts/benchmark.sh.cmake
+        ${LIBFBI_BINARY_DIR}/test/scripts/benchmark.sh
+        @ONLY IMMEDIATE
+    )
+    CONFIGURE_FILE(${LIBFBI_SOURCE_DIR}/test/scripts/setupbenchmark.sh.cmake
+        ${LIBFBI_BINARY_DIR}/test/scripts/setupbenchmark.sh
+        @ONLY IMMEDIATE
+    )
+    CONFIGURE_FILE(${LIBFBI_SOURCE_DIR}/test/scripts/plotting.r.cmake
+        ${LIBFBI_BINARY_DIR}/test/scripts/plotting.r
+        COPYONLY
+    )
+    ADD_CUSTOM_TARGET(
+        benchmark COMMAND /bin/bash ${LIBFBI_BINARY_DIR}/test/scripts/setupbenchmark.sh
+    )
+    ADD_DEPENDENCIES(benchmark centroid)
+ENDIF(ENABLE_BENCHMARK)
+
+
+#############################################################################
+# documentation
+#############################################################################
+
+# doxygen support
+CONFIGURE_FILE(${LIBFBI_SOURCE_DIR}/doc/Doxyfile.cmake
+    ${LIBFBI_BINARY_DIR}/doc/Doxyfile
+    @ONLY IMMEDIATE
+    )
+FIND_PACKAGE(Doxygen)
+
+# target for doxygen
+ADD_CUSTOM_TARGET(doc COMMAND ${DOXYGEN} ${LIBFBI_BINARY_DIR}/doc/Doxyfile)
+
+
+#############################################################################
+# installation
+#############################################################################
+
+# headers
+INSTALL(DIRECTORY ${LIBFBI_SOURCE_DIR}/include/fbi
+    DESTINATION include
+    COMPONENT headers
+    REGEX "/.svn$" EXCLUDE)
+
+# config.h
+INSTALL(FILES ${LIBFBI_BINARY_DIR}/include/fbi/config.h
+    DESTINATION include/fbi
+    COMPONENT headers)
+
+# documentation
+INSTALL(DIRECTORY ${LIBFBI_BINARY_DIR}/doc
+    DESTINATION share/fbi
+    COMPONENT documentation
+    PATTERN "Doxyfile" EXCLUDE)
+
+
+
+#############################################################################
+# packaging
+#############################################################################
+
+# FIXME: make sure that the documentation is compiled and pdfs are 
+#        generated prior to packaging!
+
+set(CPACK_PACKAGE_NAME "libfbi")
+set(CPACK_PACKAGE_VENDOR "steenlab.org")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Fast Box Intersection library")
+
+
+# CPack version strings
+SET(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
+SET(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
+SET(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
+
+SET(CPACK_RESOURCE_FILE_README "${LIBFBI_SOURCE_DIR}/README.txt")
+SET(CPACK_RESOURCE_FILE_LICENSE "${LIBFBI_SOURCE_DIR}/LICENSE.txt")
+
+set(CPACK_COMPONENTS_ALL libraries headers applications documentation)
+set(CPACK_COMPONENT_LIBRARIES_DISPLAY_NAME "Libraries")
+set(CPACK_COMPONENT_HEADERS_DISPLAY_NAME "C++ Development Headers")
+set(CPACK_COMPONENT_DOCUMENTATION_DISPLAY_NAME "C++ Interface Documentation")
+
+set(CPACK_COMPONENT_LIBRARIES_DESCRIPTION
+    "Interval tree library")
+set(CPACK_COMPONENT_HEADERS_DESCRIPTION
+    "C++ header files for libfbi development.")
+set(CPACK_COMPONENT_DOCUMENTATION_DESCRIPTION
+    "The C++ libfbi interface documentation (Doxygen).")
+
+INCLUDE(CPack)
+

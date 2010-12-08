@@ -1,0 +1,25 @@
+#!/bin/bash
+
+prev=`pwd`
+
+cd @LIBFBI_BINARY_DIR@
+
+lcov --directory @LIBFBI_BINARY_DIR@ --zerocounters
+find @LIBFBI_BINARY_DIR@ -name *.gcda -print0 | xargs -0 rm -f
+
+make test_$1
+
+mkdir -p @LIBFBI_BINARY_DIR@/test/coverage_$1
+rm -rf @LIBFBI_BINARY_DIR@/test/coverage_$1/*
+
+cd @LIBFBI_BINARY_DIR@/tests
+echo "### RUNNING TEST ###"
+./test_$1
+echo "### ...     DONE ###"
+lcov --directory @LIBFBI_BINARY_DIR@/test/CMakeFiles \
+    -c --output-file @LIBFBI_BINARY_DIR@/test/coverage_$1/$1.info
+cd @LIBFBI_BINARY_DIR@/test/coverage_$1
+genhtml $1.info
+
+cd $prev
+

@@ -1,0 +1,19 @@
+#!/bin/bash
+
+lcov --directory @LIBFBI_BINARY_DIR@ --zerocounters
+#find @MSPP_BINARY_DIR@ -name *.gcno -print0 | xargs -0 rm -f
+find @LIBFBI_BINARY_DIR@ -name *.gcda -print0 | xargs -0 rm -f
+
+make -f @LIBFBI_BINARY_DIR@/Makefile
+
+mkdir -p @LIBFBI_BINARY_DIR@/test/coverage_total
+make -f @LIBFBI_BINARY_DIR@/Makefile test
+lcov --directory @LIBFBI_BINARY_DIR@/test/CMakeFiles \
+    -c --output-file @LIBFBI_BINARY_DIR@/test/coverage_total/tree.info
+    #--directory @LIBFBI_BINARY_DIR@/src/CMakeFiles/tree.dir \
+    #--directory @LIBFBI_BINARY_DIR@/src/CMakeFiles \
+    #--directory @LIBFBI_BINARY_DIR@/src/asap/CMakeFiles/asap.dir \
+pushd @LIBFBI_BINARY_DIR@/test/coverage_total/
+genhtml tree.info
+popd
+
