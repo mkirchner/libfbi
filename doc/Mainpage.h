@@ -29,13 +29,18 @@ will only be available starting from Visual Studio 11.
 \section sec_install Installation
 \c libfbi is a header-only library and does not require the installation of any
 compiled libraries. 
-Header file packages for are available for download from 
-the \c libfbi project page at sourceforge: http://libfbi.sf.net.
+
+\subsection sec_install_src Distribution Packages
+\c libfbi distribution packages for are available for download from 
+the \c libfbi project page at http://software.steenlab.org/libfbi.
+To install, simply run the installer and ensure that the \c libfbi include
+directory is in the include search path.
 
 \subsection sec_install_src Building from Source
-Because \c libfbi is a header-only library, there is no need to build a
-library. The following illustrates how to generate the examples, tests and
-installers. Bundling \c libfbi requires a working CMake build system
+Because \c libfbi is a header-only library, there is no need to build the
+library inorder to use it in software projects. 
+The following illustrates how to build the examples, tests and
+distribution packages. Bundling \c libfbi requires a working CMake build system
 (available from http://cmake.org/) and CMake >= 2.6.
 
 With cmake in the system path, the build process is
@@ -51,11 +56,6 @@ And, optionally:
 \verbatim
  make package
 \endverbatim
-
-\section sec_examples Examples
-A simple step-by-step example is available in the \subpage SimpleExample page. 
-A more advanced example is in \subpage AdvancedExample.
-Coding examples are in the \c examples/ subdirectory
 
 */
 
