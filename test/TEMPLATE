@@ -1,0 +1,31 @@
+/*$Id$*/
+
+/*
+ * FILENAME
+ *
+ * Copyright (c) 2010
+ *
+ */
+
+#include <iostream>
+
+#include "unittest.hxx"
+
+struct CLASSNAMETestSuite : vigra::test_suite {
+    CLASSNAMETestSuite() : vigra::test_suite("CLASSNAME") {
+        add(testCase(&CLASSNAMETestSuite::test));
+    }
+
+    void test() {
+        failTest("Unit test not yet implemented for class CLASSNAME");
+    }
+};
+
+int main()
+{
+    CLASSNAMETestSuite test;
+    int success = test.run();
+    std::cout << test.report() << std::endl;
+    return success;
+}
+
