@@ -11,27 +11,7 @@ INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/cmake/macros/require_out_of_src_build.cmake)
 #############################################################################
 set(VERSION_MAJOR 1)
 set(VERSION_MINOR 0)
-
-# get SVN revision
-EXECUTE_PROCESS(
-	COMMAND "svnversion"
-    WORKING_DIRECTORY ${LIBFBI_SOURCE_DIR}
-    RESULT_VARIABLE svnversion_failed
-    OUTPUT_VARIABLE SVNVERSION
-    ERROR_QUIET
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-IF(svnversion_failed)
-    SET(SVNVERSIONSTR "r0")
-ELSE(svnversion_failed)
-    SET(SVNVERSIONSTR "r${SVNVERSION}")
-ENDIF(svnversion_failed)
-
-# construct version string
-STRING(REGEX REPLACE ":" "_" VERSION_PATCH ${SVNVERSIONSTR})
-SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
-
-
+SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}")
 
 #############################################################################
 # build libraries
@@ -43,7 +23,6 @@ SET(Boost_USE_MULTITHREAD OFF)
 FIND_PACKAGE(Boost COMPONENTS program_options system REQUIRED)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
-
 
 # require out-of-source build
 MACRO_REQUIRE_OUT_OF_SRC_BUILD("LIBFBI requires out-of-source builds.")
@@ -57,7 +36,7 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX0X_FLAGS}" )
 TRY_COMPILE (HAS_UNIFORM_INT_DISTRIBUTION
     ${CMAKE_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/testrandom.cxx
-    )
+)
 
 CONFIGURE_FILE(
     ${CMAKE_CURRENT_SOURCE_DIR}/include/fbi/config.h.cmake 
