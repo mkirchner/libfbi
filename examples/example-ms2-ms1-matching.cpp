@@ -25,25 +25,19 @@
  * THE SOFTWARE.
  */
 
-#ifndef __LIBFBI_EXAMPLES_EXAMPLEMS2MS1MATCHING_H__
-#define __LIBFBI_EXAMPLES_EXAMPLEMS2MS1MATCHING_H__
-
-#include <string>
-#include <tuple>
-#include <utility>
-#include "fbi/tuplegenerator.h"
-
-#include <iostream>
+#include <boost/program_options.hpp>
 #include <fstream>
-#include <tuple>
+#include <iostream>
 #include <string>
 #include <sys/time.h>
+#include <tuple>
+#include <utility>
 #include <vector>
-#include <boost/program_options.hpp>
 
 #include "fbi/tuplegenerator.h"
 #include "fbi/fbi.h"
 #include "fbi/connectedcomponents.h"
+
 /*
  * User classes
  */
@@ -82,13 +76,13 @@ struct XicBoxGenerator
 {
   template <size_t N>
   typename std::tuple_element<N, 
-    typename fbi::Traits<Centroid>::key_type>::type 
+    typename fbi::Traits<Xic>::key_type>::type 
   get(const Xic &) const;
 
   double fullScanPpm_;
   double rtWindow_;
 
-  BoxGenerator(double fullscanPpm, double rtWindow_)
+  XicBoxGenerator(double fullScanPpm, double rtWindow)
     : fullScanPpm_(fullScanPpm), rtWindow_(rtWindow)
   {}
 };
@@ -116,13 +110,13 @@ struct PeptideBoxGenerator
 {
   template <size_t N>
   typename std::tuple_element<N, 
-    typename fbi::Traits<Centroid>::key_type>::type 
+    typename fbi::Traits<Peptide>::key_type>::type 
   get(const Peptide &) const;
 
   double preScanPpm_;
   double rtWindow_;
 
-  BoxGenerator(double prescanPpm, double rtWindow_)
+  PeptideBoxGenerator(double preScanPpm, double rtWindow)
     : preScanPpm_(preScanPpm), rtWindow_(rtWindow)
   {}
 };
@@ -144,42 +138,6 @@ PeptideBoxGenerator::get<1>(const Peptide & peptide) const
 }
 
 /*
- * load xics from file
- */
-std::vector<Xic> parseXicFile(ProgramOptions & options)
-{
-  std::vector<Xic> xics;
-  std::ifstream ifs(options.xicFileName_.c_str());
-  ifs.setf(std::ios::fixed, std::ios::floatfield);
-
-  double mz, rt, abundance;
-
-  while (ifs >> rt >> mz >> abundance) {
-    xics.push_back(Xic(rt, mz, abundance));
-  }
-  return xics;
-}
-
-/*
- * load peptides from file
- */
-std::vector<Peptide> parsePeptideFile(ProgramOptions & options)
-{
-  std::vector<Peptide> peptides;
-  std::ifstream ifs(options.peptideFileName_.c_str());
-  ifs.setf(std::ios::fixed, std::ios::floatfield);
-
-  double mz, rt;
-  std::string seq;
-
-  while (ifs >> rt >> mz >> seq) {
-    xics.push_back(Peptide(rt, mz, seq));
-  }
-  return xics;
-}
-
-
-/*
  * store and process user options
  */
 
@@ -190,7 +148,7 @@ struct ProgramOptions
     double rtWindow_;
     std::string xicFileName_;
     std::string peptideFileName_;
-    std::string outputfileName_;
+    std::string outputFileName_;
 };
 
 int parseProgramOptions(int argc, char* argv[], ProgramOptions& options)
@@ -227,7 +185,8 @@ int parseProgramOptions(int argc, char* argv[], ProgramOptions& options)
   visible.add(generic).add(config);
   
   po::positional_options_description p;
-  p.add("inputfile", -1);
+  p.add("xicfile", 1);
+  p.add("peptidefile", 1);
   
   po::variables_map vm;
 
@@ -253,7 +212,7 @@ int parseProgramOptions(int argc, char* argv[], ProgramOptions& options)
   
   if (vm.count("xicfile")) {
     std::cerr << "xicfile: " <<
-        options.inputfileName_ << '\n';
+        options.xicFileName_ << '\n';
   } else {
     std::cerr << "XIC file required." << '\n';
     std::cout << visible << '\n';
@@ -262,7 +221,7 @@ int parseProgramOptions(int argc, char* argv[], ProgramOptions& options)
 
   if (vm.count("peptidefile")) {
     std::cerr << "peptidefile: " <<
-        options.inputfileName_ << '\n';
+        options.peptideFileName_ << '\n';
   } else {
     std::cerr << "Peptide input file required." << '\n';
     std::cout << visible << '\n';
@@ -271,11 +230,11 @@ int parseProgramOptions(int argc, char* argv[], ProgramOptions& options)
 
   if (vm.count("outputfile")) {
     std::cerr << "outputfile: " <<
-        options.outputfileName_ << '\n';
+        options.outputFileName_ << '\n';
   } else {
-    options.outputfileName_ = options.inputfileName_ + std::string(".out");
+    options.outputFileName_ = options.xicFileName_ + std::string(".out");
     std::cerr << "outputfile: " <<
-        options.outputfileName_ << '\n';
+        options.outputFileName_ << '\n';
   }
 
   options.prescanPpm_ = 1e6 / (pres * (2*std::sqrt(2*std::log(2))));
@@ -283,6 +242,42 @@ int parseProgramOptions(int argc, char* argv[], ProgramOptions& options)
 
   return 0;
 }
+
+/*
+ * load xics from file
+ */
+std::vector<Xic> parseXicFile(ProgramOptions& options)
+{
+  std::vector<Xic> xics;
+  std::ifstream ifs(options.xicFileName_.c_str());
+  ifs.setf(std::ios::fixed, std::ios::floatfield);
+
+  double mz, rt, abundance;
+
+  while (ifs >> rt >> mz >> abundance) {
+    xics.push_back(Xic(rt, mz, abundance));
+  }
+  return xics;
+}
+
+/*
+ * load peptides from file
+ */
+std::vector<Peptide> parsePeptideFile(ProgramOptions & options)
+{
+  std::vector<Peptide> peptides;
+  std::ifstream ifs(options.peptideFileName_.c_str());
+  ifs.setf(std::ios::fixed, std::ios::floatfield);
+
+  double mz, rt;
+  std::string seq;
+
+  while (ifs >> rt >> mz >> seq) {
+    peptides.push_back(Peptide(rt, mz, seq));
+  }
+  return peptides;
+}
+
 
 int main(int argc, char* argv[])
 {
@@ -300,13 +295,13 @@ int main(int argc, char* argv[])
     gettimeofday(&start, NULL);
     auto adjList = SetA<Xic, 0, 1>::SetB<Peptide, 0, 1>::intersect(
       xics, XicBoxGenerator(options.fullscanPpm_, options.rtWindow_),
-      peptides, PeptideBoxGenerator(options.prescanPpm_, options.rtWindow_))
+      peptides, PeptideBoxGenerator(options.prescanPpm_, options.rtWindow_));
     gettimeofday(&end, NULL);
     std::cout << "fbi runtime: "
       << static_cast<double>(end.tv_sec - start.tv_sec) +
-         static_cast<double>(end.tv_usec - start.tv_usec)* 1E-6 << '\n'
+         static_cast<double>(end.tv_usec - start.tv_usec)* 1E-6 << '\n';
 
-    std::ofstream ofs(options.outputfileName_.c_str());
+    std::ofstream ofs(options.outputFileName_.c_str());
     ofs.setf(std::ios::fixed, std::ios::floatfield);
     for (size_t i = 0; i < adjList.size(); ++i) {
         Xic& xic = xics[i];
@@ -315,10 +310,12 @@ int main(int argc, char* argv[])
         if (adjList[i].empty()) {
             ofs << '\n';
         } else {
-            for (size_t j = 0; j < adjList.size(); ++j) {
-                ofs << '\t' << peptides[adjList[i][j]].sequence_;
+            typedef std::set<unsigned int>::const_iterator SI;
+            for (SI j = adjList[i].begin(); j != adjList[i].end(); ++j) {
+                ofs << '\t' << peptides[*j].sequence_;
             }
             ofs << 'n';
+       }
     }
     return 0;
 }
