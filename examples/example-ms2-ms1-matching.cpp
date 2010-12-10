@@ -167,11 +167,11 @@ int parseProgramOptions(int argc, char* argv[], ProgramOptions& options)
 
   po::options_description config("Allowed options");
   config.add_options()
-      ("pr", po::value<double>(&pres)->default_value(7500),
+      ("pr", po::value<double>(&pres)->default_value(7500.0),
         "The resolution of the prescan.")
-      ("fr", po::value<double>(&fres)->default_value(60000),
+      ("fr", po::value<double>(&fres)->default_value(60000.0),
         "The resolution of the full MS1 parent scan.")
-      ("fr", po::value<double>(&options.rtWindow_)->default_value(60),
+      ("rt", po::value<double>(&options.rtWindow_)->default_value(60.0),
         "The size of the retention time search window (in s).");
 
   po::options_description cmdline_options("Options available via command line");
@@ -314,7 +314,7 @@ int main(int argc, char* argv[])
             for (SI j = adjList[i].begin(); j != adjList[i].end(); ++j) {
                 ofs << '\t' << peptides[*j].sequence_;
             }
-            ofs << 'n';
+            ofs << '\n';
        }
     }
     return 0;
