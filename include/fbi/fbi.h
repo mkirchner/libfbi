@@ -66,14 +66,14 @@ namespace fbi {
    *
    * \see Traits 
    * \tparam TIndices Two boxes shall intersect if they do in these 
-   *  dimensions, given as a parameter pack of size_t.
+   *  dimensions, given as a parameter pack of std::size_t.
    * \note The user has to specify at least one index to work on, 
    *  empty TIndices won't return any results.
    */
 
 
 
-template <typename BoxType, size_t ... TIndices>
+template <typename BoxType, std::size_t ... TIndices>
 class SetA{
 
 
@@ -167,7 +167,7 @@ class SetA{
    * additional layer of template specialization.
    */
 
-  template <typename QueryType, size_t ... QIndices>
+  template <typename QueryType, std::size_t ... QIndices>
   struct SetB;
 
  private:
@@ -177,10 +177,10 @@ class SetA{
    * \brief Handle the creation of keys by using given functors. 
    * As we have to handle indices which aren't 
    * known at the time of the tree instantiation, we have to add 
-   * another template class to use different size_t parameter packs.
+   * another template class to use different std::size_t parameter packs.
    *
    */
-  template <size_t ...KeyCreatorIndices>
+  template <std::size_t ...KeyCreatorIndices>
   struct KeyCreator;
 
 
@@ -217,7 +217,7 @@ class SetA{
    * \see ref getApproxMedian
    * \see ref OneWayScanner
    */
-  template <bool PointsContainQueries, size_t Dim>
+  template <bool PointsContainQueries, std::size_t Dim>
   struct HybridScanner;
 
 
@@ -250,7 +250,7 @@ class SetA{
    * all following dimensions will be 
    * evaluated via comparisons between two objects.
    */
-  template <bool PointsContainQueries, size_t Dim>
+  template <bool PointsContainQueries, std::size_t Dim>
   struct OneWayScanner;
 
   /** 
@@ -352,6 +352,59 @@ class SetA{
             return SetB<BoxType, TIndices...>::
                 intersect(dataContainer, ifunctor, dataContainer, qfunctors...);
           }
+/**
+   * \brief Create two sets of keys by intersecting two sets of functors on a 
+   * given dataContainer, and check if there are intersections 
+   * between these keys in the dimensions the tree was initialized with.
+   *
+   * In the general case, we would like to have 
+   * two different types of boxes, which, given functors, 
+   * produce the same key_type. As their keys are then equal and also a 
+   * representation of hyperrectangles 
+   * (cartesian products of intervals), it is 
+   * possible to test for intersections between them.
+   * 
+   * \param dataContainer A container with a const_iterator, 
+   * it has to hold the same type as the one the tree was instantiated with.
+   * Both key sets will be extracted by using 
+   * functors on every value in this container.
+   * \param ifunctor This has to be a class with a public 
+   * \verbatim get<Dim>(const BoxType & ) const; \endverbatim method.
+   * The tree will create the keys by extracting the indexed dimensions from the
+   *  BoxType.
+   * \param qfunctors Like ifunctor, 
+   * these functors will each create a different key.
+   * 
+   * \return We'll return a std::vector<std::set<IntType> >, 
+   * as parallel edges are possible but not desired for the end result.
+   * An edge (pair of two boxes) consists of 2 IntType values, 
+   * the head is implied by the index in the std::vector, as 
+   * every vertex is holding a set of tail indices.
+   *
+   * \see \ref SetB::intersect
+   * \callgraph
+   */
+  template <
+  class BoxContainer,
+        typename = 
+          typename std::enable_if<
+            std::is_same<typename BoxContainer::value_type, value_type>::value>
+          ::type,
+        typename IntervalFunctor,
+        typename ... QueryFunctors
+          >
+          static
+          ResultType thetaIntersect(
+            const std::size_t cutoff,
+            const BoxContainer & dataContainer,
+            const IntervalFunctor & ifunctor,
+            const QueryFunctors & ... qfunctors
+            )
+          {
+            return SetB<BoxType, TIndices...>::
+                thetaIntersect(cutoff, dataContainer, ifunctor, dataContainer, qfunctors...);
+          }
+
 
 
 
@@ -384,8 +437,8 @@ class SetA{
       ValType;
     
     if (height == 0) {
-      size_t random = state.randInt(0, container.size()-1);
-      size_t rand1 = state.randInt(0,1);
+      std::size_t random = state.randInt(0, container.size()-1);
+      std::size_t rand1 = state.randInt(0,1);
       if (rand1 == 0)
       {
         return getHead<Dim>(container[random]);
@@ -420,7 +473,7 @@ class SetA{
   createPtrVector (const std::vector<key_type> & container) {
     std::vector<const key_type *> ptrVector(container.size());
     typename std::vector<key_type>::const_iterator it = container.begin();
-    size_t i = 0;
+    std::size_t i = 0;
     while (it != container.end()){
       ptrVector[i] = &(*it);
       ++it;
@@ -541,7 +594,7 @@ class SetA{
    *
    * \see \ref getApproxMedian() 
    */
-  static const size_t inline heuristicHeight(std::size_t numElements)
+  static const std::size_t inline heuristicHeight(std::size_t numElements)
   {
     return (size_t)(log((double)numElements));
   }
@@ -552,8 +605,8 @@ class SetA{
 
 
 
-template <typename BoxType, size_t ... TIndices>
-template <typename QBoxType, size_t ... QIndices>
+template <typename BoxType, std::size_t ... TIndices>
+template <typename QBoxType, std::size_t ... QIndices>
 struct SetA<BoxType, TIndices...>::
 SetB {
  private:
@@ -637,11 +690,18 @@ SetB {
     //const std::size_t numQueryFunctors = sizeof...(QueryFunctors); 
     const std::size_t numQueryFunctors = 
         mpl::FunctorChecker::count(qfunctors...); 
+    //if we're looking at two different sets, use different indices for the elements!
+    const std::size_t offset = 
+        (reinterpret_cast<const char* const>(&(dataContainer)) == 
+        reinterpret_cast<const char* const>(&(qdataContainer))) ? 0 : dataContainer.size();
     State state(
         limits,
         numQueryFunctors,
         &(queryIntervalVector[0]),
-        &(dataIntervalVector[0]));
+        &(dataIntervalVector[0]),
+        offset
+        );
+
     // Create a vector of pointers that reference the above query boxes. This
     // allows us to work on pointers and save a bit of memory.
     std::vector<const key_type *> pointsPtrVector = 
@@ -649,7 +709,7 @@ SetB {
     std::vector<const key_type *> intervalsPtrVector = 
       createPtrVector(dataIntervalVector);
 
-    ResultType resultVector(dataContainer.size());
+    ResultType resultVector(offset + qdataContainer.size());
 
     auto dimLimits = std::get<0>(state.getLimits()); 
 
@@ -673,82 +733,113 @@ SetB {
       );
     return resultVector;
   }
- public:
-    /** This is a convenience function for library programmers who want to try 
-      * different parameters for offset/h_n values.
-      */
+   /**
+   * \callgraph
+   * \brief The public interface for the user to start the algorithm. 
+   *
+   * This function initializes the keys (consisting of intervals in 
+   * several dimensions) of the intervalSet and the querySet, along with 
+   * pointers to pass them to separation algorithms.
+   * The IndexCalculator has to be used to 
+   * recalculate the original indices from the pointers.
+   *
+   * \param[in] cutoff The theta cutoff value for switching into OneWayScan
+   * \param[in] dataContainer STL Container providing a 
+   *  forward iterator and holding a value_type.
+   * \param[in] ifunctor A functor to operate on value_type and create a 
+   *  key_type by getting a pair in every indexed dimension.
+   * \param[in] qdataContainer STL Container providing a 
+   *  forward iterator and holding a qvalue_type.
+   * \param[in] qfunctors a variadic list of functors to create several 
+   *  key_type objects which will be associated with the original data.
+   * \return An adjacency list implemented by a random-accessable 
+   *  outer container representing the vertices, 
+   *  each holding a container of non-parallel edges.
+   */
   template <
   class BoxContainer,
-        typename = 
-          typename std::enable_if<std::is_same<typename BoxContainer::value_type, value_type>::value>::type,
+        typename = typename std::enable_if<std::is_same<typename BoxContainer::value_type, value_type>::value>::type,
         class QContainer,
-        typename = 
-          typename std::enable_if<std::is_same<typename QContainer::value_type, qvalue_type>::value>::type,
+        typename = typename std::enable_if<std::is_same<typename QContainer::value_type, qvalue_type>::value>::type,
         typename IntervalFunctor, 
         typename ... QueryFunctors
-            >
-            static
-            ResultType parameterizedIntersect(
-                const std::size_t cutoff,
-                const BoxContainer & dataContainer, 
-                const IntervalFunctor & ifunctor, 
-                const QContainer & qdataContainer,
-                const QueryFunctors& ... qfunctors
-                ) {
-              static_assert( (sizeof...(QueryFunctors) > 0), 
-                "Number of queryFunctors has to be positive");
-              if (dataContainer.empty()) { return ResultType();}
-              const std::size_t numModifications = 
-                mpl::FunctorChecker::count(qfunctors...); 
-              const auto queryIntervalVector = KeyCreator<QIndices...>::
-                getVector(qdataContainer, qfunctors...);
-              const auto dataIntervalVector = KeyCreator<TIndices...>::
-                getVector(dataContainer, ifunctor);
+  > static
+  ResultType thetaIntersect(
+      const size_t cutoff,
+      const BoxContainer & dataContainer, 
+      const IntervalFunctor & ifunctor, 
+      const QContainer & qdataContainer,
+      const QueryFunctors& ... qfunctors
+      ) {
+    static_assert( (sizeof...(QueryFunctors) > 0), 
+      "Need at least one query functor.");
+    if (dataContainer.empty()) { return ResultType();}
+    // Generate the set of query boxes. The BoxType is an arbitrary,
+    // user-specified type, that does not necessarily have any notion of
+    // dimensionality. This call converts the BoxType data into the 
+    // K-dimenstional boxes for fast box intersection.
+    const auto queryIntervalVector = KeyCreator<QIndices...>::
+      getVector(qdataContainer, qfunctors...);
+    // Generate the set of data boxes. See above, just for the QueryBoxType.
+    const auto dataIntervalVector = KeyCreator<TIndices...>::
+      getVector(dataContainer, ifunctor);
 
-              key_type limits = 
-                make_tuple(std::get<TIndices>(Traits<value_type>::getLimits())
-                           ...);
+    key_type limits = 
+      make_tuple(
+        std::get<TIndices>(Traits<value_type>::getLimits())
+      ... );
 
-              State state(
-                  limits,
-                  numModifications,
-                  &(queryIntervalVector[0]),
-                  &(dataIntervalVector[0]),
-                  cutoff
-                  );
+    //const std::size_t numQueryFunctors = sizeof...(QueryFunctors); 
+    const std::size_t numQueryFunctors = 
+        mpl::FunctorChecker::count(qfunctors...); 
+    //if we're looking at two different sets, use different indices for the elements!
+    const std::size_t offset = 
+        (reinterpret_cast<const char* const>(&(dataContainer)) == 
+        reinterpret_cast<const char* const>(&(qdataContainer))) ? 0 : dataContainer.size();
+    State state(
+        limits,
+        numQueryFunctors,
+        &(queryIntervalVector[0]),
+        &(dataIntervalVector[0]),
+        offset,
+        cutoff
+        );
 
-              std::vector<const key_type *> pointsPtrVector = 
-                createPtrVector(queryIntervalVector);
-              std::vector<const key_type *> intervalsPtrVector = 
-                createPtrVector(dataIntervalVector);
+    // Create a vector of pointers that reference the above query boxes. This
+    // allows us to work on pointers and save a bit of memory.
+    std::vector<const key_type *> pointsPtrVector = 
+      createPtrVector(queryIntervalVector);
+    std::vector<const key_type *> intervalsPtrVector = 
+      createPtrVector(dataIntervalVector);
 
-              ResultType resultVector(dataContainer.size());
+    ResultType resultVector(offset + qdataContainer.size());
 
-              auto dimLimits = std::get<0>(state.getLimits()); 
+    auto dimLimits = std::get<0>(state.getLimits()); 
 
-              HybridScanner<true, 0>::
-                scan(pointsPtrVector, 
-                     intervalsPtrVector, 
-                     dimLimits.first, 
-                     dimLimits.second,
-                     state, 
-                     resultVector);
-              HybridScanner<false,0>::
-                scan(intervalsPtrVector, 
-                     pointsPtrVector, 
-                     dimLimits.first, 
-                     dimLimits.second,
-                     state, 
-                     resultVector);
-
-              return resultVector;
-
-            }
-
+    // Call the hybrid algorithm for stabbing queries in the interval vector.
+    HybridScanner<true, 0>::
+      scan(
+        pointsPtrVector, 
+        intervalsPtrVector, 
+        dimLimits.first, 
+        dimLimits.second,state, 
+        resultVector 
+      );
+    // Reverse the previous call: queries in the "point" vector.
+    HybridScanner<false,0>::
+      scan(
+        intervalsPtrVector, 
+        pointsPtrVector, 
+        dimLimits.first, 
+        dimLimits.second,state, 
+        resultVector
+      );
+    return resultVector;
+  }
 }; //end class SetB
 
-template <typename BoxType, size_t ... TIndices>
-template <size_t ... KeyCreatorIndices>
+template <typename BoxType, std::size_t ... TIndices>
+template <std::size_t ... KeyCreatorIndices>
 struct SetA<BoxType, TIndices...>::
 KeyCreator{
 
@@ -758,7 +849,7 @@ KeyCreator{
    * \callgraph
    * 
    * \param functors Functors which provide a 
-   * std::pair<...> get<size_t>(value_type) member function.
+   * std::pair<...> get<std::size_t>(value_type) member function.
    * We create multi-dimensional intervals by using the functor on all 
    * indexed dimensions.
    * \param container A STL container with value_type objects, 
@@ -792,7 +883,7 @@ KeyCreator{
    *  hold the different keys.
    * \param dataValue That's the box representing the class we're working on.
    * \param functor Functor which provides a 
-   *  std::pair<...> get<size_t>(value_type) member function
+   *  std::pair<...> get<std::size_t>(value_type) member function
    *  \see \ref createKeyType()
    */
 
@@ -813,7 +904,7 @@ KeyCreator{
    *  hold the different keys.
    * \param dataValue That's the box representing the class we're working on.
    * \param functor Functor which provides a 
-   *  std::pair<...> get<size_t>(value_type) member function
+   *  std::pair<...> get<std::size_t>(value_type) member function
    * \param functors Other functors which will be used recursively.
    * \see \ref createKeyType()
    */
@@ -837,7 +928,7 @@ KeyCreator{
    *  hold the different keys.
    * \param dataValue That's the box representing the class we're working on.
    * \param functor Functor which provides a 
-   *  std::pair<...> get<size_t>(value_type) member function
+   *  std::pair<...> get<std::size_t>(value_type) member function
    *  \see \ref createKeyType()
    */
 
@@ -861,7 +952,7 @@ KeyCreator{
    *  hold the different keys.
    * \param dataValue That's the box representing the class we're working on.
    * \param functor Functor which provides a 
-   *  std::pair<...> get<size_t>(value_type) member function
+   *  std::pair<...> get<std::size_t>(value_type) member function
    * \param functors Other functors which will be used recursively.
    * \see \ref createKeyType()
    */
@@ -898,14 +989,14 @@ KeyCreator{
 
 
 
-template <typename BoxType, size_t ... TIndices>
+template <typename BoxType, std::size_t ... TIndices>
 class SetA<BoxType, TIndices...>::
 State
 {
  private: 
-  static size_t defaultHeightCalculator_(const std::size_t n) {
+  static std::size_t defaultHeightCalculator_(const std::size_t n) {
     return 
-      static_cast<size_t> (
+      static_cast<std::size_t> (
         std::max( 0., -3.0 + 1.8 * log10( static_cast<double>( n ) ) )
       ); 
   }
@@ -933,6 +1024,7 @@ State
   std::mt19937 rSeedEngine_;
   typedef std::uniform_int_distribution<std::size_t> Distribution;
 
+  const std::size_t offset_;
   const std::size_t cutoffSize_;
   /** Function pointer to a height calculator*/
   std::size_t (* const heightCalculator_)(const std::size_t);
@@ -966,6 +1058,7 @@ State
       const std::size_t numMod, 
       const key_type * queryVectorPtr,
       const key_type * dataVectorPtr,
+      const std::size_t offset,
       const std::size_t cutoffSize = 250,
       std::size_t (*heightCalculator) (const std::size_t) = 
         &(SETA::State::defaultHeightCalculator_)
@@ -974,6 +1067,7 @@ State
       numModifications_(numMod), 
       queryVectorPtrToFirstElement_(queryVectorPtr), 
       dataVectorPtrToFirstElement_(dataVectorPtr),
+      offset_(offset),
       cutoffSize_(cutoffSize),
       heightCalculator_(heightCalculator)    
   {}
@@ -984,13 +1078,13 @@ State
     if (isQueryVectorPtr)
     {
       return 
-        (objectPtr - this->queryVectorPtrToFirstElement_) / 
+        offset_ + (objectPtr - this->queryVectorPtrToFirstElement_) / 
           this->numModifications_;
     }
     return (objectPtr - this->dataVectorPtrToFirstElement_);
   }
 
-  inline size_t randInt(std::size_t lowerBound, std::size_t upperBound)
+  inline std::size_t randInt(std::size_t lowerBound, std::size_t upperBound)
   {
     return Distribution(lowerBound, upperBound)(rSeedEngine_);
   }
@@ -1000,7 +1094,6 @@ State
 
   std::size_t heuristicHeight(const std::size_t n) const
   {
-    //std::cout << "BEEEP" << std::endl;
     return (*(this->heightCalculator_))(n);
   }
   std::size_t getCutoff() const{ return this->cutoffSize_; }
@@ -1009,8 +1102,8 @@ State
 
 
 
-template <typename BoxType, size_t ...TIndices>
-template <bool PointsContainQueries, size_t Dim>
+template <typename BoxType, std::size_t ...TIndices>
+template <bool PointsContainQueries, std::size_t Dim>
 struct SetA<BoxType, TIndices...>::
 HybridScanner{
 
@@ -1082,7 +1175,7 @@ HybridScanner{
     // Set sizes are still above the threshold. We follow a divide and conquer
     // scheme: determine the median in the current dimension and use the
     // value to split the intervals and points for the next (recursive) call.
-    size_t heuristicHeight = state.heuristicHeight(intervalsPtrVector.size());
+    std::size_t heuristicHeight = state.heuristicHeight(intervalsPtrVector.size());
     // FIXME: explain why you draw from the interval vector. This is the major
     // contribution of the implementation!!!
     typename Key::first_type median = 
@@ -1177,7 +1270,7 @@ HybridScanner{
  *
  * 
  */
-template <typename BoxType, size_t ...TIndices>
+template <typename BoxType, std::size_t ...TIndices>
 template <bool PointsContainQueries>
 struct SetA<BoxType, TIndices...>::
 HybridScanner<PointsContainQueries, SetA<BoxType, TIndices...>::LASTDIM> {
@@ -1207,8 +1300,8 @@ HybridScanner<PointsContainQueries, SetA<BoxType, TIndices...>::LASTDIM> {
 
 
 
-template <typename BoxType, size_t ...TIndices>
-template <bool PointsContainQueries, size_t Dim>
+template <typename BoxType, std::size_t ...TIndices>
+template <bool PointsContainQueries, std::size_t Dim>
 struct SetA<BoxType, TIndices...>::
 OneWayScanner{
   /**
@@ -1286,8 +1379,9 @@ OneWayScanner{
       for(; intersectionSetIt != intersectionSetEnd; ++intersectionSetIt) {
         if (IntersectionTester<Dim+1, LASTDIM+1>::
               test(pntPtr, *intersectionSetIt) ) {
-          size_t edgeHead = state.calculate(PointsContainQueries, pntPtr);
-          size_t edgeTail = state.calculate(!PointsContainQueries, *intersectionSetIt);
+            
+          std::size_t edgeHead = state.calculate(PointsContainQueries, pntPtr);
+          std::size_t edgeTail = state.calculate(!PointsContainQueries, *intersectionSetIt);
           resultVector[edgeHead].insert(resultVector[edgeHead].end(),static_cast<IntType>(edgeTail));
           resultVector[edgeTail].insert(resultVector[edgeTail].end(),static_cast<IntType>(edgeHead));
         }
@@ -1319,8 +1413,8 @@ OneWayScanner{
  */
 
 
-template <typename BoxType, size_t ...TIndices>
-template <size_t Dim, size_t Limit>
+template <typename BoxType, std::size_t ...TIndices>
+template <std::size_t Dim, std::size_t Limit>
 struct SetA<BoxType, TIndices...>::
 IntersectionTester {
   static bool test(const key_type * x, const key_type * y)
@@ -1346,8 +1440,8 @@ IntersectionTester {
   }
 };
 
-template <typename BoxType, size_t ...TIndices>
-template <size_t Limit>
+template <typename BoxType, std::size_t ...TIndices>
+template <std::size_t Limit>
 struct SetA<BoxType, TIndices...>::
 IntersectionTester<Limit, Limit> {
   typedef SetA<BoxType, TIndices...>::key_type key_type;
@@ -1356,7 +1450,7 @@ IntersectionTester<Limit, Limit> {
 
 
 
-template <typename BoxType, size_t ... TIndices>
+template <typename BoxType, std::size_t ... TIndices>
 template <std::size_t Dim>
 struct SetA<BoxType, TIndices...>::
 lessHead{
@@ -1378,7 +1472,7 @@ lessHead{
 };
 
 
-template <typename BoxType, size_t ... TIndices>
+template <typename BoxType, std::size_t ... TIndices>
 template <std::size_t Dim>
 struct SetA<BoxType, TIndices...>::
 lessTail{
@@ -1406,8 +1500,8 @@ lessTail{
  * \tparam I Dimension the print should start with.
  * \tparam Number of dimensions the key_type possesses.
  */
-template <typename BoxType, size_t ... TIndices>
-template <std::size_t I, size_t N>
+template <typename BoxType, std::size_t ... TIndices>
+template <std::size_t I, std::size_t N>
 struct SetA<BoxType, TIndices...>::
 KeyPrinter
 {
@@ -1426,8 +1520,8 @@ KeyPrinter
  * Sometimes we would like to see if the key we're looking at has the
  * correct values, template specialization to terminate the recursion.
  */
-template <typename BoxType, size_t ... TIndices>
-template <size_t N>
+template <typename BoxType, std::size_t ... TIndices>
+template <std::size_t N>
 struct SetA<BoxType, TIndices...>::
 KeyPrinter<N,N>
 {
