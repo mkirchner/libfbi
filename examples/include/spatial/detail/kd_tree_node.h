@@ -18,7 +18,7 @@
 #ifndef __SSRC_SPATIAL_DETAIL_KDTREE_NODE_H
 #define __SSRC_SPATIAL_DETAIL_KDTREE_NODE_H
 
-#include <ssrc/libssrckdtree-packages.h>
+#include <libssrckdtree-packages.h>
 
 __BEGIN_NS_SSRC_SPATIAL
 
