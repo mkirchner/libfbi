@@ -22,7 +22,7 @@
 #include <stack>
 #include <array>
 
-#include <ssrc/libssrckdtree-packages.h>
+#include <libssrckdtree-packages.h>
 
 __BEGIN_NS_SSRC_SPATIAL
 

@@ -80,6 +80,5 @@ namespace kd {
 }
 #endif
 
- 
 /* _LIBSSRCKDTREE_CONFIG_H */
 #endif

@@ -23,9 +23,9 @@
 #ifndef __SSRC_SPATIAL_KDTREE_H
 #define __SSRC_SPATIAL_KDTREE_H
 
-#include <ssrc/spatial/detail/kd_tree_range_search_iterator.h>
-#include <ssrc/spatial/detail/kd_tree_node.h>
-#include <ssrc/spatial/rectangle_region.h>
+#include <detail/kd_tree_range_search_iterator.h>
+#include <detail/kd_tree_node.h>
+#include <rectangle_region.h>
 
 #include <algorithm>
 #include <utility>
@@ -124,7 +124,7 @@ public:
 
   typedef Size size_type;
 
-  static const unsigned int dimensions = std::tr1::tuple_size<key_type>::value;
+  static const unsigned int dimensions = std::tuple_size<key_type>::value;
 
   typedef detail::kd_tree_node<traits> node_type;
 

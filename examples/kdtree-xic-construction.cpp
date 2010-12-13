@@ -24,14 +24,15 @@
  * THE SOFTWARE.
  */
 
+#include <array>
 #include <iostream>
 #include <fstream>
 #include <tuple>
 #include <sys/time.h>
 #include <vector>
 
-#include "fbi/tuplegenerator.h"
-#include "fbi/fbi.h"
+#include "spatial/kd_tree.h"
+
 #include "fbi/connectedcomponents.h"
 
 #include "example-xic-construction.h"
@@ -54,10 +55,10 @@ int main(int argc, char* argv[])
 
   gettimeofday(&start, NULL);
   // construct kd-tree
-  typedef std::array<double, double> KeyType;
+  typedef std::array<double, 2> KeyType;
   typedef double MappedType;
-  typedef kd_tree<KeyType, MappedType> KdTree;
-  KdTree kdtree(centroids.size());
+  typedef ssrc::spatial::kd_tree<KeyType, MappedType> KdTree;
+  KdTree kdtree;
   typedef std::vector<Centroid>::iterator CI;
   for (CI i = centroids.begin(); i != centroids.end(); ++i) {
     KeyType key;
@@ -68,6 +69,7 @@ int main(int argc, char* argv[])
   }
   kdtree.optimize();
   typedef KdTree::const_iterator KCI;
+  std::vector<std::set<size_t> > adjList(centroids.size());
   for (KCI i = kdtree.begin(); i != kdtree.end(); ++i) {
     // construct the range query
     KeyType llh = {{ i->first[0] * (1 - mzWindowPpm * 1E-6),
@@ -80,16 +82,16 @@ int main(int argc, char* argv[])
     for (KCI j = b; j != kdtree.end(); ++j) {
         size_t k = std::distance(b, i);
         size_t l = std::distance(b, j);
-        adjList[k].push_back(l);
-        adjList[l].push_back(k);
+        adjList[k].insert(l);
+        adjList[l].insert(k);
     }
   }
-  kdtree.clear()
+  kdtree.clear();
   gettimeofday(&end, NULL);
   std::cout << centroids.size() << "\t" << static_cast<double>(end.tv_sec - start.tv_sec) +
     static_cast<double>(end.tv_usec - start.tv_usec)* 1E-6 << std::endl;
 
-  std::vector<int> labels;
+  std::vector<long unsigned int> labels;
   findConnectedComponents(adjList, labels); 
 
   std::ofstream ofs(options.outputfileName_.c_str());

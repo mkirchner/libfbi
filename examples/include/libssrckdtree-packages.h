@@ -29,7 +29,7 @@
 #ifndef __SSRC_KD_PACKAGES_H
 #define __SSRC_KD_PACKAGES_H
 
-#include <ssrc/libssrckdtree-config.h>
+#include <libssrckdtree-config.h>
 
 // Begin namespace definitions.
 
