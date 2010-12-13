@@ -1,6 +1,9 @@
+INCLUDE(include)
+
 INCLUDE_DIRECTORIES(
     ${LIBFBI_SOURCE_DIR}/include
     ${LIBFBI_BINARY_DIR}/include
+    ${LIBFBI_BINARY_DIR}/examples/include/ssrc/spatial
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${BOOST_INCLUDE_DIRS}
 )
