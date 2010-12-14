@@ -29,6 +29,7 @@
 
 #include <utility>
 #include <tuple>
+#include "fbi/fbi.h"
 #include "fbi/tuplegenerator.h"
 
 struct ProgramOptions 
