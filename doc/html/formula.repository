@@ -1,0 +1,3 @@
+\form#0:$ O(Limit - Dim) $
+\form#1:$ O(n * m) $
+\form#2:$ O(m * log(m/n) + m + n ) $
