@@ -2,9 +2,9 @@ PROJECT(LIBFBI)
 
 # require at least cmake 2.6
 cmake_minimum_required(VERSION 2.6)
-
 # include macro definitions
 INCLUDE(${CMAKE_CURRENT_SOURCE_DIR}/cmake/macros/require_out_of_src_build.cmake)
+SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 
 #############################################################################
 # versioning
@@ -98,10 +98,6 @@ IF (ENABLE_BENCHMARK)
     )
     CONFIGURE_FILE(${LIBFBI_SOURCE_DIR}/test/scripts/benchmark.sh.cmake
         ${LIBFBI_BINARY_DIR}/test/scripts/benchmark.sh
-        @ONLY IMMEDIATE
-    )
-    CONFIGURE_FILE(${LIBFBI_SOURCE_DIR}/test/scripts/setupbenchmark.sh.cmake
-        ${LIBFBI_BINARY_DIR}/test/scripts/setupbenchmark.sh
         @ONLY IMMEDIATE
     )
     CONFIGURE_FILE(${LIBFBI_SOURCE_DIR}/test/scripts/plotting.r.cmake

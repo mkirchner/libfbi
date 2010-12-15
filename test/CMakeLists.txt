@@ -64,6 +64,14 @@ IF(numtests GREATER 0)
     ENDFOREACH(i RANGE 0 ${numtests}-1)
 ENDIF(numtests GREATER 0)
 
-
+#### Benchmark targets
+ADD_CUSTOM_TARGET(benchmark-fbi
+    ${LIBFBI_BINARY_DIR}/test/scripts/benchmark.sh fbi
+    DEPENDS example-xic-construction
+)
+ADD_CUSTOM_TARGET(benchmark-kdtree
+    ${LIBFBI_BINARY_DIR}/test/scripts/benchmark.sh kdtree
+    DEPENDS kdtree-xic-construction
+)
 
 

@@ -92,22 +92,14 @@ int parseProgramOptions(int argc, char* argv[], ProgramOptions& options)
     return 0;
   }
   
-  if (vm.count("inputfile")) {
-    std::cerr << "inputfile: " <<
-        options.inputfileName_ << '\n';
-  } else {
+  if (!vm.count("inputfile")) {
     std::cerr << "InputFile needed" << '\n';
     std::cout << visible << '\n';
     return 0;
   }
 
-  if (vm.count("outputfile")) {
-    std::cerr << "outputfile: " <<
-        options.outputfileName_ << '\n';
-  } else {
+  if (!vm.count("outputfile")) {
     options.outputfileName_ = options.inputfileName_ + std::string(".out");
-    std::cerr << "outputfile: " <<
-        options.outputfileName_ << '\n';
   }
   return 1;
 }
