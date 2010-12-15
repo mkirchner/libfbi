@@ -303,7 +303,7 @@ int main(int argc, char* argv[])
 
     std::ofstream ofs(options.outputFileName_.c_str());
     ofs.setf(std::ios::fixed, std::ios::floatfield);
-    for (size_t i = 0; i < adjList.size(); ++i) {
+    for (size_t i = 0; i < xics.size(); ++i) {
         Xic& xic = xics[i];
         ofs << xic.rt_ << '\t' << xic.mz_ << '\t' << '\t' 
           << xic.abundance_;
@@ -312,7 +312,7 @@ int main(int argc, char* argv[])
         } else {
             typedef std::set<unsigned int>::const_iterator SI;
             for (SI j = adjList[i].begin(); j != adjList[i].end(); ++j) {
-                ofs << '\t' << peptides[*j].sequence_;
+                ofs << '\t' << peptides[(*j)-xics.size()].sequence_;
             }
             ofs << '\n';
        }
