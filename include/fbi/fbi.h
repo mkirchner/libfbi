@@ -1044,7 +1044,7 @@ State
   static std::size_t defaultHeightCalculator_(const std::size_t n) {
     return 
       static_cast<std::size_t> (
-        std::max( 0., -3.0 + 6 * log2( static_cast<double>( n ) ) )
+        std::max( 0., -3.0 + 1.8 * log10( static_cast<double>( n ) ) )
       ); 
   }
     
