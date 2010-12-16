@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
   std::cout << centroids.size() << "\t" << static_cast<double>(end.tv_sec - start.tv_sec) +
     static_cast<double>(end.tv_usec - start.tv_usec)* 1E-6 << std::endl;
 
-  std::vector<long unsigned int> labels;
+  std::vector<size_t> labels;
   findConnectedComponents(adjList, labels); 
 
   std::ofstream ofs(options.outputfileName_.c_str());
