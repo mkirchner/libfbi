@@ -83,7 +83,7 @@ class SetA{
     *   we don't want a tree object.
     */
   SetA(); 
-
+    /** Small self-referencing typedef */
   typedef SetA<BoxType, TIndices...> SETA;
 
   /** A compile-time constant to mark recursion tails.*/
@@ -92,10 +92,10 @@ class SetA{
   /** Short typedef to offer the STL value_type identifier for this tree.*/
   typedef BoxType value_type;
 
+  enum {
   /** TINDICES is 1 when all TIndices can be used to access a dimension the 
     * key_type, otherwise it's 0
     */ 
-  enum {
     TINDICESCORRECT =
     mpl::IndexChecker<std::tuple_size<typename Traits<BoxType>::key_type>::
       value, TIndices...>::value 
@@ -364,15 +364,17 @@ class SetA{
    * (cartesian products of intervals), it is 
    * possible to test for intersections between them.
    * 
-   * \param dataContainer A container with a const_iterator, 
+   * \param[in] cutoff If one of the containers has less elements than cutoff,
+   * switch to brute-force algorithm.
+   * \param[in] dataContainer A container with a const_iterator, 
    * it has to hold the same type as the one the tree was instantiated with.
    * Both key sets will be extracted by using 
    * functors on every value in this container.
-   * \param ifunctor This has to be a class with a public 
+   * \param[in] ifunctor This has to be a class with a public 
    * \verbatim get<Dim>(const BoxType & ) const; \endverbatim method.
    * The tree will create the keys by extracting the indexed dimensions from the
    *  BoxType.
-   * \param qfunctors Like ifunctor, 
+   * \param[in] qfunctors Like ifunctor, 
    * these functors will each create a different key.
    * 
    * \return We'll return a std::vector<std::set<IntType> >, 
@@ -460,11 +462,11 @@ class SetA{
    *
    * \param container A STL container holding key_type objects, 
    * has to have a const_iterator.
-   * As our \ref ScanFunctions have to pass and copy containers of intervals, 
+   * As our scanfunctions have to pass and copy containers of intervals, 
    * using a pointer based approach was deemed 
    * faster and safer as we won't modify the actual data.
    *
-   * \see \ref createIntervalVector()
+   * \see \ref KeyCreator::getVector()
    * \note Don't move/insert into the intervalContainer afterwards, as it will 
    * invalidate all pointers.
    */
@@ -489,35 +491,46 @@ class SetA{
    * \tparam Dim dimension to work on.
    */
 
-  /** Comfort function to get the interval in the correct dimension */
+  /** Comfort function to get the interval in the correct dimension 
+    \param[in] key The box object
+  */
   template <std::size_t Dim>
   static inline typename std::tuple_element<Dim,key_type>::type 
   getKey(const key_type & key) {
     return std::get<Dim>(key);
   }
 
-  /** Comfort function to get the interval in the correct dimension */
+  /** Comfort function to get the interval in the correct dimension 
+    \param[in] key The box object
+  */
   template <std::size_t Dim>
   static inline typename std::tuple_element<Dim,key_type>::type 
   getKey(const key_type * key) {
     return std::get<Dim>(*key);
   }
 
-  /** Comfort function to get the lower endpoint in the correct dimension */
+  /** Comfort function to get the lower endpoint in the correct dimension 
+    \param[in] key The box object
+  */
+
   template <std::size_t Dim>
   static inline typename std::tuple_element<Dim,key_type>::type::first_type 
   getHead(const key_type & key) {
     return getKey<Dim>(key).first;
   }
 
-  /** Comfort function to get the lower endpoint in the correct dimension */
+  /** Comfort function to get the lower endpoint in the correct dimension 
+    \param[in] key The box object
+  */
   template <std::size_t Dim>
   static inline typename std::tuple_element<Dim,key_type>::type::first_type
   getHead(const key_type * key) {
     return getKey<Dim>(key).first;
   }
 
-  /** Comfort function to get the upper endpoint in the correct dimension */
+  /** Comfort function to get the upper endpoint in the correct dimension 
+    \param[in] key The box object
+  */
   template <std::size_t Dim>
   static inline typename std::tuple_element<Dim,key_type>::type::first_type
   getTail(const key_type & key) {
@@ -526,7 +539,9 @@ class SetA{
 
 
 
-  /** Comfort function to get the upper endpoint in the correct dimension */
+  /** Comfort function to get the upper endpoint in the correct dimension 
+    \param[in] key The box object
+  */
   template <std::size_t Dim>
   static inline typename std::tuple_element<Dim,key_type>::type::first_type
   getTail(const key_type * key){
@@ -544,7 +559,8 @@ class SetA{
 
   /** Sort a container of pointers to key_type objects, compare their 
     * lower endpoints in the specified dimension 
-    */ 
+    \param[in] container The container to sort.
+  */ 
   template <std::size_t Dim>
   static inline void
   sortContainerHead(std::vector<const key_type * > & container){
@@ -553,6 +569,8 @@ class SetA{
 
   /** Sort a container of pointers to key_type objects, compare their 
     * upper endpoints in the specified dimension 
+    * \param[in] container The container to sort
+    * 
     */ 
   template <std::size_t Dim>
   static inline void
@@ -565,6 +583,10 @@ class SetA{
    *
    * \tparam T type of compared values
    * \tparam Comp comparison functor
+   * \param[in] t1 first object to compare
+   * \param[in] t2 second object to compare
+   * \param[in] t3 third object to compare
+   * \param[in] less comparison object
    *  \see \ref getApproxMedian() 
    *
    */
@@ -592,6 +614,8 @@ class SetA{
    * Calculate the depth of the approximate median tree, as some 
    * constants here have to be found by experiment.
    *
+   * \param[in] numElements the height of the tertiary tree shall be dependent
+   * on the number of elements
    * \see \ref getApproxMedian() 
    */
   static const std::size_t inline heuristicHeight(std::size_t numElements)
@@ -610,23 +634,40 @@ template <typename QBoxType, std::size_t ... QIndices>
 struct SetA<BoxType, TIndices...>::
 SetB {
  private:
+/** Ensure that the number of querydimensions for both sets are equal*/
   static_assert(sizeof...(QIndices) == sizeof...(TIndices), 
     "Your number of query-dimensions doesn't match your initial indices");
-
+  /** A comfort typedef to refer to the type of the input boxes*/
   typedef QBoxType qvalue_type;
+  /**
+   *  The key is represented by a pair of values for each dimension that 
+   *  should be considered for intersection tests, 
+   * these pairs are wrapped in a std::tuple for easy access via std::get.
+   * \see \ref fbi::Traits
+   * \note This key_type is a subset of the original key_type, 
+   * depending on the indices we're using.
+   */
   typedef typename std::tuple <
       typename std::tuple_element<
       QIndices, typename Traits<qvalue_type>::key_type
       >::type ...
       > qkey_type;
+  /**Ensure that the key_types are equal */
   static_assert(std::is_same<key_type, qkey_type>::value, 
     "Keytypes don't match");
 
+ /**
+   * As every dimension can have a different type, 
+   * the appropriate comparison-operator
+   * has to be known during compile-time. 
+   * \see \ref fbi::Traits
+   */
 
   typedef typename std::tuple <
         typename std::tuple_element<QIndices, typename Traits<qvalue_type>::dim_type
       >::type::second_type ...
     > qcomp_type;      
+    /** Ensure that the comparison operators are equal*/
   static_assert(std::is_same<comp_type, qcomp_type>::value, 
     "CompTypes don't match");
 
@@ -854,7 +895,7 @@ KeyCreator{
    * indexed dimensions.
    * \param container A STL container with value_type objects, 
    * has to provide a forward iterator.
-   * \see \ref createKeyType()
+   * \see \ref createKey()
    */
 
   template <class Container, class ... Functors>
@@ -884,7 +925,7 @@ KeyCreator{
    * \param dataValue That's the box representing the class we're working on.
    * \param functor Functor which provides a 
    *  std::pair<...> get<std::size_t>(value_type) member function
-   *  \see \ref createKeyType()
+   *  \see \ref createKey()
    */
 
   template <typename T, typename Functor>
@@ -906,7 +947,7 @@ KeyCreator{
    * \param functor Functor which provides a 
    *  std::pair<...> get<std::size_t>(value_type) member function
    * \param functors Other functors which will be used recursively.
-   * \see \ref createKeyType()
+   * \see \ref createKey()
    */
   template <typename T, typename Functor, typename ...Functors>
   static void 
@@ -929,7 +970,7 @@ KeyCreator{
    * \param dataValue That's the box representing the class we're working on.
    * \param functor Functor which provides a 
    *  std::pair<...> get<std::size_t>(value_type) member function
-   *  \see \ref createKeyType()
+   *  \see \ref createKey()
    */
 
   template <typename T, typename Functor>
@@ -954,7 +995,7 @@ KeyCreator{
    * \param functor Functor which provides a 
    *  std::pair<...> get<std::size_t>(value_type) member function
    * \param functors Other functors which will be used recursively.
-   * \see \ref createKeyType()
+   * \see \ref createKey()
    */
   template <typename T, typename Functor, typename ...Functors>
   static void 
@@ -974,8 +1015,9 @@ KeyCreator{
   /**
    * \brief Create a key_type object (which is a tuple of pairs) by calling the 
    *  getInterval function of the box object in all relevant dimensions.
-   *
-   * \see \ref ScanFunctions
+   * \param[in] val The box object to create a key object with
+   * \param[in] functor The functor which offers a templatized get method
+   * to extract data out of val
    */
   template <typename T, typename Functor>
   static inline const
@@ -994,16 +1036,30 @@ class SetA<BoxType, TIndices...>::
 State
 {
  private: 
+/** 
+  * A reasonably good method to calculate the height of an approximate
+  * median tertiary tree
+  * \param[in] n Number of elements to get the median from
+  */
   static std::size_t defaultHeightCalculator_(const std::size_t n) {
     return 
       static_cast<std::size_t> (
-        std::max( 0., -3.0 + 1.8 * log10( static_cast<double>( n ) ) )
+        std::max( 0., -3.0 + 6 * log2( static_cast<double>( n ) ) )
       ); 
   }
-
+    
+  /** 
+  * For every dimension, upper and lower bounds have to be
+  * known, which will be larger or smaller than all
+  * possible values.
+  */
   const key_type limits_;
 
-  //IndixCalculatorSection
+ /** 
+  * As it is possible to create several keys per box,
+  * we have to remember the number so index-calculations
+  * can be done
+  */
   const std::size_t numModifications_;
   /** 
    * \brief Pointer to the first element in the points-(query-)Vector, 
@@ -1022,9 +1078,16 @@ State
   //Randomizer section
   /** Random seed engine, has to be non-const as using the engine changes it. */
   std::mt19937 rSeedEngine_;
+  /** We need a uniform distribution*/
   typedef std::uniform_int_distribution<std::size_t> Distribution;
-
+/** As our second set of objects continues the
+ * numbering scheme of the first, we have to add an offset
+ * to the indices.
+ */
   const std::size_t offset_;
+ /** Also known as theta, the margin to switch to
+  * brute-force 
+  */
   const std::size_t cutoffSize_;
   /** Function pointer to a height calculator*/
   std::size_t (* const heightCalculator_)(const std::size_t);
@@ -1046,6 +1109,8 @@ State
    *  needed to calculate the offset.
    * \param dataVectorPtr Pointer to the first object in the dataVector, 
    *  needed to calculate the offset.
+   * \param offset Needed to correctly calculate the indices,
+   * equal to sizeof(SetA)
    * \param cutoffSize Minimum amount of query and data objects to 
    *  handle in \ref HybridScanner, if one of them falls 
    *  below that value, switch to \ref OneWayScanner.
@@ -1072,6 +1137,20 @@ State
       heightCalculator_(heightCalculator)    
   {}
 
+ /** 
+  * As we pass pointers around during our algorithm,
+  * it is necessary to find the corresponding index
+  * of the objects when writing pairs as results.
+  * To do this, we first save the pointer to the
+  * respective first object, using our knowledge of
+  * the memory representation a simple pointer subtraction
+  * yields the original index.
+  * \param[in] isQueryVectorPtr We have to keep track if
+  * a pointer refers to a box in the first or second 
+  * input set as that changes its index.
+  * \param[in] objectPtr a pointer to a key, can be either
+  * generated from the first or second type of boxes.
+  */
   inline 
   std::size_t calculate(bool isQueryVectorPtr, const key_type * objectPtr) const
   {
@@ -1083,20 +1162,33 @@ State
     }
     return (objectPtr - this->dataVectorPtrToFirstElement_);
   }
-
+/** 
+ * In \ref getApproxMedian we have to pick a random object,
+ * this returns a random integer between its two inputs.
+ *
+ * \param[in] lowerBound The returned integer will be
+ * greater or equal to this
+ * \param[in] upperBound The returned integer will be
+ * lesser than this
+ *
+ *
+ */
   inline std::size_t randInt(std::size_t lowerBound, std::size_t upperBound)
   {
     return Distribution(lowerBound, upperBound)(rSeedEngine_);
   }
 
-
+  /** Getter */
   const key_type & getLimits() const { return limits_;}
-
+ /** Return a good height for the tertiary median tree
+ * \param n Number of elements
+ */
   std::size_t heuristicHeight(const std::size_t n) const
   {
     return (*(this->heightCalculator_))(n);
   }
-  std::size_t getCutoff() const{ return this->cutoffSize_; }
+  /** Getter*/
+  std::size_t getCutoff() const{ return cutoffSize_; }
 };
 
 
@@ -1275,13 +1367,31 @@ template <bool PointsContainQueries>
 struct SetA<BoxType, TIndices...>::
 HybridScanner<PointsContainQueries, SetA<BoxType, TIndices...>::LASTDIM> {
 
+  /** saves typing, referencing to parent struct type*/
   typedef SetA<BoxType, TIndices...> SETA;
   enum
   {
+  /** last dimension to compare in*/
     LASTDIM = SETA::LASTDIM
   };
+  /** Use key_type from parent struct*/
   typedef SETA::key_type key_type;
-  /** standard scan*/
+ /** \see \ref HybridScanner::scan()
+  * This is the special case, when only the last dimension has to be considered,
+  * switch to a brute-force approach, i.e. \ref OneWayScanner::scan()
+  * \param[in] pointsPtrVector As we're looking at two subsets of intervals, 
+  * this is the one representing the points.
+  * \param[in] intervalsPtrVector These are the intervals, for this call.
+  * \param[in] lowerBound As a recursion invariant, all points 
+  *  represented by pointsPtrVector are inbetween the two 
+  *  bounds (check recursion), which is why all intervals spanning across these
+  *  bounds are intersecting with the points (in the current dimension).
+  * \param[in] upperBound see lowerBound 
+  * \param[in, out] state Contains a rng, can be used to track the 
+  *  recursion and is able to calculate the indices.
+  * \param[in, out] resultVector We pass the resultVector around to 
+  *  add to it in OneWayScan
+  */
   inline static void scan(
       std::vector<const key_type *> & pointsPtrVector,
       std::vector<const key_type *> & intervalsPtrVector,
@@ -1399,24 +1509,24 @@ OneWayScanner{
  *  or all tests evaluated to true.
  *   
  *
- * \param x Pointer to first interval.
- * \param y Pointer to second interval.
- * \tparam KeyDim The dimension of the _key_ we're primarily working on, 
+ * \tparam Dim The dimension of the _key_ we're primarily working on, 
  * this can differ from the actual dimension in value_type.
- * \tparam HeadDimension The dimension in the value_type we're working on, 
- *  needed to seperate the leftover dimensions.
- * \tparam TailDimensions... As we're looking for intersections in the 
- *  KeyDim (or HeadDim), we have to check for every intersection-pair
+ * \tparam Limit As we're looking for intersections in the 
+ *  Dim, we have to check for every intersection-pair
  *  if they're also matching in the other dimensions, the 
- *  parameter is mostly used for easier recursion.
+ *  parameter is used for termination.
  * 
  */
-
 
 template <typename BoxType, std::size_t ...TIndices>
 template <std::size_t Dim, std::size_t Limit>
 struct SetA<BoxType, TIndices...>::
 IntersectionTester {
+/**
+ * Check for intersection between its two inputs
+ * \param x Pointer to first interval.
+ * \param y Pointer to second interval.
+ */
   static bool test(const key_type * x, const key_type * y)
   {
     bool result;
@@ -1453,8 +1563,14 @@ IntersectionTester<Limit, Limit> {
 template <typename BoxType, std::size_t ... TIndices>
 template <std::size_t Dim>
 struct SetA<BoxType, TIndices...>::
-lessHead{
-
+lessHead {
+   /** 
+    * To sort a vector/set of keys by their lower end in a given dimension,
+    * we define a functor similar to operator() in std::less.
+    * \param[in] x First object
+    * \param[in] y Second object
+    * Return true if x < y
+    */
   bool inline operator() (const key_type * x, const key_type * y) const {
     return 
         getCompareFunctor<Dim>()(
@@ -1462,6 +1578,13 @@ lessHead{
             getHead<Dim>(y)
             );
   }
+   /** 
+    * To sort a vector/set of keys by their upper end in a given dimension,
+    * we define a functor similar to operator() in std::less.
+    * \param[in] x First object
+    * \param[in] y Second object
+    * Return true if x < y
+    */
   bool inline operator() (const key_type & x, const key_type & y) const  {
     return 
         getCompareFunctor<Dim>()(
@@ -1476,6 +1599,13 @@ template <typename BoxType, std::size_t ... TIndices>
 template <std::size_t Dim>
 struct SetA<BoxType, TIndices...>::
 lessTail{
+   /** 
+    * To sort a vector/set of keys by their upper end in a given dimension,
+    * we define a functor similar to operator() in std::less.
+    * \param[in] x First object
+    * \param[in] y Second object
+    * Return true if x < y
+    */
   bool inline operator() (const key_type * x, const key_type * y) const {
     return 
         getCompareFunctor<Dim>()(
@@ -1483,7 +1613,13 @@ lessTail{
             getTail<Dim>(y)
             );
   }
-
+    /** 
+    * To sort a vector/set of keys by their upper end in a given dimension,
+    * we define a functor similar to operator() in std::less.
+    * \param[in] x First object
+    * \param[in] y Second object
+    * Return true if x < y
+    */
   bool inline operator() (const key_type & x, const key_type & y) const {
     return 
         getCompareFunctor<Dim>()(
@@ -1505,7 +1641,10 @@ template <std::size_t I, std::size_t N>
 struct SetA<BoxType, TIndices...>::
 KeyPrinter
 {
-  /** print key */
+  /** 
+   * print key 
+   * \param[in] key Print this key
+   */
   static void 
       print(const key_type& key) {
         std::cout.setf(std::ios::fixed, std::ios::floatfield);
@@ -1525,8 +1664,12 @@ template <std::size_t N>
 struct SetA<BoxType, TIndices...>::
 KeyPrinter<N,N>
 {
+  /** Use the key_type of its parent struct*/
   typedef SetA<BoxType, TIndices...>::key_type key_type;
-  /** print key */
+  /** 
+   * print key 
+   * \param[in] key Print this key
+   */
   static void 
       print(const key_type & key) {
         return;
