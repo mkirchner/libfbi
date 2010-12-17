@@ -182,9 +182,17 @@ struct Pack {
  */
 template <typename ... T>
 struct TraitsGenerator{
+  /**
+   * Define the dimensions and their corresponding comparison, 
+   * i.e. double, less<double>, int, less<int> for two dimensions
+   */
   typedef std::tuple<std::pair<T, std::less<T> > ...> dim_type;
+  /** 
+   * As every dimension holds a pair of values, we define the correct tuples as key_type, 
+   * using the types given in dim_type
+   */
   typedef std::tuple<std::pair<T, T> ...> key_type;
-
+  /**For every dimensionof the key_type, upper and lower bounds have to be defined */
   static key_type getLimits(){
     return std::make_tuple(std::make_pair(std::numeric_limits<T>::min(), std::numeric_limits<T>::max())...);
   }
