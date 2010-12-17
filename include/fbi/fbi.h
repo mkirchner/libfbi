@@ -93,7 +93,7 @@ class SetA{
   typedef BoxType value_type;
 
   enum {
-  /** TINDICES is 1 when all TIndices can be used to access a dimension the 
+  /** TINDICESCORRECT is 1 when all TIndices can be used to access a dimension the 
     * key_type, otherwise it's 0
     */ 
     TINDICESCORRECT =
@@ -144,7 +144,7 @@ class SetA{
  public:
   /** 
    * Every intersection between two elements will be represented by their 
-   * corresponding index in the container of type C, 
+   * corresponding index in the container holding BoxType, 
    * to save memory we decided to artificially 
    * limit the amount of elements which allows us
    * to use 32Bit integers instead of 64Bit.
@@ -175,8 +175,7 @@ class SetA{
   /** 
     * \class KeyCreator
    * \brief Handle the creation of keys by using given functors. 
-   * As we have to handle indices which aren't 
-   * known at the time of the tree instantiation, we have to add 
+   * As we have to handle variable indices, both from SetA and SetB, we have to add 
    * another template class to use different std::size_t parameter packs.
    *
    */
@@ -246,7 +245,7 @@ class SetA{
    * our points are a subset of. 
    * This is needed to calculate the resulting indices by 
    * subtracting pointers.
-   * \tparam Dimension where we should first look for an intersection, 
+   * \tparam Dim where we should first look for an intersection, 
    * all following dimensions will be 
    * evaluated via comparisons between two objects.
    */
@@ -277,7 +276,7 @@ class SetA{
   /** 
    * \class IntersectionTester
    * \brief Check if two objects intersect in 
-   * all dimensions between (including) Dim and Limit.
+   * all dimensions in [Dim,Limit).
    *
    * If the amount of data is small enough, 
    * straightforward checking for two objects can be used.
@@ -414,7 +413,7 @@ class SetA{
 
   /**
    * Calculate an approximate median by using the median-of-three method
-   * on a tertiary tree of given height.
+   * on a ternary tree of given height.
    *
    * \tparam Dim Get the median of a vector of values in the given dimension.
    * \see \ref heuristicHeight()
@@ -614,7 +613,7 @@ class SetA{
    * Calculate the depth of the approximate median tree, as some 
    * constants here have to be found by experiment.
    *
-   * \param[in] numElements the height of the tertiary tree shall be dependent
+   * \param[in] numElements the height of the ternary tree shall be dependent
    * on the number of elements
    * \see \ref getApproxMedian() 
    */
@@ -1038,7 +1037,7 @@ State
  private: 
 /** 
   * A reasonably good method to calculate the height of an approximate
-  * median tertiary tree
+  * median ternary tree
   * \param[in] n Number of elements to get the median from
   */
   static std::size_t defaultHeightCalculator_(const std::size_t n) {
@@ -1180,7 +1179,7 @@ State
 
   /** Getter */
   const key_type & getLimits() const { return limits_;}
- /** Return a good height for the tertiary median tree
+ /** Return a good height for the ternary median tree
  * \param n Number of elements
  */
   std::size_t heuristicHeight(const std::size_t n) const
@@ -1268,8 +1267,10 @@ HybridScanner{
     // scheme: determine the median in the current dimension and use the
     // value to split the intervals and points for the next (recursive) call.
     std::size_t heuristicHeight = state.heuristicHeight(intervalsPtrVector.size());
-    // FIXME: explain why you draw from the interval vector. This is the major
-    // contribution of the implementation!!!
+
+    //Using the intervals to provide a median, it can be guaranteed
+    //that the recursion will come to an end, for additional information refer to
+    //the supplementary.
     typename Key::first_type median = 
       getApproxMedian<Dim>(intervalsPtrVector, heuristicHeight, state, less);
     
@@ -1359,8 +1360,6 @@ HybridScanner{
 /** 
  * This is a specialization of the HybridScanner when there's only 
  * one dimension left to compare in: just pass the sets to the OneWayScanner
- *
- * 
  */
 template <typename BoxType, std::size_t ...TIndices>
 template <bool PointsContainQueries>
