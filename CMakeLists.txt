@@ -17,13 +17,6 @@ SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}")
 # build libraries
 #############################################################################
 
-# require boost
-SET(Boost_USE_STATIC_LIBS OFF)
-SET(Boost_USE_MULTITHREAD OFF)
-FIND_PACKAGE(Boost COMPONENTS program_options system REQUIRED)
-INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
-LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
-
 # require out-of-source build
 MACRO_REQUIRE_OUT_OF_SRC_BUILD("LIBFBI requires out-of-source builds.")
 
@@ -44,10 +37,22 @@ CONFIGURE_FILE(
 )
 
 # add subdirs
-ADD_SUBDIRECTORY(examples)
-
+OPTION(ENABLE_TESTING "Compile testsuites" ON)
 OPTION(ENABLE_COVERAGE "Enable GCov coverage analysis (defines a 'coverage' target and enforces static build of ms++)" OFF)
 OPTION(ENABLE_BENCHMARK "Do benchmarking and plotting" ON)
+OPTION(ENABLE_EXAMPLES "Compile examples" ON)
+
+IF (ENABLE_BENCHMARK OR ENABLE_EXAMPLES)
+# require boost
+    SET(Boost_USE_STATIC_LIBS OFF)
+    SET(Boost_USE_MULTITHREAD OFF)
+    FIND_PACKAGE(Boost COMPONENTS program_options system REQUIRED)
+    INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+    LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
+ENDIF (ENABLE_BENCHMARK OR ENABLE_EXAMPLES)
+
+
+
 
 
 #############################################################################
@@ -64,15 +69,17 @@ ADD_DEPENDENCIES(syncdocs doc)
 # regression tests
 #############################################################################
 SET(UPDATE_TYPE svn)
-INCLUDE(CTest)
-ENABLE_TESTING()
-ADD_SUBDIRECTORY(test)
-
+IF (ENABLE_TESTING)
+  INCLUDE(CTest)
+  ENABLE_TESTING()
+  ADD_SUBDIRECTORY(test)
+ENDIF (ENABLE_TESTING)
 
 #############################################################################
 # code coverage analysis
 #############################################################################
 IF (ENABLE_COVERAGE)
+    SET (ENABLE_EXAMPLES ON)
     SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
     CONFIGURE_FILE(${LIBFBI_SOURCE_DIR}/cmake/scripts/coverage.sh.in
         ${LIBFBI_BINARY_DIR}/cmake/scripts/coverage.sh
@@ -109,6 +116,15 @@ IF (ENABLE_BENCHMARK)
     )
     ADD_DEPENDENCIES(benchmark centroid)
 ENDIF(ENABLE_BENCHMARK)
+
+
+############################################################################
+# examples
+############################################################################
+IF (ENABLE_EXAMPLES)
+    ADD_SUBDIRECTORY(examples)
+ENDIF (ENABLE_EXAMPLES)
+
 
 
 #############################################################################
