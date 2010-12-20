@@ -26,7 +26,7 @@ XIC retention time measurements. Methodologically,
 
 \section setting_up Setting Things Up
 First order of business is the definition of the user classes: a class to
-represent an XIC and a class to hold the peptide precursor information.
+represent an XIC and a class to hold the scan precursor information.
 
 \code
 struct Xic
@@ -38,11 +38,12 @@ struct Xic
       : rt_(rt), mz_(mz), abundance_(abundance) {}
 };
 
-struct Peptide
+struct MS2Scan
 {
     double rt_;
     double mz_;
-    Peptide(const double &rt, const double& mz) : rt_(rt), mz_(mz) {}
+    // some more definitions for the ions etc...
+    MS2Scan(const double &rt, const double& mz) : rt_(rt), mz_(mz) {}
 };
 \endcode
 
@@ -51,18 +52,18 @@ Then we need to provide some type information to \c libfbi:
 \code
 namespace fbi {
 template<> struct Traits<Xic> : mpl::TraitsGenerator<double, double> {};
-template<> struct Traits<Peptide> : mpl::TraitsGenerator<double, double> {};
+template<> struct Traits<MS2Scan> : mpl::TraitsGenerator<double, double> {};
 } 
 \endcode
-This tellst \libfbi that both, the XIC and the peptide, can be queried in two
+This tellst \libfbi that both, the XIC and the ms2scan, can be queried in two
 dimensions, each of which is of type double (i.e. a floating point number).
 Note, that it is not necessary to inform \c libfbi about all data members of a
 class if these data members are not used in the fast box intersection process.
 For example, the \c Xic struct has an \c abundance member that is irrelevant
 for the intersection task at hand and is thus not included in \c Traits<Xic>.
 
-Now we need to write the \c Xic and \c Peptide accessor/adapter functions that
-allow libfbi to derive interval information in each dimension for each peptide
+Now we need to write the \c Xic and \c MS2Scan accessor/adapter functions that
+allow libfbi to derive interval information in each dimension for each ms2scan
 and XIC measurement. For the \c Xic struct, this yields
 
 \code
@@ -98,47 +99,47 @@ XicBoxGenerator::get<1>(const Xic & xic) const
 }
 \endcode
 
-And for the \c Peptide struct, we have
+And for the \c MS2Scan struct, we have
 
 \code
-struct PeptideBoxGenerator
+struct MS2ScanBoxGenerator
 {
   template <size_t N>
   typename std::tuple_element<N, 
-    typename fbi::Traits<Peptide>::key_type>::type 
-  get(const Peptide &) const;
+    typename fbi::Traits<MS2Scan>::key_type>::type 
+  get(const MS2Scan &) const;
 
   double preScanPpm_;
   double rtWindow_;
 
-  PeptideBoxGenerator(double preScanPpm, double rtWindow)
+  MS2ScanBoxGenerator(double preScanPpm, double rtWindow)
     : preScanPpm_(preScanPpm), rtWindow_(rtWindow)
   {}
 };
 
 template <>
 std::pair<double, double>  
-PeptideBoxGenerator::get<0>(const Peptide& peptide) const 
+MS2ScanBoxGenerator::get<0>(const MS2Scan& ms2scan) const 
 {
   return std::make_pair(
-    peptide.mz_* (1 - preScanPpm_ * 1E-6), 
-    peptide.mz_* (1 + preScanPpm_ * 1E-6));
+    ms2scan.mz_* (1 - preScanPpm_ * 1E-6), 
+    ms2scan.mz_* (1 + preScanPpm_ * 1E-6));
 }
 
 template <>
 std::pair<double, double>  
-PeptideBoxGenerator::get<1>(const Peptide & peptide) const
+MS2ScanBoxGenerator::get<1>(const MS2Scan & ms2scan) const
 {
-  return std::make_pair(peptide.rt_ - rtWindow_, peptide.rt_ + rtWindow_);
+  return std::make_pair(ms2scan.rt_ - rtWindow_, ms2scan.rt_ + rtWindow_);
 }
 \endcode
 
 We also define two helper functions, that allow us to read \c Xic and \c
-Peptide data from text files:
+MS2Scan data from text files:
 
 \code
 std::vector<Xic> parseXicFile(ProgramOptions& options);
-std::vector<Peptide> parsePeptideFile(ProgramOptions & options);
+std::vector<MS2Scan> parseMS2ScanFile(ProgramOptions & options);
 \endcode
 
 The functions that a \c ProgramOptions reference that holds program parameters;
@@ -161,40 +162,45 @@ int main(int argc, char* argv[])
     }
     // load data
     std::vector<Xic> xics = parseXicFile(options);
-    std::vector<Peptide> peptides = parsePeptideFile(options);
+    std::vector<MS2Scan> ms2scans = parseMS2ScanFile(options);
 \endcode
 
 With the data available, we carry out the intersection:
 
 \code
-    auto adjList = SetA<Xic, 0, 1>::SetB<Peptide, 0, 1>::intersect(
+    auto adjList = SetA<Xic, 0, 1>::SetB<MS2Scan, 0, 1>::intersect(
       xics, XicBoxGenerator(options.fullscanPpm_, options.rtWindow_),
-      peptides, PeptideBoxGenerator(options.prescanPpm_, options.rtWindow_));
+      ms2scans, MS2ScanBoxGenerator(options.prescanPpm_, options.rtWindow_));
 \endcode
 
-The \c XicBoxGenerator and \c PeptideBoxGenerator instances will always return
+The \c XicBoxGenerator and \c MS2ScanBoxGenerator instances will always return
 the proper intervals for a given XIC and/or precursor. Determining the
 high-resolution precursor mass for each low-resolution precursor now boils down
-to resolving the conflict between the pair candidates:
+to resolving the conflict between the pair candidates. We choose the precursor
+with the smallest m/z distance:
 
 \code
     std::ofstream ofs(options.outputFileName_.c_str());
     ofs.setf(std::ios::fixed, std::ios::floatfield);
-    for (size_t i = 0; i < adjList.size(); ++i) {
+    size_t nXics = xics.size();
+    for (size_t i = 0; i < nXics; ++i) {
         if (!adjList[i].empty()) {
             typedef std::set<unsigned int>::const_iterator SI;
             SI best = adjList[i].begin();
             double bestDist = std::numeric_limits<double>::max();
+            // resolve conflict by choosing the closest m/z
             for (SI j = adjList[i].begin(); j != adjList[i].end(); ++j) {
-                double dist = std::abs(xics[i].mz_ - peptides[*j].mz_;
+                size_t k = *j - nXics;
+                double dist = std::abs(xics[i].mz_ - ms2scans[k].mz_);
                 if (dist < bestDist) {
                     best = j;
                     bestDist = dist;
                 }
             }
-            // print the pair
-            ofs << peptides[*best].mz_ << '\t' << peptides[*best].rt_ 
-              << '\t' << xic[i].mz_ << '\t' << xic[i].rt_ << '\n';
+            // print the pair (current precursor -> new precursor)
+            size_t k = *best - nXics;
+            ofs << xics[i].mz_ << '\t' << xics[i].rt_
+              << "\t->\t" << ms2scans[k].mz_ << '\t' << ms2scans[k].rt_ << '\n';
        }
     }
     return 0;
