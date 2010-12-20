@@ -50,13 +50,14 @@ struct Xic
       : rt_(rt), mz_(mz), abundance_(abundance) {}
 };
 
-struct Peptide
+struct MS2Scan
 {
     double rt_;
     double mz_;
-    std::string sequence_;
-    Peptide(const double &rt, const double& mz, const std::string& seq)
-      : rt_(rt), mz_(mz), sequence_(seq) {}
+    typedef std::vector<std::pair<double, double> > Ions;
+    Ions ions_;
+    MS2Scan(const double &rt, const double& mz, const Ions& ions)
+      : rt_(rt), mz_(mz), ions_(ions) {}
 };
 
 /*
@@ -65,7 +66,7 @@ struct Peptide
 namespace fbi {
 
 template<> struct Traits<Xic> : mpl::TraitsGenerator<double, double> {};
-template<> struct Traits<Peptide> : mpl::TraitsGenerator<double, double> {};
+template<> struct Traits<MS2Scan> : mpl::TraitsGenerator<double, double> {};
 
 } 
 
@@ -104,37 +105,37 @@ XicBoxGenerator::get<1>(const Xic & xic) const
 }
 
 /*
- * Peptide classes and adapters
+ * MS2Scan classes and adapters
  */
-struct PeptideBoxGenerator
+struct MS2ScanBoxGenerator
 {
   template <size_t N>
   typename std::tuple_element<N, 
-    typename fbi::Traits<Peptide>::key_type>::type 
-  get(const Peptide &) const;
+    typename fbi::Traits<MS2Scan>::key_type>::type 
+  get(const MS2Scan &) const;
 
   double preScanPpm_;
   double rtWindow_;
 
-  PeptideBoxGenerator(double preScanPpm, double rtWindow)
+  MS2ScanBoxGenerator(double preScanPpm, double rtWindow)
     : preScanPpm_(preScanPpm), rtWindow_(rtWindow)
   {}
 };
 
 template <>
 std::pair<double, double>  
-PeptideBoxGenerator::get<0>(const Peptide& peptide) const 
+MS2ScanBoxGenerator::get<0>(const MS2Scan& ms2scan) const 
 {
   return std::make_pair(
-    peptide.mz_* (1 - preScanPpm_ * 1E-6), 
-    peptide.mz_* (1 + preScanPpm_ * 1E-6));
+    ms2scan.mz_* (1 - preScanPpm_ * 1E-6), 
+    ms2scan.mz_* (1 + preScanPpm_ * 1E-6));
 }
 
 template <>
 std::pair<double, double>  
-PeptideBoxGenerator::get<1>(const Peptide & peptide) const
+MS2ScanBoxGenerator::get<1>(const MS2Scan & ms2scan) const
 {
-  return std::make_pair(peptide.rt_ - rtWindow_, peptide.rt_ + rtWindow_);
+  return std::make_pair(ms2scan.rt_ - rtWindow_, ms2scan.rt_ + rtWindow_);
 }
 
 /*
@@ -147,7 +148,7 @@ struct ProgramOptions
     double fullscanPpm_;
     double rtWindow_;
     std::string xicFileName_;
-    std::string peptideFileName_;
+    std::string ms2scanFileName_;
     std::string outputFileName_;
 };
 
@@ -161,7 +162,7 @@ int parseProgramOptions(int argc, char* argv[], ProgramOptions& options)
     ("help", "Display this help message")
     ("config,c", po::value<std::string>(&config_file), "config file")
     ("xicfile,x", po::value<std::string>(&options.xicFileName_), "input file")
-    ("peptidefile,p", po::value<std::string>(&options.peptideFileName_), "input file")
+    ("ms2scanfile,m", po::value<std::string>(&options.ms2scanFileName_), "input file")
     ("outputfile,o", po::value<std::string>(&options.outputFileName_), "output file")
     ;
 
@@ -186,7 +187,7 @@ int parseProgramOptions(int argc, char* argv[], ProgramOptions& options)
   
   po::positional_options_description p;
   p.add("xicfile", 1);
-  p.add("peptidefile", 1);
+  p.add("ms2scanfile", 1);
   
   po::variables_map vm;
 
@@ -219,11 +220,11 @@ int parseProgramOptions(int argc, char* argv[], ProgramOptions& options)
     return -1;
   }
 
-  if (vm.count("peptidefile")) {
-    std::cerr << "peptidefile: " <<
-        options.peptideFileName_ << '\n';
+  if (vm.count("ms2scanfile")) {
+    std::cerr << "ms2scanfile: " <<
+        options.ms2scanFileName_ << '\n';
   } else {
-    std::cerr << "Peptide input file required." << '\n';
+    std::cerr << "MS2 input file required." << '\n';
     std::cout << visible << '\n';
     return -1;
   }
@@ -261,21 +262,22 @@ std::vector<Xic> parseXicFile(ProgramOptions& options)
 }
 
 /*
- * load peptides from file
+ * load MS2 scans from file
  */
-std::vector<Peptide> parsePeptideFile(ProgramOptions & options)
+std::vector<MS2Scan> parseMS2ScanFile(ProgramOptions & options)
 {
-  std::vector<Peptide> peptides;
-  std::ifstream ifs(options.peptideFileName_.c_str());
+  std::vector<MS2Scan> ms2scans;
+  std::ifstream ifs(options.ms2scanFileName_.c_str());
   ifs.setf(std::ios::fixed, std::ios::floatfield);
 
   double mz, rt;
   std::string seq;
 
-  while (ifs >> rt >> mz >> seq) {
-    peptides.push_back(Peptide(rt, mz, seq));
+  while (ifs >> rt >> mz) {
+    MS2Scan::Ions ions;
+    ms2scans.push_back(MS2Scan(rt, mz, ions));
   }
-  return peptides;
+  return ms2scans;
 }
 
 
@@ -289,13 +291,13 @@ int main(int argc, char* argv[])
     }
     // load data
     std::vector<Xic> xics = parseXicFile(options);
-    std::vector<Peptide> peptides = parsePeptideFile(options);
+    std::vector<MS2Scan> ms2scans = parseMS2ScanFile(options);
 
     timeval start, end; 
     gettimeofday(&start, NULL);
-    auto adjList = SetA<Xic, 0, 1>::SetB<Peptide, 0, 1>::intersect(
+    auto adjList = SetA<Xic, 0, 1>::SetB<MS2Scan, 0, 1>::intersect(
       xics, XicBoxGenerator(options.fullscanPpm_, options.rtWindow_),
-      peptides, PeptideBoxGenerator(options.prescanPpm_, options.rtWindow_));
+      ms2scans, MS2ScanBoxGenerator(options.prescanPpm_, options.rtWindow_));
     gettimeofday(&end, NULL);
     std::cout << "fbi runtime: "
       << static_cast<double>(end.tv_sec - start.tv_sec) +
@@ -312,7 +314,7 @@ int main(int argc, char* argv[])
         } else {
             typedef std::set<unsigned int>::const_iterator SI;
             for (SI j = adjList[i].begin(); j != adjList[i].end(); ++j) {
-                ofs << '\t' << peptides[(*j)-xics.size()].sequence_;
+                ofs << '\t' << ms2scans[(*j)-xics.size()].sequence_;
             }
             ofs << '\n';
        }
