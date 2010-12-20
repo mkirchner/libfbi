@@ -56,12 +56,10 @@ ENDIF (ENABLE_BENCHMARK OR ENABLE_EXAMPLES)
 
 
 #############################################################################
-# scp
+# syncing docs
 #############################################################################
 
-ADD_CUSTOM_TARGET(synchtdocs COMMAND rsync -Cavz ${LIBFBI_SOURCE_DIR}/htdocs ${SF_USER},libfbi@web.sourceforge.net:)
-ADD_CUSTOM_TARGET(syncdocs COMMAND rsync -Cavz ${LIBFBI_BINARY_DIR}/doc/html ${SF_USER},libfbi@web.sourceforge.net:htdocs/doc)
-
+ADD_CUSTOM_TARGET(syncdocs COMMAND ${LIBFBI_SOURCE_DIR}/scripts/sync-docs-gh-pages.sh ${LIBFBI_SOURCE_DIR} ${LIBFBI_BINARY_DIR})
 ADD_DEPENDENCIES(syncdocs doc)
 
 
