@@ -27,10 +27,11 @@ if [ `( cd $1; git branch ) | grep '*' | cut -f2 -d' ' | grep '^gh-pages$' | wc 
 fi
 
 # get a copy of the docs
-( cd $2 ; tar cf - doc | ( cd $1 ; tar xvf - ) )
+( cd $1 ; rm -rf doc/html/* )
+( cd $2 ; tar cf - doc/html | ( cd $1 ; tar xvf - ) )
 
 # commit the change
-#( cd $1 ; git commit -a -m "doc update" )
+( cd $1 ; git commit -a -m "doc update" )
 
 # switch back to master branch
 #( cd $1 ; git checkout master )
