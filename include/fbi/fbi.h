@@ -91,7 +91,8 @@ class SetA{
 
   /** Short typedef to offer the STL value_type identifier for this tree.*/
   typedef BoxType value_type;
-
+  
+  /** enum to do compile-time indices checks and better error output*/
   enum {
   /** TINDICESCORRECT is 1 when all TIndices can be used to access a dimension the 
     * key_type, otherwise it's 0
@@ -101,12 +102,12 @@ class SetA{
       value, TIndices...>::value 
   };
 
-  /** \brief Empty TIndices shouldn't work */
+  /** Empty TIndices shouldn't work */
   static_assert(
     sizeof...(TIndices) > 0, 
     "Please specify at least one index");
 
-  /** \brief Throw a compile error when the indices aren't correct. */
+  /** Throw a compile error when the indices aren't correct. */
   static_assert(TINDICESCORRECT, 
                 "Please check your SetAIndices again, the \
                 Traits<BoxType>::key_type \
@@ -325,9 +326,12 @@ class SetA{
    * 
    * \return We'll return a std::vector<std::set<IntType> >, 
    * as parallel edges are possible but not desired for the end result.
-   * An edge (pair of two boxes) consists of 2 IntType values, 
-   * the head is implied by the index in the std::vector, as 
-   * every vertex is holding a set of tail indices.
+   * An edge (pair of two boxes), consisting of 2 IntType values a and b
+   * -which refer to the indices of these boxes in dataContainer-
+   * is represented by b being in the set of tails belonging to the head a,
+   * as there are |dataContainer| sets in the result.
+   * Note that every edge is inserted twice as intersection is reflective and 
+   * the result an undirected graph.
    *
    * \see \ref SetB::intersect
    * \callgraph
@@ -378,9 +382,12 @@ class SetA{
    * 
    * \return We'll return a std::vector<std::set<IntType> >, 
    * as parallel edges are possible but not desired for the end result.
-   * An edge (pair of two boxes) consists of 2 IntType values, 
-   * the head is implied by the index in the std::vector, as 
-   * every vertex is holding a set of tail indices.
+   * An edge (pair of two boxes), consisting of 2 IntType values a and b
+   * -which refer to the indices of these boxes in dataContainer-
+   * is represented by b being in the set of tails belonging to the head a
+   * (and vice versa), as there are |dataContainer| sets in the result.
+   * Note that every edge is inserted twice as intersection is reflective and 
+   * the result an undirected graph.
    *
    * \see \ref SetB::intersect
    * \callgraph
@@ -678,7 +685,7 @@ SetB {
    * This function initializes the keys (consisting of intervals in 
    * several dimensions) of the intervalSet and the querySet, along with 
    * pointers to pass them to separation algorithms.
-   * The IndexCalculator has to be used to 
+   * \ref State::calculate has to be used to 
    * recalculate the original indices from the pointers.
    *
    *
@@ -690,9 +697,18 @@ SetB {
    *  forward iterator and holding a qvalue_type.
    * \param[in] qfunctors a variadic list of functors to create several 
    *  key_type objects which will be associated with the original data.
-   * \return An adjacency list implemented by a random-accessable 
-   *  outer container representing the vertices, 
-   *  each holding a container of non-parallel edges.
+   * \return We'll return a std::vector<std::set<IntType> >, 
+   * as parallel edges are possible but not desired for the end result.
+   * Note that in the bipartite case, the boxes in dataContainer will be indexed
+   * from 0 upto |dataContainer|-1, whereas the ones in qdataContainer are 
+   * identified by |dataContainer|..|dataContainer + qdataContainer|-1.
+   * An edge (pair of two boxes), consisting of 2 IntType values a and b,
+   * is represented by b being in the set of tails belonging to the head a
+   * (and vice versa) as there are |dataContainer + qdataContainer|-1 sets in the 
+   * result.
+   * Note that every edge is inserted twice as intersection is reflective and 
+   * the result an undirected graph.
+   * 
    */
 
   template <
@@ -780,7 +796,7 @@ SetB {
    * This function initializes the keys (consisting of intervals in 
    * several dimensions) of the intervalSet and the querySet, along with 
    * pointers to pass them to separation algorithms.
-   * The IndexCalculator has to be used to 
+   * \ref State::calculate has to be used to 
    * recalculate the original indices from the pointers.
    *
    * \param[in] cutoff The theta cutoff value for switching into OneWayScan
@@ -792,9 +808,17 @@ SetB {
    *  forward iterator and holding a qvalue_type.
    * \param[in] qfunctors a variadic list of functors to create several 
    *  key_type objects which will be associated with the original data.
-   * \return An adjacency list implemented by a random-accessable 
-   *  outer container representing the vertices, 
-   *  each holding a container of non-parallel edges.
+   * \return We'll return a std::vector<std::set<IntType> >, 
+   * as parallel edges are possible but not desired for the end result.
+   * Note that in the bipartite case, the boxes in dataContainer will be indexed
+   * from 0 upto |dataContainer|-1, whereas the ones in qdataContainer are 
+   * identified by |dataContainer|..|dataContainer + qdataContainer|-1.
+   * An edge (pair of two boxes), consisting of 2 IntType values a and b,
+   * is represented by b being in the set of tails belonging to the head a
+   * (and vice versa) as there are |dataContainer + qdataContainer|-1 sets in the 
+   * result.
+   * Note that every edge is inserted twice as intersection is reflective and 
+   * the result an undirected graph.
    */
   template <
   class BoxContainer,
@@ -900,6 +924,7 @@ KeyCreator{
   template <class Container, class ... Functors>
   static std::vector<key_type>
   getVector(const Container & container, const Functors& ...functors){
+    /** If there is no functor, we can't extract data from the boxes.*/
     static_assert(sizeof...(Functors) > 0, 
       "You need at least one functor to access your objects"); 
     typename Container::const_iterator it = container.begin();
@@ -1144,6 +1169,8 @@ State
   * respective first object, using our knowledge of
   * the memory representation a simple pointer subtraction
   * yields the original index.
+  * Note that for two different sets A and B, the boxes in B
+  * get an offset of |A|.
   * \param[in] isQueryVectorPtr We have to keep track if
   * a pointer refers to a box in the first or second 
   * input set as that changes its index.
