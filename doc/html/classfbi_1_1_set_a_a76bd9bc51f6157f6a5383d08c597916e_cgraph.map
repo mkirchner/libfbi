@@ -1,10 +1,11 @@
 <map id="G" name="G">
-<area shape="rect" id="node3" href="$structfbi_1_1_set_a_1_1_set_b.html#a80750b1987064b18fef3afe87dba440d" title="The public interface for the user to start the algorithm." alt="" coords="139,85,336,115"/>
-<area shape="rect" id="node5" href="libstdc++.tag$a01184.html#ga81511cd7112567fa262b05bb22e69874" title="count" alt="" coords="421,5,480,35"/>
-<area shape="rect" id="node7" href="$classfbi_1_1_set_a.html#ad0886ceee881c83a594490832175409f" title="createPtrVector" alt="" coords="384,59,517,88"/>
-<area shape="rect" id="node15" href="libstdc++.tag$a01138.html#aeb493b06f3d6d7fff5ed30083f9d027c" title="make_tuple" alt="" coords="401,112,500,141"/>
-<area shape="rect" id="node17" href="$classfbi_1_1_set_a.html#aed91b3fecd705e608dccae4f8ae397ee" title="Empty TIndices shouldn&#39;t work." alt="" coords="395,165,507,195"/>
-<area shape="rect" id="node9" href="libstdc++.tag$a00730.html#a52e9b3c0d3157f9db067259fc2591085" title="std::vector::begin" alt="" coords="565,5,709,35"/>
-<area shape="rect" id="node11" href="libstdc++.tag$a00730.html#a8c27a1d92949b353ac4503001c0d1066" title="std::vector::end" alt="" coords="571,59,704,88"/>
-<area shape="rect" id="node13" href="libstdc++.tag$a00730.html#a49e9afae414f8d8e3a2e1221c3a050c6" title="std::vector::size" alt="" coords="569,112,705,141"/>
+<area shape="rect" id="node3" href="$structfbi_1_1_set_a_1_1_set_b.html#a80750b1987064b18fef3afe87dba440d" title="The public interface for the user to start the algorithm." alt="" coords="139,112,336,141"/>
+<area shape="rect" id="node5" href="libstdc++.tag$a01184.html#ga81511cd7112567fa262b05bb22e69874" title="count" alt="" coords="457,5,516,35"/>
+<area shape="rect" id="node7" href="$classfbi_1_1_set_a.html#ad0886ceee881c83a594490832175409f" title="createPtrVector" alt="" coords="420,59,553,88"/>
+<area shape="rect" id="node15" href="$classfbi_1_1_set_a_1_1_state.html#a78b69de8dd7df106ad233aac3fea3879" title="fbi::SetA::State::getLimits" alt="" coords="385,112,588,141"/>
+<area shape="rect" id="node17" href="libstdc++.tag$a01138.html#aeb493b06f3d6d7fff5ed30083f9d027c" title="make_tuple" alt="" coords="437,165,536,195"/>
+<area shape="rect" id="node19" href="$classfbi_1_1_set_a.html#aed91b3fecd705e608dccae4f8ae397ee" title="Empty TIndices shouldn&#39;t work." alt="" coords="431,219,543,248"/>
+<area shape="rect" id="node9" href="libstdc++.tag$a00730.html#a52e9b3c0d3157f9db067259fc2591085" title="std::vector::begin" alt="" coords="637,5,781,35"/>
+<area shape="rect" id="node11" href="libstdc++.tag$a00730.html#a8c27a1d92949b353ac4503001c0d1066" title="std::vector::end" alt="" coords="643,59,776,88"/>
+<area shape="rect" id="node13" href="libstdc++.tag$a00730.html#a49e9afae414f8d8e3a2e1221c3a050c6" title="std::vector::size" alt="" coords="641,112,777,141"/>
 </map>

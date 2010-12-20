@@ -58,8 +58,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <tr><td class="memItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfbi_1_1_set_a_1_1_one_way_scanner.html#a3956a96a95fa57f6ebafea21387e9ce8">scan</a> (const <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html">std::vector</a>&lt; const <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00709.html">key_type</a> * &gt; &amp;pointsPtrVector, const <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html">std::vector</a>&lt; const <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00709.html">key_type</a> * &gt; &amp;intervalsPtrVector, <a class="el" href="classfbi_1_1_set_a_1_1_state.html">State</a> &amp;state, <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html">ResultType</a> &amp;resultVector)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<h3>template&lt;typename BoxType, size_t... TIndices&gt;<br/>
-template&lt;bool PointsContainQueries, size_t Dim&gt;<br/>
+<h3>template&lt;typename BoxType, std::size_t... TIndices&gt;<br/>
+template&lt;bool PointsContainQueries, std::size_t Dim&gt;<br/>
  class fbi::SetA&lt; BoxType, TIndices &gt;::OneWayScanner&lt; PointsContainQueries, Dim &gt;</h3>
 
 <p>A scanner to find one type of intersection between two sets of intervals by looking at one of them as a set of points. </p>
@@ -68,12 +68,12 @@ template&lt;bool PointsContainQueries, size_t Dim&gt;<br/>
 <dl><dt><b>Template Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
     <tr><td valign="top"></td><td valign="top"><em>PointsContainQueries</em>&nbsp;</td><td>As we have to alternate between views, we would like to know which of the two sets at the beginning our points are a subset of. This is needed to calculate the resulting indices by subtracting pointers. </td></tr>
-    <tr><td valign="top"></td><td valign="top"><em>Dimension</em>&nbsp;</td><td>where we should first look for an intersection, all following dimensions will be evaluated via comparisons between two objects. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>Dim</em>&nbsp;</td><td>where we should first look for an intersection, all following dimensions will be evaluated via comparisons between two objects. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="fbi_8h_source.html#l01212">1212</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
+<p>Definition at line <a class="el" href="fbi_8h_source.html#l01414">1414</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
 <hr/><h2>Member Function Documentation</h2>
 <a class="anchor" id="a3956a96a95fa57f6ebafea21387e9ce8"></a><!-- doxytag: member="fbi::SetA::OneWayScanner::scan" ref="a3956a96a95fa57f6ebafea21387e9ce8" args="(const std::vector&lt; const key_type * &gt; &amp;pointsPtrVector, const std::vector&lt; const key_type * &gt; &amp;intervalsPtrVector, State &amp;state, ResultType &amp;resultVector)" -->
 <div class="memitem">
@@ -124,9 +124,9 @@ template&lt;bool PointsContainQueries, size_t Dim&gt;<br/>
 </dl>
 <dl class="note"><dt><b>Note:</b></dt><dd>As the <a class="el" href="structfbi_1_1_set_a_1_1_one_way_scanner.html" title="A scanner to find one type of intersection between two sets of intervals by looking...">OneWayScanner</a> isn't necessarily be called for the last dimension only, we have to use the <a class="el" href="structfbi_1_1_set_a_1_1_intersection_tester.html" title="Check in  if two intervals intersect by comparing in all dimensions till it&#39;s...">IntersectionTester</a> to check for intersections in the remaining dimensions. </dd></dl>
 
-<p>Definition at line <a class="el" href="fbi_8h_source.html#l01226">1226</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
+<p>Definition at line <a class="el" href="fbi_8h_source.html#l01428">1428</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
 
-<p>References <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a52e9b3c0d3157f9db067259fc2591085">vector&lt; _Tp, _Alloc &gt;::begin()</a>, <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a5c5f31793e938ca343a70bc74a3ffa10">vector&lt; _Tp, _Alloc &gt;::empty()</a>, <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a8c27a1d92949b353ac4503001c0d1066">vector&lt; _Tp, _Alloc &gt;::end()</a>, and <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a4b6b7d15cc8a77ac3bc94155c1c77ce5">vector&lt; _Tp, _Alloc &gt;::insert()</a>.</p>
+<p>References <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a52e9b3c0d3157f9db067259fc2591085">vector&lt; _Tp, _Alloc &gt;::begin()</a>, <a class="el" href="fbi_8h_source.html#l01154">State::calculate()</a>, <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a5c5f31793e938ca343a70bc74a3ffa10">vector&lt; _Tp, _Alloc &gt;::empty()</a>, <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a8c27a1d92949b353ac4503001c0d1066">vector&lt; _Tp, _Alloc &gt;::end()</a>, and <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a4b6b7d15cc8a77ac3bc94155c1c77ce5">vector&lt; _Tp, _Alloc &gt;::insert()</a>.</p>
 
 </div>
 </div>
@@ -139,7 +139,7 @@ template&lt;bool PointsContainQueries, size_t Dim&gt;<br/>
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&nbsp;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&nbsp;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&nbsp;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&nbsp;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&nbsp;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&nbsp;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&nbsp;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&nbsp;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&nbsp;</span>Friends</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&nbsp;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&nbsp;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&nbsp;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&nbsp;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&nbsp;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&nbsp;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&nbsp;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&nbsp;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&nbsp;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&nbsp;</span>Friends</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -148,7 +148,7 @@ template&lt;bool PointsContainQueries, size_t Dim&gt;<br/>
 </iframe>
 </div>
 
-<hr size="1"/><address style="text-align: right;"><small>Generated on Mon Dec 13 19:02:30 2010 for tree by&nbsp;
+<hr size="1"/><address style="text-align: right;"><small>Generated on Mon Dec 20 16:40:48 2010 for tree by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.6.1 </small></address>
 </body>

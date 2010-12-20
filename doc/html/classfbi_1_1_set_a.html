@@ -61,7 +61,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfbi_1_1_set_a_1_1_intersection_tester.html">IntersectionTester</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Check in <img class="formulaInl" alt="$ O(Limit - Dim) $" src="form_0.png"/> if two intervals intersect by comparing in all dimensions till it's either false or all tests evaluated to true.  <a href="structfbi_1_1_set_a_1_1_intersection_tester.html#_details">More...</a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfbi_1_1_set_a_1_1_key_creator.html">KeyCreator</a></td></tr>
-<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Handle the creation of keys by using given functors. As we have to handle indices which aren't known at the time of the tree instantiation, we have to add another template class to use different size_t parameter packs.  <a href="structfbi_1_1_set_a_1_1_key_creator.html#_details">More...</a><br/></td></tr>
+<tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Handle the creation of keys by using given functors. As we have to handle variable indices, both from <a class="el" href="classfbi_1_1_set_a.html" title="A class to find intersections between cartesian products of arbitrarily-typed intervals...">SetA</a> and <a class="el" href="structfbi_1_1_set_a_1_1_set_b.html" title="Subclass, when the type of the query objects differs from the type of the data objects...">SetB</a>, we have to add another template class to use different <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01138.html#ad477e282dc33a113ed64628b9b32e3dd">std::size_t</a> parameter packs.  <a href="structfbi_1_1_set_a_1_1_key_creator.html#_details">More...</a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">class &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfbi_1_1_set_a_1_1_key_printer.html">KeyPrinter</a></td></tr>
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">For Debug reasons, print all dimensions of a given key via cout.  <a href="structfbi_1_1_set_a_1_1_key_printer.html#_details">More...</a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">struct &nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="structfbi_1_1_set_a_1_1_key_printer_3_01_n_00_01_n_01_4.html">KeyPrinter&lt; N, N &gt;</a></td></tr>
@@ -82,10 +82,12 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <tr><td colspan="2"><h2>Static Public Member Functions</h2></td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;class BoxContainer , typename  = typename std::enable_if&lt;            std::is_same&lt;typename BoxContainer::value_type, value_type&gt;::value&gt; ::type, typename IntervalFunctor , typename... QueryFunctors&gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html">ResultType</a>&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classfbi_1_1_set_a.html#a76bd9bc51f6157f6a5383d08c597916e">intersect</a> (const BoxContainer &amp;dataContainer, const IntervalFunctor &amp;ifunctor, const QueryFunctors &amp;...qfunctors)</td></tr>
+<tr><td class="memTemplParams" colspan="2">template&lt;class BoxContainer , typename  = typename std::enable_if&lt;            std::is_same&lt;typename BoxContainer::value_type, value_type&gt;::value&gt; ::type, typename IntervalFunctor , typename... QueryFunctors&gt; </td></tr>
+<tr><td class="memTemplItemLeft" align="right" valign="top">static <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html">ResultType</a>&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classfbi_1_1_set_a.html#a5005221a90683b2fdc5e9acd72c89826">thetaIntersect</a> (const <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01138.html#ad477e282dc33a113ed64628b9b32e3dd">std::size_t</a> cutoff, const BoxContainer &amp;dataContainer, const IntervalFunctor &amp;ifunctor, const QueryFunctors &amp;...qfunctors)</td></tr>
 <tr><td colspan="2"><h2>Private Types</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <b>LASTDIM</b>
  }</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <b>TINDICESCORRECT</b>, 
+<tr><td class="memItemLeft" align="right" valign="top">enum &nbsp;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="classfbi_1_1_set_a.html#adf764cbdea00d65edcd07bb9953ad2b7a515fb4c12e32c5640cc359a7fa02fcbc">TINDICESCORRECT</a>, 
 <b>value</b>
  }</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00709.html">std::tuple</a>&lt; typename <br class="typebreak"/>
@@ -97,8 +99,7 @@ typename <a class="el" href="structfbi_1_1_traits.html">Traits</a>&lt; <a class=
 std::tuple_element&lt; TIndices, <br class="typebreak"/>
 typename <a class="el" href="structfbi_1_1_traits.html">Traits</a>&lt; <a class="el" href="classfbi_1_1_set_a.html#ae708e458cb7cb982c2d1e40811e42f33">value_type</a> &gt;<br class="typebreak"/>
 ::<a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00709.html">key_type</a> &gt;::type... &gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfbi_1_1_set_a.html#a4dbf77ce3c81e11c566d6ab14163233b">key_type</a></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a54d449af576d6b16ec4b47b153bf54c9"></a><!-- doxytag: member="fbi::SetA::SETA" ref="a54d449af576d6b16ec4b47b153bf54c9" args="" -->
-typedef <a class="el" href="classfbi_1_1_set_a.html">SetA</a>&lt; BoxType, TIndices...&gt;&nbsp;</td><td class="memItemRight" valign="bottom"><b>SETA</b></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="classfbi_1_1_set_a.html">SetA</a>&lt; BoxType, TIndices...&gt;&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfbi_1_1_set_a.html#a54d449af576d6b16ec4b47b153bf54c9">SETA</a></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">typedef BoxType&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfbi_1_1_set_a.html#ae708e458cb7cb982c2d1e40811e42f33">value_type</a></td></tr>
 <tr><td colspan="2"><h2>Private Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfbi_1_1_set_a.html#a094d761b708821281816f38a64553d59">SetA</a> ()</td></tr>
@@ -135,7 +136,7 @@ std::tuple_element&lt; Dim, <br class="typebreak"/>
 <tr><td class="memTemplParams" colspan="2">template&lt;std::size_t Dim&gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static std::tuple_element&lt; Dim, <br class="typebreak"/>
 <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00709.html">key_type</a> &gt;::type::first_type&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classfbi_1_1_set_a.html#a8e38852430daf63b76a08d7f089f7a28">getTail</a> (const <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00709.html">key_type</a> &amp;key)</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">static const <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01138.html#ad477e282dc33a113ed64628b9b32e3dd">size_t</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfbi_1_1_set_a.html#a99469e2229d2e782e3cac21ff9721889">heuristicHeight</a> (<a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01138.html#ad477e282dc33a113ed64628b9b32e3dd">std::size_t</a> numElements)</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">static const <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01138.html#ad477e282dc33a113ed64628b9b32e3dd">std::size_t</a>&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfbi_1_1_set_a.html#a951202427fb7b47bc678964077cb79f9">heuristicHeight</a> (<a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01138.html#ad477e282dc33a113ed64628b9b32e3dd">std::size_t</a> numElements)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;typename T , typename Comp &gt; </td></tr>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static const T &amp;&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classfbi_1_1_set_a.html#a41e96c654b663d981475940e61e9a9e4">medianOfThree</a> (const T &amp;t1, const T &amp;t2, const T &amp;t3, const Comp &amp;less)</td></tr>
 <tr><td class="memTemplParams" colspan="2">template&lt;std::size_t Dim&gt; </td></tr>
@@ -144,7 +145,7 @@ std::tuple_element&lt; Dim, <br class="typebreak"/>
 <tr><td class="memTemplItemLeft" align="right" valign="top">static void&nbsp;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="classfbi_1_1_set_a.html#a7c4c0c49905c68f25b604264f31ec71b">sortContainerTail</a> (<a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html">std::vector</a>&lt; const <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00709.html">key_type</a> * &gt; &amp;container)</td></tr>
 </table>
 <hr/><a name="_details"></a><h2>Detailed Description</h2>
-<h3>template&lt;typename BoxType, size_t... TIndices&gt;<br/>
+<h3>template&lt;typename BoxType, std::size_t... TIndices&gt;<br/>
  class fbi::SetA&lt; BoxType, TIndices &gt;</h3>
 
 <p>A class to find intersections between cartesian products of arbitrarily-typed intervals. </p>
@@ -159,7 +160,7 @@ std::tuple_element&lt; Dim, <br class="typebreak"/>
 <dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="structfbi_1_1_traits.html" title="A template for defining Traits of a specific Box class, has to define its types /...">Traits</a> </dd></dl>
 <dl><dt><b>Template Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>TIndices</em>&nbsp;</td><td>Two boxes shall intersect if they do in these dimensions, given as a parameter pack of size_t. </td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>TIndices</em>&nbsp;</td><td>Two boxes shall intersect if they do in these dimensions, given as a parameter pack of <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01138.html#ad477e282dc33a113ed64628b9b32e3dd">std::size_t</a>. </td></tr>
   </table>
   </dd>
 </dl>
@@ -194,7 +195,7 @@ std::tuple_element&lt; Dim, <br class="typebreak"/>
       </table>
 </div>
 <div class="memdoc">
-<p>Every intersection between two elements will be represented by their corresponding index in the container of type C, to save memory we decided to artificially limit the amount of elements which allows us to use 32Bit integers instead of 64Bit. </p>
+<p>Every intersection between two elements will be represented by their corresponding index in the container holding BoxType, to save memory we decided to artificially limit the amount of elements which allows us to use 32Bit integers instead of 64Bit. </p>
 
 <p>Definition at line <a class="el" href="fbi_8h_source.html#l00153">153</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
 
@@ -231,6 +232,22 @@ std::tuple_element&lt; Dim, <br class="typebreak"/>
 <p>The intersections will be returned as a adjacency list, to prevent parallel edges we're using a set for the inner dimension. </p>
 
 <p>Definition at line <a class="el" href="fbi_8h_source.html#l00160">160</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a54d449af576d6b16ec4b47b153bf54c9"></a><!-- doxytag: member="fbi::SetA::SETA" ref="a54d449af576d6b16ec4b47b153bf54c9" args="" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef <a class="el" href="classfbi_1_1_set_a.html">SetA</a>&lt;BoxType, TIndices...&gt; <a class="el" href="classfbi_1_1_set_a.html">SETA</a><code> [private]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Small self-referencing typedef </p>
+
+<p>Definition at line <a class="el" href="fbi_8h_source.html#l00087">87</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
 
 </div>
 </div>
@@ -277,9 +294,15 @@ std::tuple_element&lt; Dim, <br class="typebreak"/>
       </table>
 </div>
 <div class="memdoc">
-<p>TINDICES is 1 when all TIndices can be used to access a dimension the key_type, otherwise it's 0 </p>
+<dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
+<tr><td valign="top"><em><a class="anchor" id="adf764cbdea00d65edcd07bb9953ad2b7a515fb4c12e32c5640cc359a7fa02fcbc"></a><!-- doxytag: member="TINDICESCORRECT" ref="adf764cbdea00d65edcd07bb9953ad2b7a515fb4c12e32c5640cc359a7fa02fcbc" args="" -->TINDICESCORRECT</em>&nbsp;</td><td>
+<p>TINDICESCORRECT is 1 when all TIndices can be used to access a dimension the key_type, otherwise it's 0 </p>
+</td></tr>
+</table>
+</dd>
+</dl>
 
-<p>Definition at line <a class="el" href="fbi_8h_source.html#l00098">98</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
+<p>Definition at line <a class="el" href="fbi_8h_source.html#l00095">95</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
 
 </div>
 </div>
@@ -321,18 +344,18 @@ std::tuple_element&lt; Dim, <br class="typebreak"/>
 <p>Create a vector with pointers to our interval data to save memory.</p>
 <dl><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
-    <tr><td valign="top"></td><td valign="top"><em>container</em>&nbsp;</td><td>A STL container holding key_type objects, has to have a const_iterator. As our ScanFunctions have to pass and copy containers of intervals, using a pointer based approach was deemed faster and safer as we won't modify the actual data.</td></tr>
+    <tr><td valign="top"></td><td valign="top"><em>container</em>&nbsp;</td><td>A STL container holding key_type objects, has to have a const_iterator. As our scanfunctions have to pass and copy containers of intervals, using a pointer based approach was deemed faster and safer as we won't modify the actual data.</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="see"><dt><b>See also:</b></dt><dd>createIntervalVector() </dd></dl>
+<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="structfbi_1_1_set_a_1_1_key_creator.html#add270a7e88bae0352875bbfc1db3afef">KeyCreator::getVector()</a> </dd></dl>
 <dl class="note"><dt><b>Note:</b></dt><dd>Don't move/insert into the intervalContainer afterwards, as it will invalidate all pointers. </dd></dl>
 
-<p>Definition at line <a class="el" href="fbi_8h_source.html#l00420">420</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
+<p>Definition at line <a class="el" href="fbi_8h_source.html#l00474">474</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
 
 <p>References <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a52e9b3c0d3157f9db067259fc2591085">vector&lt; _Tp, _Alloc &gt;::begin()</a>, <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a8c27a1d92949b353ac4503001c0d1066">vector&lt; _Tp, _Alloc &gt;::end()</a>, and <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a49e9afae414f8d8e3a2e1221c3a050c6">vector&lt; _Tp, _Alloc &gt;::size()</a>.</p>
 
-<p>Referenced by <a class="el" href="fbi_8h_source.html#l00613">SetB&lt; QBoxType, QIndices &gt;::intersect()</a>, and <a class="el" href="fbi_8h_source.html#l00691">SetB&lt; QBoxType, QIndices &gt;::parameterizedIntersect()</a>.</p>
+<p>Referenced by <a class="el" href="fbi_8h_source.html#l00706">SetB&lt; QBoxType, QIndices &gt;::intersect()</a>, and <a class="el" href="fbi_8h_source.html#l00807">SetB&lt; QBoxType, QIndices &gt;::thetaIntersect()</a>.</p>
 
 </div>
 </div>
@@ -372,14 +395,14 @@ std::tuple_element&lt; Dim, <br class="typebreak"/>
       </table>
 </div>
 <div class="memdoc">
-<p>Calculate an approximate median by using the median-of-three method on a tertiary tree of given height.</p>
+<p>Calculate an approximate median by using the median-of-three method on a ternary tree of given height.</p>
 <dl><dt><b>Template Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
     <tr><td valign="top"></td><td valign="top"><em>Dim</em>&nbsp;</td><td>Get the median of a vector of values in the given dimension. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="classfbi_1_1_set_a.html#a99469e2229d2e782e3cac21ff9721889">heuristicHeight()</a> </dd></dl>
+<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="classfbi_1_1_set_a.html#a951202427fb7b47bc678964077cb79f9">heuristicHeight()</a> </dd></dl>
 <dl><dt><b>Parameters:</b></dt><dd>
   <table border="0" cellspacing="2" cellpadding="0">
     <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>container</em>&nbsp;</td><td>The vector of values we're interested in </td></tr>
@@ -390,9 +413,9 @@ std::tuple_element&lt; Dim, <br class="typebreak"/>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="fbi_8h_source.html#l00378">378</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
+<p>Definition at line <a class="el" href="fbi_8h_source.html#l00432">432</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
 
-<p>References <a class="el" href="fbi_8h_source.html#l00519">SetA&lt; BoxType, TIndices &gt;::medianOfThree()</a>, and <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a49e9afae414f8d8e3a2e1221c3a050c6">vector&lt; _Tp, _Alloc &gt;::size()</a>.</p>
+<p>References <a class="el" href="fbi_8h_source.html#l00593">SetA&lt; BoxType, TIndices &gt;::medianOfThree()</a>, <a class="el" href="fbi_8h_source.html#l01175">State::randInt()</a>, and <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a49e9afae414f8d8e3a2e1221c3a050c6">vector&lt; _Tp, _Alloc &gt;::size()</a>.</p>
 
 </div>
 </div>
@@ -412,7 +435,7 @@ std::tuple_element&lt; Dim, <br class="typebreak"/>
 <div class="memdoc">
 <p>Comfort function to get the comparison functor in the correct dimension </p>
 
-<p>Definition at line <a class="el" href="fbi_8h_source.html#l00487">487</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
+<p>Definition at line <a class="el" href="fbi_8h_source.html#l00554">554</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
 
 </div>
 </div>
@@ -432,8 +455,14 @@ std::tuple_element&lt; Dim, <br class="typebreak"/>
 </div>
 <div class="memdoc">
 <p>Comfort function to get the lower endpoint in the correct dimension </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>key</em>&nbsp;</td><td>The box object </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p>Definition at line <a class="el" href="fbi_8h_source.html#l00463">463</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
+<p>Definition at line <a class="el" href="fbi_8h_source.html#l00526">526</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
 
 </div>
 </div>
@@ -453,8 +482,14 @@ std::tuple_element&lt; Dim, <br class="typebreak"/>
 </div>
 <div class="memdoc">
 <p>Comfort function to get the lower endpoint in the correct dimension </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>key</em>&nbsp;</td><td>The box object </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p>Definition at line <a class="el" href="fbi_8h_source.html#l00456">456</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
+<p>Definition at line <a class="el" href="fbi_8h_source.html#l00517">517</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
 
 </div>
 </div>
@@ -474,8 +509,14 @@ std::tuple_element&lt; Dim, <br class="typebreak"/>
 </div>
 <div class="memdoc">
 <p>Comfort function to get the interval in the correct dimension </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>key</em>&nbsp;</td><td>The box object </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p>Definition at line <a class="el" href="fbi_8h_source.html#l00449">449</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
+<p>Definition at line <a class="el" href="fbi_8h_source.html#l00507">507</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
 
 </div>
 </div>
@@ -501,8 +542,14 @@ std::tuple_element&lt; Dim, <br class="typebreak"/>
   </table>
   </dd>
 </dl>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>key</em>&nbsp;</td><td>The box object </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p>Definition at line <a class="el" href="fbi_8h_source.html#l00442">442</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
+<p>Definition at line <a class="el" href="fbi_8h_source.html#l00498">498</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
 
 </div>
 </div>
@@ -522,8 +569,14 @@ std::tuple_element&lt; Dim, <br class="typebreak"/>
 </div>
 <div class="memdoc">
 <p>Comfort function to get the upper endpoint in the correct dimension </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>key</em>&nbsp;</td><td>The box object </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p>Definition at line <a class="el" href="fbi_8h_source.html#l00479">479</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
+<p>Definition at line <a class="el" href="fbi_8h_source.html#l00546">546</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
 
 </div>
 </div>
@@ -543,17 +596,23 @@ std::tuple_element&lt; Dim, <br class="typebreak"/>
 </div>
 <div class="memdoc">
 <p>Comfort function to get the upper endpoint in the correct dimension </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>key</em>&nbsp;</td><td>The box object </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p>Definition at line <a class="el" href="fbi_8h_source.html#l00470">470</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
+<p>Definition at line <a class="el" href="fbi_8h_source.html#l00535">535</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="a99469e2229d2e782e3cac21ff9721889"></a><!-- doxytag: member="fbi::SetA::heuristicHeight" ref="a99469e2229d2e782e3cac21ff9721889" args="(std::size_t numElements)" -->
+<a class="anchor" id="a951202427fb7b47bc678964077cb79f9"></a><!-- doxytag: member="fbi::SetA::heuristicHeight" ref="a951202427fb7b47bc678964077cb79f9" args="(std::size_t numElements)" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">static const <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01138.html#ad477e282dc33a113ed64628b9b32e3dd">size_t</a> heuristicHeight </td>
+          <td class="memname">static const <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01138.html#ad477e282dc33a113ed64628b9b32e3dd">std::size_t</a> heuristicHeight </td>
           <td>(</td>
           <td class="paramtype"><a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01138.html#ad477e282dc33a113ed64628b9b32e3dd">std::size_t</a>&nbsp;</td>
           <td class="paramname"> <em>numElements</em></td>
@@ -564,13 +623,19 @@ std::tuple_element&lt; Dim, <br class="typebreak"/>
 </div>
 <div class="memdoc">
 <p>Calculate the depth of the approximate median tree, as some constants here have to be found by experiment.</p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>numElements</em>&nbsp;</td><td>the height of the ternary tree shall be dependent on the number of elements </td></tr>
+  </table>
+  </dd>
+</dl>
 <dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="classfbi_1_1_set_a.html#ab4434dca024ce6c62df965e472a20409">getApproxMedian()</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="fbi_8h_source.html#l00544">544</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
+<p>Definition at line <a class="el" href="fbi_8h_source.html#l00620">620</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
 
 <p>References <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01166.html#ga97020915990dc5850b6b0f4c416e576f">log()</a>.</p>
 
-<p>Referenced by <a class="el" href="fbi_8h_source.html#l01051">HybridScanner&lt; PointsContainQueries, Dim &gt;::scan()</a>.</p>
+<p>Referenced by <a class="el" href="fbi_8h_source.html#l01235">HybridScanner&lt; PointsContainQueries, Dim &gt;::scan()</a>.</p>
 
 </div>
 </div>
@@ -619,16 +684,16 @@ std::tuple_element&lt; Dim, <br class="typebreak"/>
 <dl class="return"><dt><b>Returns:</b></dt><dd>We'll return a <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html">std::vector</a>&lt;std::set&lt;IntType&gt; &gt;, as parallel edges are possible but not desired for the end result. An edge (pair of two boxes) consists of 2 IntType values, the head is implied by the index in the <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html">std::vector</a>, as every vertex is holding a set of tail indices.</dd></dl>
 <dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="structfbi_1_1_set_a_1_1_set_b.html#a80750b1987064b18fef3afe87dba440d">SetB::intersect</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="fbi_8h_source.html#l00346">346</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
+<p>Definition at line <a class="el" href="fbi_8h_source.html#l00345">345</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
 
-<p>References <a class="el" href="fbi_8h_source.html#l00613">SetB&lt; QBoxType, QIndices &gt;::intersect()</a>.</p>
+<p>References <a class="el" href="fbi_8h_source.html#l00706">SetB&lt; QBoxType, QIndices &gt;::intersect()</a>.</p>
 
 <p><div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dynsection">
 <div class="center"><img src="classfbi_1_1_set_a_a76bd9bc51f6157f6a5383d08c597916e_cgraph.png" border="0" usemap="#classfbi_1_1_set_a_a76bd9bc51f6157f6a5383d08c597916e_cgraph_map" alt=""></div>
 <map name="classfbi_1_1_set_a_a76bd9bc51f6157f6a5383d08c597916e_cgraph_map" id="classfbi_1_1_set_a_a76bd9bc51f6157f6a5383d08c597916e_cgraph">
-<area shape="rect" id="node3" href="structfbi_1_1_set_a_1_1_set_b.html#a80750b1987064b18fef3afe87dba440d" title="The public interface for the user to start the algorithm." alt="" coords="139,85,336,115"/><area shape="rect" id="node5" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01184.html#ga81511cd7112567fa262b05bb22e69874" title="count" alt="" coords="421,5,480,35"/><area shape="rect" id="node7" href="classfbi_1_1_set_a.html#ad0886ceee881c83a594490832175409f" title="createPtrVector" alt="" coords="384,59,517,88"/><area shape="rect" id="node15" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01138.html#aeb493b06f3d6d7fff5ed30083f9d027c" title="make_tuple" alt="" coords="401,112,500,141"/><area shape="rect" id="node17" href="classfbi_1_1_set_a.html#aed91b3fecd705e608dccae4f8ae397ee" title="Empty TIndices shouldn&#39;t work." alt="" coords="395,165,507,195"/><area shape="rect" id="node9" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a52e9b3c0d3157f9db067259fc2591085" title="std::vector::begin" alt="" coords="565,5,709,35"/><area shape="rect" id="node11" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a8c27a1d92949b353ac4503001c0d1066" title="std::vector::end" alt="" coords="571,59,704,88"/><area shape="rect" id="node13" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a49e9afae414f8d8e3a2e1221c3a050c6" title="std::vector::size" alt="" coords="569,112,705,141"/></map>
+<area shape="rect" id="node3" href="structfbi_1_1_set_a_1_1_set_b.html#a80750b1987064b18fef3afe87dba440d" title="The public interface for the user to start the algorithm." alt="" coords="139,112,336,141"/><area shape="rect" id="node5" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01184.html#ga81511cd7112567fa262b05bb22e69874" title="count" alt="" coords="457,5,516,35"/><area shape="rect" id="node7" href="classfbi_1_1_set_a.html#ad0886ceee881c83a594490832175409f" title="createPtrVector" alt="" coords="420,59,553,88"/><area shape="rect" id="node15" href="classfbi_1_1_set_a_1_1_state.html#a78b69de8dd7df106ad233aac3fea3879" title="fbi::SetA::State::getLimits" alt="" coords="385,112,588,141"/><area shape="rect" id="node17" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01138.html#aeb493b06f3d6d7fff5ed30083f9d027c" title="make_tuple" alt="" coords="437,165,536,195"/><area shape="rect" id="node19" href="classfbi_1_1_set_a.html#aed91b3fecd705e608dccae4f8ae397ee" title="Empty TIndices shouldn&#39;t work." alt="" coords="431,219,543,248"/><area shape="rect" id="node9" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a52e9b3c0d3157f9db067259fc2591085" title="std::vector::begin" alt="" coords="637,5,781,35"/><area shape="rect" id="node11" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a8c27a1d92949b353ac4503001c0d1066" title="std::vector::end" alt="" coords="643,59,776,88"/><area shape="rect" id="node13" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a49e9afae414f8d8e3a2e1221c3a050c6" title="std::vector::size" alt="" coords="641,112,777,141"/></map>
 </div>
 </p>
 
@@ -678,11 +743,20 @@ Here is the call graph for this function:</div>
   </table>
   </dd>
 </dl>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>t1</em>&nbsp;</td><td>first object to compare </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>t2</em>&nbsp;</td><td>second object to compare </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>t3</em>&nbsp;</td><td>third object to compare </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>less</em>&nbsp;</td><td>comparison object </td></tr>
+  </table>
+  </dd>
+</dl>
 <dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="classfbi_1_1_set_a.html#ab4434dca024ce6c62df965e472a20409">getApproxMedian()</a> </dd></dl>
 
-<p>Definition at line <a class="el" href="fbi_8h_source.html#l00519">519</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
+<p>Definition at line <a class="el" href="fbi_8h_source.html#l00593">593</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
 
-<p>Referenced by <a class="el" href="fbi_8h_source.html#l00378">SetA&lt; BoxType, TIndices &gt;::getApproxMedian()</a>.</p>
+<p>Referenced by <a class="el" href="fbi_8h_source.html#l00432">SetA&lt; BoxType, TIndices &gt;::getApproxMedian()</a>.</p>
 
 </div>
 </div>
@@ -702,8 +776,14 @@ Here is the call graph for this function:</div>
 </div>
 <div class="memdoc">
 <p>Sort a container of pointers to key_type objects, compare their lower endpoints in the specified dimension </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>container</em>&nbsp;</td><td>The container to sort. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p>Definition at line <a class="el" href="fbi_8h_source.html#l00497">497</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
+<p>Definition at line <a class="el" href="fbi_8h_source.html#l00565">565</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
 
 <p>References <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a52e9b3c0d3157f9db067259fc2591085">vector&lt; _Tp, _Alloc &gt;::begin()</a>, <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a8c27a1d92949b353ac4503001c0d1066">vector&lt; _Tp, _Alloc &gt;::end()</a>, and <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01185.html#ga2056c15a25b660ed3f0004199e11dd40">sort()</a>.</p>
 
@@ -725,8 +805,14 @@ Here is the call graph for this function:</div>
 </div>
 <div class="memdoc">
 <p>Sort a container of pointers to key_type objects, compare their upper endpoints in the specified dimension </p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>container</em>&nbsp;</td><td>The container to sort </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p>Definition at line <a class="el" href="fbi_8h_source.html#l00506">506</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
+<p>Definition at line <a class="el" href="fbi_8h_source.html#l00576">576</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
 
 <p>References <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a52e9b3c0d3157f9db067259fc2591085">vector&lt; _Tp, _Alloc &gt;::begin()</a>, <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a8c27a1d92949b353ac4503001c0d1066">vector&lt; _Tp, _Alloc &gt;::end()</a>, and <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01185.html#ga2056c15a25b660ed3f0004199e11dd40">sort()</a>.</p>
 
@@ -802,7 +888,74 @@ Here is the call graph for this function:</div>
 
 <p>Empty TIndices shouldn't work. </p>
 
-<p>Referenced by <a class="el" href="fbi_8h_source.html#l00771">KeyCreator&lt; KeyCreatorIndices &gt;::getVector()</a>, <a class="el" href="fbi_8h_source.html#l00613">SetB&lt; QBoxType, QIndices &gt;::intersect()</a>, and <a class="el" href="fbi_8h_source.html#l00691">SetB&lt; QBoxType, QIndices &gt;::parameterizedIntersect()</a>.</p>
+<p>Referenced by <a class="el" href="fbi_8h_source.html#l00902">KeyCreator&lt; KeyCreatorIndices &gt;::getVector()</a>, <a class="el" href="fbi_8h_source.html#l00706">SetB&lt; QBoxType, QIndices &gt;::intersect()</a>, and <a class="el" href="fbi_8h_source.html#l00807">SetB&lt; QBoxType, QIndices &gt;::thetaIntersect()</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="a5005221a90683b2fdc5e9acd72c89826"></a><!-- doxytag: member="fbi::SetA::thetaIntersect" ref="a5005221a90683b2fdc5e9acd72c89826" args="(const std::size_t cutoff, const BoxContainer &amp;dataContainer, const IntervalFunctor &amp;ifunctor, const QueryFunctors &amp;...qfunctors)" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html">ResultType</a> thetaIntersect </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01138.html#ad477e282dc33a113ed64628b9b32e3dd">std::size_t</a>&nbsp;</td>
+          <td class="paramname"> <em>cutoff</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const BoxContainer &amp;&nbsp;</td>
+          <td class="paramname"> <em>dataContainer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const IntervalFunctor &amp;&nbsp;</td>
+          <td class="paramname"> <em>ifunctor</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const QueryFunctors &amp;...&nbsp;</td>
+          <td class="paramname"> <em>qfunctors</em></td><td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td><td><code> [static]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+
+<p>Create two sets of keys by intersecting two sets of functors on a given dataContainer, and check if there are intersections between these keys in the dimensions the tree was initialized with. </p>
+<p>In the general case, we would like to have two different types of boxes, which, given functors, produce the same key_type. As their keys are then equal and also a representation of hyperrectangles (cartesian products of intervals), it is possible to test for intersections between them.</p>
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table border="0" cellspacing="2" cellpadding="0">
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>cutoff</em>&nbsp;</td><td>If one of the containers has less elements than cutoff, switch to brute-force algorithm. </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>dataContainer</em>&nbsp;</td><td>A container with a const_iterator, it has to hold the same type as the one the tree was instantiated with. Both key sets will be extracted by using functors on every value in this container. </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>ifunctor</em>&nbsp;</td><td>This has to be a class with a public </p>
+<div class="fragment"><pre class="fragment">get&lt;Dim&gt;(const BoxType &amp; ) const; </pre></div><p> method. The tree will create the keys by extracting the indexed dimensions from the BoxType. </td></tr>
+    <tr><td valign="top"><tt>[in]</tt>&nbsp;</td><td valign="top"><em>qfunctors</em>&nbsp;</td><td>Like ifunctor, these functors will each create a different key.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>We'll return a <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html">std::vector</a>&lt;std::set&lt;IntType&gt; &gt;, as parallel edges are possible but not desired for the end result. An edge (pair of two boxes) consists of 2 IntType values, the head is implied by the index in the <a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html">std::vector</a>, as every vertex is holding a set of tail indices.</dd></dl>
+<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="structfbi_1_1_set_a_1_1_set_b.html#a80750b1987064b18fef3afe87dba440d">SetB::intersect</a> </dd></dl>
+
+<p>Definition at line <a class="el" href="fbi_8h_source.html#l00398">398</a> of file <a class="el" href="fbi_8h_source.html">fbi.h</a>.</p>
+
+<p>References <a class="el" href="fbi_8h_source.html#l00807">SetB&lt; QBoxType, QIndices &gt;::thetaIntersect()</a>.</p>
+
+<p><div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dynsection">
+<div class="center"><img src="classfbi_1_1_set_a_a5005221a90683b2fdc5e9acd72c89826_cgraph.png" border="0" usemap="#classfbi_1_1_set_a_a5005221a90683b2fdc5e9acd72c89826_cgraph_map" alt=""></div>
+<map name="classfbi_1_1_set_a_a5005221a90683b2fdc5e9acd72c89826_cgraph_map" id="classfbi_1_1_set_a_a5005221a90683b2fdc5e9acd72c89826_cgraph">
+<area shape="rect" id="node3" href="structfbi_1_1_set_a_1_1_set_b.html#a3692d75dcef386dd35d7396ce6e5e0ad" title="The public interface for the user to start the algorithm." alt="" coords="179,112,416,141"/><area shape="rect" id="node5" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01184.html#ga81511cd7112567fa262b05bb22e69874" title="count" alt="" coords="537,5,596,35"/><area shape="rect" id="node7" href="classfbi_1_1_set_a.html#ad0886ceee881c83a594490832175409f" title="createPtrVector" alt="" coords="500,59,633,88"/><area shape="rect" id="node15" href="classfbi_1_1_set_a_1_1_state.html#a78b69de8dd7df106ad233aac3fea3879" title="fbi::SetA::State::getLimits" alt="" coords="465,112,668,141"/><area shape="rect" id="node17" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01138.html#aeb493b06f3d6d7fff5ed30083f9d027c" title="make_tuple" alt="" coords="517,165,616,195"/><area shape="rect" id="node19" href="classfbi_1_1_set_a.html#aed91b3fecd705e608dccae4f8ae397ee" title="Empty TIndices shouldn&#39;t work." alt="" coords="511,219,623,248"/><area shape="rect" id="node9" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a52e9b3c0d3157f9db067259fc2591085" title="std::vector::begin" alt="" coords="717,5,861,35"/><area shape="rect" id="node11" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a8c27a1d92949b353ac4503001c0d1066" title="std::vector::end" alt="" coords="723,59,856,88"/><area shape="rect" id="node13" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html#a49e9afae414f8d8e3a2e1221c3a050c6" title="std::vector::size" alt="" coords="721,112,857,141"/></map>
+</div>
+</p>
 
 </div>
 </div>
@@ -815,7 +968,7 @@ Here is the call graph for this function:</div>
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&nbsp;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&nbsp;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&nbsp;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&nbsp;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&nbsp;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&nbsp;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&nbsp;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&nbsp;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&nbsp;</span>Friends</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&nbsp;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&nbsp;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&nbsp;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&nbsp;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&nbsp;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&nbsp;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&nbsp;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&nbsp;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&nbsp;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&nbsp;</span>Friends</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -824,7 +977,7 @@ Here is the call graph for this function:</div>
 </iframe>
 </div>
 
-<hr size="1"/><address style="text-align: right;"><small>Generated on Mon Dec 13 19:02:30 2010 for tree by&nbsp;
+<hr size="1"/><address style="text-align: right;"><small>Generated on Mon Dec 20 16:40:48 2010 for tree by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.6.1 </small></address>
 </body>
