@@ -9,21 +9,98 @@
 </head>
 </head>
 <body>
+
 <table class="canopy">
 <tr>
 <td class="logo">
 <img src="libfbi-small.png">
 </td>
-<td class="links">
-
-<a href="https://github.com/mkirchner/libfbi">libfbi @ github</a><br>
-<a href="doc/html">documentation</a><br>
-<a href="https://github.com/mkirchner/libfbi/issues">issue tracking</a><br>
-<a href="http://steenlab.org">steen &amp; steen lab</a><br>
+<td class="content">
+<div class="paragraph">
+    <div class="heading1">
+    libfbi
+    </div>
+    <div class="text">
+    libfbi is a header-only C++ template library implementation that enables
+    the efficient solution of box intersection problems
+    in an arbitrary number of dimensions. 
+    The implementation is based on <a
+    href="http://www.cs.duke.edu/~edels/Papers/2002-J-01-FastBoxIntersection.pdf"
+    >Zomorodian and Edelsbrunner (2000)</a> and makes heavy use of C++
+    metaprogramming and variadic template programming techniques. Despite this
+    complexity, the library provides a straightforward and simple interface
+    that allows easy integration into new and existing projects.
+    </div>
+    <div class="text">
+    libfbi has so far been applied to feature extraction and data analysis
+    tasks for high-resolution liquid chromatorgraphy/mass spectrometry (LC/MS) 
+    data sets. The library itself, however, is in no way limited to this
+    application scenario: it can easily be used to all kinds of
+    multi-dimensional box intersection and related problems (e.g. determining <a
+    href="http://en.wikipedia.org/wiki/Bounding_volume">bounding volumes</a>,
+    <a
+    href="http://en.wikipedia.org/wiki/K-nearest_neighbor_algorithm">k-nearest-neighbor
+    search</a>, <a
+    href="http://en.wikipedia.org/wiki/Kernel_density_estimation">density
+    estimation</a>, and correspondence estimation in motion or pattern
+    alignment tasks).
+    </div>
+    <div class="text">
+    libfbi development has been conducted at the 
+    <a href="http://steenlab.org">Steen &amp; Steen lab</a>.
+    </div>
+</div>
+<div class="paragraph">
+    <div class="heading1">
+    Documentation and Testing
+    </div>
+    <div class="text">
+    We make use of the <a href="http://www.doxygen.org/">Doxygen</a>
+    documentation system to provide source <a href="doc/html/">
+    documentation</a> and <a href="doc/html/pages.html">annotated
+    examples</a>. 
+    </div>
+    <div class="text">
+    libfbi comes with a set of fully automated regression tests, that check all
+    box intersection boundary conditions and compare expected and calculated
+    results across a set of use cases.
+    </div>
+</div>
+<div class="paragraph">
+    <div class="heading1">
+    Development
+    </div>
+    <div class="text">
+    libfbi has reached a stable state; it is actively maintained at <a
+    href="https://github.com/mkirchner/libfbi/">guithub</a>. If you happen to
+    run into trouble, please do not hesitate to contact the developers, either
+    through their email addresses (see the source code) or through the github 
+    <a href="https://github.com/mkirchner/libfbi/issues">issue tracking</a>
+    system. We will get back to you as fast as we can.
+    </div>
+</div>
+<div class="paragraph">
+    <div class="heading1">
+    Download
+    </div>
+    <div class="text">
+    Please note that libfbi makes heavy use of TR1 and C++0x features, in
+    particular tuples and variadic templates. Development was carried out under
+    GNU GCC 4.4, on an Ubuntu Linux system. Windows users currently need to
+    make use of the MinGW compiler as variadic template support under Microsoft
+    Visual Studio will only be available starting from Visual Studio 11.
+    </div>
+    <div class="text">
+    Latest stable release: <a href="releases/libfbi-20101221.tar.gz">
+    libfbi-20101221.tar.gz</a><br>
+    </div>
+    <div class="text">
+    Current development snapshot: via <a href="http://git-scm.com/">git</a> from
+    <a href="https://github.com/mkirchner/libfbi">github</a>.
+    </div>
+</div>
 </td>
 </tr>
-</table>
-<table align="center">
 </table>
 </body>
 </html>
