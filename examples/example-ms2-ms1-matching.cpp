@@ -312,9 +312,11 @@ int main(int argc, char* argv[])
         if (adjList[i].empty()) {
             ofs << '\n';
         } else {
+            ofs << " -> ";
             typedef std::set<unsigned int>::const_iterator SI;
             for (SI j = adjList[i].begin(); j != adjList[i].end(); ++j) {
-                ofs << '\t' << ms2scans[(*j)-xics.size()].sequence_;
+                ofs << " (" << ms2scans[(*j)-xics.size()].rt_
+                  << ',' << ms2scans[(*j)-xics.size()].mz_ << ')';
             }
             ofs << '\n';
        }

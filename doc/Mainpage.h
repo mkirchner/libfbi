@@ -48,7 +48,7 @@ With cmake in the system path, the build process is
  tar xvzf libfbi-xxxxxxx.tar.gz
  mkdir libfbi-build
  cd libfbi-build
- cmake ../libfbi-xxxxxxx
+ cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DENABLE_TESTING=TRUE ../libfbi
  make
  make test
 \endverbatim
