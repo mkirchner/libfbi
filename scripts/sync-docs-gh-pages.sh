@@ -30,6 +30,11 @@ fi
 ( cd $1 ; rm -rf doc/html/* )
 ( cd $2 ; tar cf - doc/html | ( cd $1 ; tar xvf - ) )
 
+echo "Synced working copy with current doc."
+echo "Please check that everything is ok, then call:"
+echo "    git commit -a -m \"doc update\""
+echo "    git push gh-pages origin/gh-pages"
+
 # commit the change
 #( cd $1 ; git commit -a -m "doc update" )
 
