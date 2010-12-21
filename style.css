@@ -1,15 +1,15 @@
 body { 
     font-family: sans-serif;
     background-color: #ffffff;
-    color: #64747c;
-    font-size: 0.9em;
+    color: #000000;
+    font-size: 0.85em;
 }
 
 table.canopy {
     table-layout: fixed;
     background-color: #ffffff;
     width:70%;
-    margin-top:15%;
+    margin-top: 50px;
     margin-left:auto;
     margin-right:auto;
     border: 0px; /*1px solid #eef0e3;*/
@@ -45,7 +45,7 @@ td.content {
     border: 10px solid #ffffff;
 }
 .heading1 {
-    color: #64747c;
+    color: #000000; /*#64747c;*/
     font-size: 1.1em;
     font-weight: bold;
 }
