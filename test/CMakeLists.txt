@@ -1,4 +1,3 @@
-
 # check if have valgrind
 SET(HAVE_VALGRIND TRUE)
 FIND_PROGRAM(VALGRIND_EXECUTABLE valgrind)
