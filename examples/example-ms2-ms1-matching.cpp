@@ -271,7 +271,6 @@ std::vector<MS2Scan> parseMS2ScanFile(ProgramOptions & options)
   ifs.setf(std::ios::fixed, std::ios::floatfield);
 
   double mz, rt;
-  std::string seq;
 
   while (ifs >> rt >> mz) {
     MS2Scan::Ions ions;
@@ -293,32 +292,44 @@ int main(int argc, char* argv[])
     std::vector<Xic> xics = parseXicFile(options);
     std::vector<MS2Scan> ms2scans = parseMS2ScanFile(options);
 
+    // std::cerr << "# xics: " << xics.size() << std::endl;
+    // std::cerr << "# ms2scans: " << ms2scans.size() << std::endl;
+
     timeval start, end; 
     gettimeofday(&start, NULL);
     auto adjList = SetA<Xic, 0, 1>::SetB<MS2Scan, 0, 1>::intersect(
       xics, XicBoxGenerator(options.fullscanPpm_, options.rtWindow_),
       ms2scans, MS2ScanBoxGenerator(options.prescanPpm_, options.rtWindow_));
     gettimeofday(&end, NULL);
-    std::cout << "fbi runtime: "
+    std::cout << "fbi elapsed run time: "
       << static_cast<double>(end.tv_sec - start.tv_sec) +
          static_cast<double>(end.tv_usec - start.tv_usec)* 1E-6 << '\n';
 
+    // std::cerr << "size of adjecency list: " << adjList.size() << std::endl;
+
     std::ofstream ofs(options.outputFileName_.c_str());
     ofs.setf(std::ios::fixed, std::ios::floatfield);
-    for (size_t i = 0; i < xics.size(); ++i) {
-        Xic& xic = xics[i];
-        ofs << xic.rt_ << '\t' << xic.mz_ << '\t' << '\t' 
-          << xic.abundance_;
-        if (adjList[i].empty()) {
-            ofs << '\n';
-        } else {
-            ofs << " -> ";
+    size_t nXics = xics.size();
+    for (size_t i = 0; i < nXics; ++i) {
+        if (!adjList[i].empty()) {
             typedef std::set<unsigned int>::const_iterator SI;
+            SI best = adjList[i].begin();
+            double bestDist = std::numeric_limits<double>::max();
+            // resolve conflict by choosing the closest m/z
             for (SI j = adjList[i].begin(); j != adjList[i].end(); ++j) {
-                ofs << " (" << ms2scans[(*j)-xics.size()].rt_
-                  << ',' << ms2scans[(*j)-xics.size()].mz_ << ')';
+                size_t k = *j - nXics;
+                double dist = std::abs(xics[i].mz_ - ms2scans[k].mz_);
+                // std::cerr << "d(" << xics[i].mz_ << "[" << i << "]," 
+                //   << ms2scans[k].mz_ << "[" << k << "]) = " << dist << std::endl;
+                if (dist < bestDist) {
+                    best = j;
+                    bestDist = dist;
+                }
             }
-            ofs << '\n';
+            // print the pair (current precursor -> new precursor)
+            size_t k = *best - nXics;
+            ofs << xics[i].mz_ << '\t' << xics[i].rt_
+              << "\t->\t" << ms2scans[k].mz_ << '\t' << ms2scans[k].rt_ << '\n';
        }
     }
     return 0;
