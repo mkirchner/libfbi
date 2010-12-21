@@ -198,41 +198,79 @@ struct TraitsGenerator{
   }
 };
 
+
+/** Base template class*/
 template <size_t ...>
 struct IndexChecker;
 
+/** Check if any of the indices are bigger than T*/
 template <size_t T, size_t FirstIndex, size_t ... Indices>
 struct IndexChecker<T, FirstIndex, Indices...>{ 
+  /** enum for compile-time checks*/
   enum {
+    /** value == false if any index is greater or equal than T*/
     value = (FirstIndex < T) && IndexChecker<T, Indices...>::value
   };
 };
-
+/** Always return true if there are no indices left*/
 template <size_t T>
 struct IndexChecker<T>{
+  /** enum for compile-time checks*/
   enum {
+/** Always return true if there are no indices left*/
     value = true
   };
 };
 
+
+/** 
+ * Templated helper class, returns the number of functors passed.
+ * As we should be able to pass multiple types of functors and even
+ * multiple objects per type, we need to calculate how many functors there are.
+ * This is needed to calculate the original indices of the boxes from given pointers,
+ * as only they are passed around - the re-identification is made by pointer-arithmetic.
+ */
 struct FunctorChecker {
 
+  /** 
+   *If the current head is a single functor-object, add 1
+   * \param functor A single functor, having a
+   * \verbatim get<Dim>(const BoxType & ) const; \endverbatim method
+   * \param functors Other functors, see functor
+   */
   template <class Functor, class ...Functors>
   static std::size_t count(const Functor & functor, const Functors& ...functors) {
     return 1 + count(functors...);
   }
 
+  /** If there is only a single functor left, add 1
+   * \param functor A single functor, having a
+   * \verbatim get<Dim>(const BoxType & ) const; \endverbatim method
+   */
   template <class Functor>
   static std::size_t count(const Functor & functor) {
     return 1;
   }
 
+  /** Specialized function call, if the passed object is a std::vector of functors,
+   * count all of them as we will create one object per vector-size.
+   * \param functor A single functor or a vector of functors of the same type,
+   *  having a \verbatim get<Dim>(const BoxType & ) const; \endverbatim method
+   * \param functors More functors
+   * 
+   */
   template <class Functor, class ...Functors>
   static
   std::size_t count(const std::vector<Functor> & functor, const Functors& ...functors) {
     return functor.size() + count(functors...);
   }
-
+  /** 
+   * Specialized case, if only one functor-type is left and that one is a vector,
+   * count every instantiated object of that typein the container.
+   * \param functor A single functor or a vector of functors of the same type,
+   *  having a \verbatim get<Dim>(const BoxType & ) const; \endverbatim method
+   *
+   */
   template <class Functor>
   static std::size_t count(const std::vector<Functor> & functor) {
     return functor.size();

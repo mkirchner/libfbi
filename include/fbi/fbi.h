@@ -105,11 +105,11 @@ class SetA{
   /** Empty TIndices shouldn't work */
   static_assert(
     sizeof...(TIndices) > 0, 
-    "Please specify at least one index");
+    "Please specify at least one index for the dimensions");
 
   /** Throw a compile error when the indices aren't correct. */
   static_assert(TINDICESCORRECT, 
-                "Please check your SetAIndices again, the \
+                "Please check your SetA-Indices again, the \
                 Traits<BoxType>::key_type \
                 does not have enough dimensions to use your indices");
 
@@ -313,16 +313,20 @@ class SetA{
    * (cartesian products of intervals), it is 
    * possible to test for intersections between them.
    * 
-   * \param dataContainer A container with a const_iterator, 
+   * \param[in] dataContainer A container with a const_iterator, 
    * it has to hold the same type as the one the tree was instantiated with.
    * Both key sets will be extracted by using 
    * functors on every value in this container.
-   * \param ifunctor This has to be a class with a public 
-   * \verbatim get<Dim>(const BoxType & ) const; \endverbatim method.
-   * The tree will create the keys by extracting the indexed dimensions from the
-   *  BoxType.
-   * \param qfunctors Like ifunctor, 
-   * these functors will each create a different key.
+   * \param[in] ifunctor This has to be either a class with a public 
+   * \verbatim get<Dim>(const BoxType & ) const; \endverbatim method or
+   * a std::vector holding that kind of class, if multiple interval objects
+   * per box should be made. 
+   * The tree will create the keys by using the functor to extract 
+   * the indexed dimensions from the BoxType.
+   * \param[in] qfunctors Like ifunctor, 
+   * these functors will each create a different key, they can also be of type
+   * std::vector<functor>, for every object in each vector
+   * one query will be created per box in dataContainer.
    * 
    * \return We'll return a std::vector<std::set<IntType> >, 
    * as parallel edges are possible but not desired for the end result.
@@ -373,12 +377,16 @@ class SetA{
    * it has to hold the same type as the one the tree was instantiated with.
    * Both key sets will be extracted by using 
    * functors on every value in this container.
-   * \param[in] ifunctor This has to be a class with a public 
-   * \verbatim get<Dim>(const BoxType & ) const; \endverbatim method.
-   * The tree will create the keys by extracting the indexed dimensions from the
-   *  BoxType.
+   * \param[in] ifunctor This has to be either a class with a public 
+   * \verbatim get<Dim>(const BoxType & ) const; \endverbatim method or
+   * a std::vector holding that kind of class, if multiple interval objects
+   * per box should be made. 
+   * The tree will create the keys by using the functor to extract 
+   * the indexed dimensions from the BoxType.
    * \param[in] qfunctors Like ifunctor, 
-   * these functors will each create a different key.
+   * these functors will each create a different key, they can also be of type
+   * std::vector<functor>, for every object in each vector
+   * one query will be created per box in dataContainer.
    * 
    * \return We'll return a std::vector<std::set<IntType> >, 
    * as parallel edges are possible but not desired for the end result.
@@ -691,12 +699,20 @@ SetB {
    *
    * \param[in] dataContainer STL Container providing a 
    *  forward iterator and holding a value_type.
-   * \param[in] ifunctor A functor to operate on value_type and create a 
-   *  key_type by getting a pair in every indexed dimension.
+   * \param[in] ifunctor This has to be either a class with a public 
+   * \verbatim get<Dim>(const BoxType & ) const; \endverbatim method or
+   * a std::vector holding that kind of class, if multiple interval objects
+   * per box should be made. 
+   * The tree will create the keys by using the functor to extract 
+   * the indexed dimensions from the BoxType. They will work on every object in
+   * dataContainer.
    * \param[in] qdataContainer STL Container providing a 
    *  forward iterator and holding a qvalue_type.
-   * \param[in] qfunctors a variadic list of functors to create several 
-   *  key_type objects which will be associated with the original data.
+   * \param[in] qfunctors Like ifunctor, 
+   * these functors will each create a different key, they can also be of type
+   * std::vector<functor>, for every object in each vector
+   * one query will be created per object in qdataContainer.
+   * (|qfunctors.size()| * |qdataContainer| for every qfunctors type)
    * \return We'll return a std::vector<std::set<IntType> >, 
    * as parallel edges are possible but not desired for the end result.
    * Note that in the bipartite case, the boxes in dataContainer will be indexed
@@ -802,13 +818,20 @@ SetB {
    * \param[in] cutoff The theta cutoff value for switching into OneWayScan
    * \param[in] dataContainer STL Container providing a 
    *  forward iterator and holding a value_type.
-   * \param[in] ifunctor A functor to operate on value_type and create a 
-   *  key_type by getting a pair in every indexed dimension.
+   * \param[in] ifunctor This has to be either a class with a public 
+   * \verbatim get<Dim>(const BoxType & ) const; \endverbatim method or
+   * a std::vector holding that kind of class, if multiple interval objects
+   * per box should be made. 
+   * The tree will create the keys by using the functor to extract 
+   * the indexed dimensions from the BoxType. They will work on every object in
+   * dataContainer.
    * \param[in] qdataContainer STL Container providing a 
    *  forward iterator and holding a qvalue_type.
-   * \param[in] qfunctors a variadic list of functors to create several 
-   *  key_type objects which will be associated with the original data.
-   * \return We'll return a std::vector<std::set<IntType> >, 
+   * \param[in] qfunctors Like ifunctor, 
+   * these functors will each create a different key, they can also be of type
+   * std::vector<functor>, for every object in each vector
+   * one query will be created per object in qdataContainer.
+   * (|qfunctors.size()| * |qdataContainer| for every qfunctors type)
    * as parallel edges are possible but not desired for the end result.
    * Note that in the bipartite case, the boxes in dataContainer will be indexed
    * from 0 upto |dataContainer|-1, whereas the ones in qdataContainer are 
