@@ -37,13 +37,13 @@ CONFIGURE_FILE(
 )
 
 # add subdirs
-OPTION(ENABLE_TESTING "Compile testsuites" ON)
+OPTION(ENABLE_TESTING "Compile tests" ON)
 OPTION(ENABLE_COVERAGE "Enable GCov coverage analysis (defines a 'coverage' target and enforces static build of ms++)" OFF)
 OPTION(ENABLE_BENCHMARK "Do benchmarking and plotting" ON)
 OPTION(ENABLE_EXAMPLES "Compile examples" ON)
 
 IF (ENABLE_BENCHMARK OR ENABLE_EXAMPLES)
-# require boost
+    # require boost
     SET(Boost_USE_STATIC_LIBS OFF)
     SET(Boost_USE_MULTITHREAD OFF)
     FIND_PACKAGE(Boost COMPONENTS program_options system REQUIRED)
@@ -51,22 +51,16 @@ IF (ENABLE_BENCHMARK OR ENABLE_EXAMPLES)
     LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 ENDIF (ENABLE_BENCHMARK OR ENABLE_EXAMPLES)
 
-
-
-
-
 #############################################################################
 # syncing docs
 #############################################################################
-
 ADD_CUSTOM_TARGET(syncdocs COMMAND ${LIBFBI_SOURCE_DIR}/scripts/sync-docs-gh-pages.sh ${LIBFBI_SOURCE_DIR} ${LIBFBI_BINARY_DIR})
 ADD_DEPENDENCIES(syncdocs doc)
-
 
 #############################################################################
 # regression tests
 #############################################################################
-SET(UPDATE_TYPE svn)
+SET(UPDATE_TYPE git)
 IF (ENABLE_TESTING)
   INCLUDE(CTest)
   ENABLE_TESTING()
@@ -128,7 +122,6 @@ ENDIF (ENABLE_EXAMPLES)
 #############################################################################
 # documentation
 #############################################################################
-
 # doxygen support
 CONFIGURE_FILE(${LIBFBI_SOURCE_DIR}/doc/Doxyfile.cmake
     ${LIBFBI_BINARY_DIR}/doc/Doxyfile
@@ -139,16 +132,15 @@ FIND_PACKAGE(Doxygen)
 # target for doxygen
 ADD_CUSTOM_TARGET(doc COMMAND ${DOXYGEN} ${LIBFBI_BINARY_DIR}/doc/Doxyfile)
 
-
 #############################################################################
 # installation
 #############################################################################
-
 # headers
 INSTALL(DIRECTORY ${LIBFBI_SOURCE_DIR}/include/fbi
     DESTINATION include
     COMPONENT headers
-    REGEX "/.svn$" EXCLUDE)
+    REGEX "/.git$" EXCLUDE
+    PATTERN "config.h.cmake" EXCLUDE)
 
 # config.h
 INSTALL(FILES ${LIBFBI_BINARY_DIR}/include/fbi/config.h
@@ -161,19 +153,15 @@ INSTALL(DIRECTORY ${LIBFBI_BINARY_DIR}/doc
     COMPONENT documentation
     PATTERN "Doxyfile" EXCLUDE)
 
-
-
 #############################################################################
 # packaging
 #############################################################################
-
 # FIXME: make sure that the documentation is compiled and pdfs are 
 #        generated prior to packaging!
 
 set(CPACK_PACKAGE_NAME "libfbi")
 set(CPACK_PACKAGE_VENDOR "steenlab.org")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Fast Box Intersection library")
-
 
 # CPack version strings
 SET(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
@@ -189,7 +177,7 @@ set(CPACK_COMPONENT_HEADERS_DISPLAY_NAME "C++ Development Headers")
 set(CPACK_COMPONENT_DOCUMENTATION_DISPLAY_NAME "C++ Interface Documentation")
 
 set(CPACK_COMPONENT_LIBRARIES_DESCRIPTION
-    "Interval tree library")
+    "Compiled libraries for fast box intersection.")
 set(CPACK_COMPONENT_HEADERS_DESCRIPTION
     "C++ header files for libfbi development.")
 set(CPACK_COMPONENT_DOCUMENTATION_DESCRIPTION
