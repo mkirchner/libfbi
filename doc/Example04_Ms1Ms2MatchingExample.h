@@ -55,7 +55,7 @@ template<> struct Traits<Xic> : mpl::TraitsGenerator<double, double> {};
 template<> struct Traits<MS2Scan> : mpl::TraitsGenerator<double, double> {};
 } 
 \endcode
-This tellst \libfbi that both, the XIC and the ms2scan, can be queried in two
+This tells \t libfbi that both, the XIC and the ms2scan, can be queried in two
 dimensions, each of which is of type double (i.e. a floating point number).
 Note, that it is not necessary to inform \c libfbi about all data members of a
 class if these data members are not used in the fast box intersection process.
