@@ -1,0 +1,16 @@
+#
+# libfbiConfig.cmake - find libfbi includes and library
+#
+# sets the following variables:
+#   LIBFBI_INCLUDE_DIR - where to find the fbi/ include tree
+#   LIBFBI_FOUND - boolean to indicate if libfbi was found
+#
+
+set (LIBFBI_FOUND 1)
+
+set (LIBFBI_INCLUDE_DIRS @CMAKE_INSTALL_PREFIX@/include)
+
+set (LIBFBI_USE_FILE @CMAKE_INSTALL_PREFIX@/share/libfbi/cmake/LIBFBIUse.cmake)
+
+set (LIBFBI_REQUIRED_CXX_FLAGS "-std=c++0x")
+
