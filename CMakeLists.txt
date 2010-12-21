@@ -133,8 +133,36 @@ FIND_PACKAGE(Doxygen)
 ADD_CUSTOM_TARGET(doc COMMAND ${DOXYGEN} ${LIBFBI_BINARY_DIR}/doc/Doxyfile)
 
 #############################################################################
+# create a package config file
+#############################################################################
+# we don't need to bother about compiled libs - there are none.
+SET (LIBFBI_INCLUDE ${LIBFBI_BINARY_DIR}/include)
+CONFIGURE_FILE(
+    ${LIBFBI_SOURCE_DIR}/LIBFBIConfig.cmake.in
+    ${LIBFBI_BINARY_DIR}/LIBFBIConfig.cmake 
+    @ONLY
+)
+CONFIGURE_FILE(
+    ${LIBFBI_SOURCE_DIR}/LIBFBIUse.cmake.in
+    ${LIBFBI_BINARY_DIR}/LIBFBIUse.cmake
+    COPYONLY
+)
+INSTALL(FILES 
+    ${LIBFBI_BINARY_DIR}/LIBFBIUse.cmake
+    ${LIBFBI_BINARY_DIR}/LIBFBIConfig.cmake
+    DESTINATION share/libfbi/cmake
+    COMPONENT headers
+)
+
+#############################################################################
 # installation
 #############################################################################
+# location, location, location
+IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+SET(CMAKE_INSTALL_PREFIX
+"/usr/local" CACHE PATH "libfbi install prefix" FORCE
+)
+ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 # headers
 INSTALL(DIRECTORY ${LIBFBI_SOURCE_DIR}/include/fbi
     DESTINATION include
