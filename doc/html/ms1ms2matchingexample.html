@@ -74,7 +74,7 @@ Setting Things Up</a></h2>
 <span class="keyword">template</span>&lt;&gt; <span class="keyword">struct </span>Traits&lt;Xic&gt; : mpl::TraitsGenerator&lt;double, double&gt; {};
 <span class="keyword">template</span>&lt;&gt; <span class="keyword">struct </span>Traits&lt;MS2Scan&gt; : mpl::TraitsGenerator&lt;double, double&gt; {};
 } 
-</pre></div><p> This tellst  that both, the XIC and the ms2scan, can be queried in two dimensions, each of which is of type double (i.e. a floating point number). Note, that it is not necessary to inform <code>libfbi</code> about all data members of a class if these data members are not used in the fast box intersection process. For example, the <code>Xic</code> struct has an <code>abundance</code> member that is irrelevant for the intersection task at hand and is thus not included in <code>Traits&lt;Xic&gt;</code>.</p>
+</pre></div><p> This tells  libfbi that both, the XIC and the ms2scan, can be queried in two dimensions, each of which is of type double (i.e. a floating point number). Note, that it is not necessary to inform <code>libfbi</code> about all data members of a class if these data members are not used in the fast box intersection process. For example, the <code>Xic</code> struct has an <code>abundance</code> member that is irrelevant for the intersection task at hand and is thus not included in <code>Traits&lt;Xic&gt;</code>.</p>
 <p>Now we need to write the <code>Xic</code> and <code>MS2Scan</code> accessor/adapter functions that allow libfbi to derive interval information in each dimension for each ms2scan and XIC measurement. For the <code>Xic</code> struct, this yields</p>
 <div class="fragment"><pre class="fragment"><span class="keyword">struct </span>XicBoxGenerator
 {
@@ -200,7 +200,7 @@ Using libfbi in your main program</a></h2>
 </iframe>
 </div>
 
-<hr size="1"/><address style="text-align: right;"><small>Generated on Mon Dec 20 18:43:05 2010 for tree by&nbsp;
+<hr size="1"/><address style="text-align: right;"><small>Generated on Tue Dec 21 14:39:59 2010 for tree by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.6.1 </small></address>
 </body>

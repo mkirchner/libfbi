@@ -4,7 +4,7 @@
 <area shape="rect" id="node7" href="$classfbi_1_1_set_a.html#ad0886ceee881c83a594490832175409f" title="createPtrVector" alt="" coords="500,59,633,88"/>
 <area shape="rect" id="node15" href="$classfbi_1_1_set_a_1_1_state.html#a78b69de8dd7df106ad233aac3fea3879" title="fbi::SetA::State::getLimits" alt="" coords="465,112,668,141"/>
 <area shape="rect" id="node17" href="libstdc++.tag$a01138.html#aeb493b06f3d6d7fff5ed30083f9d027c" title="make_tuple" alt="" coords="517,165,616,195"/>
-<area shape="rect" id="node19" href="$classfbi_1_1_set_a.html#aed91b3fecd705e608dccae4f8ae397ee" title="Empty TIndices shouldn&#39;t work." alt="" coords="511,219,623,248"/>
+<area shape="rect" id="node19" href="$classfbi_1_1_set_a.html#a2f48746297c1133103c4f8db5cb29dda" title="static_assert" alt="" coords="511,219,623,248"/>
 <area shape="rect" id="node9" href="libstdc++.tag$a00730.html#a52e9b3c0d3157f9db067259fc2591085" title="std::vector::begin" alt="" coords="717,5,861,35"/>
 <area shape="rect" id="node11" href="libstdc++.tag$a00730.html#a8c27a1d92949b353ac4503001c0d1066" title="std::vector::end" alt="" coords="723,59,856,88"/>
 <area shape="rect" id="node13" href="libstdc++.tag$a00730.html#a49e9afae414f8d8e3a2e1221c3a050c6" title="std::vector::size" alt="" coords="721,112,857,141"/>
