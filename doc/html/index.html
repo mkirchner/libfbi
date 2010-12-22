@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<title>tree: libfbi: a fast box intersection C++ library</title>
+<title>libfbi: libfbi: fast box intersection in C++</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javaScript" src="search/search.js"></script>
@@ -38,37 +38,66 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   </div>
 </div>
 <div class="contents">
-<h1>libfbi: a fast box intersection C++ library</h1><div align="center">
+<h1>libfbi: fast box intersection in C++</h1><div align="center">
 <img src="libfbi-small.png" alt="libfbi-small.png"/>
 </div>
 <h2><a class="anchor" id="sec_intro">
 Introduction</a></h2>
-<p><code>libfbi</code> computes intersections between two sets of boxes. This is an important task in many data analysis algorithms that require e.g. neighborhood information (in the form of an adjacency list) for all points in large datasets.</p>
+<p><code>libfbi</code> is a header-only C++ template library that enables the efficient solution of box intersection problems in an arbitrary number of dimensions. The implementation is based on a publication by Zomorodian and Edelsbrunner (2000) and makes heavy use of C++ metaprogramming and variadic template programming techniques. Despite this complexity, the library provides a straightforward and simple interface that allows easy integration into new and existing projects.</p>
+<p>libfbi has been developed to tackle feature extraction and data analysis tasks for high-resolution liquid chromatorgraphy/mass spectrometry (LC/MS) data sets. The library itself, however, is in no way limited to this application scenario: it can easily be used to approach many kinds of multi-dimensional box intersection and related problems (e.g. determining bounding volumes, k-nearest-neighbor search, density estimation, correspondence estimation in motion or pattern alignment tasks, etc.).</p>
+<h2><a class="anchor" id="sec_license">
+Licensing</a></h2>
+<p><code>libfbi</code> is available under an MIT license. In brief, this means that everybody, including academic institutions and (in particular) companies are expliciltly allowed to make use of <code>libfbi</code>, as long as the original disclaimers and copyright notices are left untouched. Companies are explicitly allowed to incorporate <code>libfbi</code> into new or existing propietary software products and are not required to disclose any source code that uses the library (yes, you can have the cake and eat it too). Please check the license text for all details.</p>
+<p>That said, all contributions to the library are much appreciated.</p>
 <h2><a class="anchor" id="sec_citation">
 Citation</a></h2>
-<p>Details concerning the <code>libfbi</code> implementation are available from two principal sources: </p>
+<p>If you use <code>libfbi</code> in a publication, you must cite the following paper: </p>
 <ul>
-<li>Kirchner M*, Xu B*, Steen JAJ, Steen H (2010). libfbi: A C++ Implementation for Fast Box Intersection and Application to Sparse Mass Spectrometry Data. <em>Submitted</em>. </li>
-<li>Zomorodian A, Edelsbrunner H (2000). Fast Software for Box Intersections. <em>Proceedings of the Sixteenth Annual Symposium on Computational Geometry, 129-138</em>.</li>
+<li>Kirchner M*, Xu B*, Steen JAJ, Steen H (2011). libfbi: A C++ Implementation for Fast Box Intersection and Application to Sparse Mass Spectrometry Data. <em>Submitted</em>.</li>
 </ul>
-<h2><a class="anchor" id="Requirements">
+<p><code>libfbi</code> development has been carried out in the Steen &amp; Steen Lab: <a href="http://steenlab.org/">http://steenlab.org/</a></p>
+<h2><a class="anchor" id="Software">
 Requirements</a></h2>
 <p>Please note that <code>libfbi</code> makes heavy use of TR1 and C++0x features, in particular tuples and variadic templates. Development was carried out under GNU GCC 4.4, on an Ubuntu Linux system. Windows users currently need to make use of the MinGW compiler as variadic template support under Microsoft Visual Studio will only be available starting from Visual Studio 11.</p>
+<p><code>libfbi</code> itself is free of any third-party dependencies; the tests and examples make use of the VIGRA <code>unittest</code> header file and depend on the BOOST library. Memory tests require <code>valgrind</code>, coverage analysis depends on <code>gcov</code>.</p>
+<h2><a class="anchor" id="sec_download">
+Download</a></h2>
+<p>Tar archives with <code>libfbi</code> headers, a CMake config file (expecting the installation in <code>/usr/local</code>) and the complete HTML documentation are available from <a href="http://software.steenlab.org/libfbi">http://software.steenlab.org/libfbi</a></p>
 <h2><a class="anchor" id="sec_install">
 Installation</a></h2>
-<p><code>libfbi</code> is a header-only library and does not require the installation of any compiled libraries.</p>
-<h3><a class="anchor" id="sec_install_src">
-Distribution Packages</a></h3>
-<p><code>libfbi</code> distribution packages for are available for download from the <code>libfbi</code> project page at <a href="http://software.steenlab.org/libfbi.">http://software.steenlab.org/libfbi.</a> To install, simply run the installer and ensure that the <code>libfbi</code> include directory is in the include search path.</p>
-<h3><a class="anchor" id="sec_install_src">
-Distribution Packages</a></h3>
-<p>Because <code>libfbi</code> is a header-only library, there is no need to build the library inorder to use it in software projects. The following illustrates how to build the examples, tests and distribution packages. Bundling <code>libfbi</code> requires a working CMake build system (available from <a href="http://cmake.org/">http://cmake.org/</a>) and CMake &gt;= 2.6.</p>
+<p><code>libfbi</code> is a header-only library and does not require the installation of any compiled libraries. To use libfbi, </p>
+<ul>
+<li>download a header file and documentation bundle, </li>
+<li>include the header files in your project and </li>
+<li>adjust the compilation flags of your compiler to support C++0x functionality (e.g. <code>libfbi</code> requires the <code>-std=c++0x</code> flag in gcc).</li>
+</ul>
+<p>If you use the <code>CMake</code> build system, unpack the <code>libfbi</code> distribution to a convenient location and include the following lines into your <code>CMakeLists.txt</code> to use <code>libfbi:</code> </p>
+<div class="fragment"><pre class="fragment">
+[...]
+find_package(LIBFBI)
+if (LIBFBI_FOUND)
+    include (${LIBFBI_USE_FILE})
+    add_executable(MyProgram MyProgram.cpp)
+endif(LIBFBI_FOUND)
+[...]
+</pre></div><p> If you include the <code>share/libfbi/cmake</code> directory of the <code>libfbi</code> distribution in the project search path, you can simply build your project using </p>
+<div class="fragment"><pre class="fragment">
+cd &lt;my project build dir&gt;
+cmake [optional cmake flags for your project] &lt;my project source dir&gt; 
+</pre></div><p> If you do not include the directory, you need to tell <code>find_package</code> where to find the <code>libfbi</code> configuration information: </p>
+<div class="fragment"><pre class="fragment">
+cd &lt;my project build dir&gt;
+cmake -DLIBFBI_DIR=&lt;install_dir&gt;/share/libfbi/cmake \
+    [optional cmake flags for your project] &lt;my project source dir&gt; 
+</pre></div><h3><a class="anchor" id="sec_install_src">
+Building from Source</a></h3>
+<p>The following illustrates how to build the examples, tests and distribution packages. Bundling <code>libfbi</code> requires a working CMake build system (available from <a href="http://cmake.org/">http://cmake.org/</a>) and CMake &gt;= 2.6.</p>
 <p>With cmake in the system path, the build process is </p>
 <div class="fragment"><pre class="fragment">
  tar xvzf libfbi-xxxxxxx.tar.gz
  mkdir libfbi-build
  cd libfbi-build
- cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DENABLE_TESTING=TRUE ../libfbi
+ ccmake ../libfbi
  make
  make test
 </pre></div><p> And, optionally: </p>
@@ -89,7 +118,7 @@ Distribution Packages</a></h3>
 </iframe>
 </div>
 
-<hr size="1"/><address style="text-align: right;"><small>Generated on Tue Dec 21 14:39:58 2010 for tree by&nbsp;
+<hr size="1"/><address style="text-align: right;"><small>Generated on Wed Dec 22 02:29:00 2010 for libfbi by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.6.1 </small></address>
 </body>
