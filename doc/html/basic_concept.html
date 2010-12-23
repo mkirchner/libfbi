@@ -43,6 +43,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <h1><a class="anchor" id="basic_concept">Basic Concepts </a></h1><p>The main functionality of <code>libfbi</code> is the fast determination of pairs of intersection boxes from two sets. With respect to the interface, this functionality is provided by a single static function: </p>
 <div class="fragment"><pre class="fragment">fbi::setA&lt;BoxType1, TIndices1&gt;::setB&lt;BoxType2, TIndices2&gt;::intersect(a, aBoxGen,  b, bBoxGen)
 </pre></div><p> where <code>a</code> is the container (e.g. <code><a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html">std::vector</a></code>) of elements that make up the first set and <code>b</code> is the container that makes up the second set. The function returns a <code><a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00539.html">std::list</a></code> of <code>std::sets</code> that holds the adjecency information for each element in both sets (the adjacency list index starts at 0, indexes all elements in <code>a</code>, then continues indexing all elements in <code>b</code>).</p>
+<h2><a class="anchor" id="sec_intersect">
+Using intersect(...)</a></h2>
 <p>It is important to realize that <code>libfbi</code> never touches the data contained in <code>a</code> or <code>b</code>. Instead, it constructs a box for each element in <code>a</code> and <code>b</code> on the fly and uses these boxes throughout the calculation. But how does <code>libfbi</code> acquire this information? This is where the user comes in: it is the task of the user to provide <code>libfbi</code> with functions that deliver the interval information in each dimension. Assume we have a type <code>X</code>. <code>X</code> has many data members, but for the context of the range search only a few of them are relevant: </p>
 <div class="fragment"><pre class="fragment"><span class="keyword">struct </span>X {
     <span class="keywordtype">double</span> a, b, c, d, e, f, g, h, i, j;
@@ -109,7 +111,29 @@ y, BoxGeneratorY);
 </pre></div><p> where <code>x</code> and <code>y</code> are containers of instances of <code>X</code> and <code>Y</code>, respectively.</p>
 <p>In the common use case where one is interested in self-intersection of a set of boxes, <code>libfbi</code> provides a useful shortcut. Assume one wants to determine the set of boxes in <code>a</code> that overlap with each other, given the box definition for the <code>X</code> type from above. In that case, the expression simplifies to </p>
 <div class="fragment"><pre class="fragment"><span class="keyword">auto</span> adjList = fbi::setA&lt;X, 1, 2&gt;::intersect(x, BoxGeneratorX);
-</pre></div> </div>
+</pre></div><h2><a class="anchor" id="sec_adjlist">
+Using the adjacency list</a></h2>
+<p>The call to <code>intersect</code>(...) returns an adjacency list, which in general is a <code><a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html">std::vector</a>&lt;std::set&lt;size_t&gt;</code> &gt; object. The adjacency list has size <code><a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01177.html#gafcd42f466b41bb7059f6edd3af7be4c8">x.size()</a></code> + <code><a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01177.html#gafcd42f466b41bb7059f6edd3af7be4c8">y.size()</a></code>, is indexed starting from 0, runs through the indexes of all elements of <code>x</code>, and continues to index all elements of <code>y</code>. Hence the query results for <code>x</code>[k] are given by </p>
+<div class="fragment"><pre class="fragment">...
+std::set&lt;<span class="keywordtype">size_t</span>&gt; queryResultIndexes = adjList[k];
+...
+</pre></div><p> However, note that the indexes for all elements in <code>y</code> are shifted by <code><a class="elRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01177.html#gafcd42f466b41bb7059f6edd3af7be4c8">x.size()</a></code>. Hence, indexing the elements of <code>y</code> requires some index calculation. For <code>y</code>[k], the query result is available with: </p>
+<div class="fragment"><pre class="fragment">...
+std::set&lt;<span class="keywordtype">size_t</span>&gt; queryResultIndexes = adjList[k+x.size()];
+...
+</pre></div><p> The following illustrates indexing elements in <code>y</code> given its index in the adjacency list: </p>
+<div class="fragment"><pre class="fragment">...
+size_t <a class="codeRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01177.html#ga9a8c05a074abad2cd4c15634dabc250f">shift</a> = x.size();
+<span class="keyword">typedef</span> <a class="codeRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00730.html">std::vector&lt;std::set&lt;size_t&gt;</a> &gt;::const_iterator VSCI;
+<span class="keywordflow">for</span> (VSCI i = adjList.begin(); i != adjList.end(); ++i) {
+    <a class="codeRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01138.html#aaf93fdf0812752e0e02c501dea1b38f0">std::cout</a> &lt;&lt; x[<a class="codeRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01157.html#ga0cdb1b8e35620aaaaf4b65f19b8bd4c8">std::distance</a>(adjList.begin(), i)] &lt;&lt; <span class="charliteral">&apos;\n&apos;</span>;
+    <span class="keyword">typedef</span> <a class="codeRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a00270.html#a3d51d0ac851fe6c1b5d59e3b5aacfe57">std::set&lt;size_t&gt;::const_iterator</a> SCI; 
+    <span class="keywordflow">for</span> (SCI j = i-&gt;begin(); j != i-&gt;end(); ++j) {
+        <a class="codeRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01138.html#aaf93fdf0812752e0e02c501dea1b38f0">std::cout</a> &lt;&lt; <span class="stringliteral">&quot;  +- &quot;</span> &lt;&lt; y[*j - <a class="codeRef" doxygen="libstdc++.tag:http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/" href="http://gcc.gnu.org/onlinedocs/libstdc++/latest-doxygen/a01177.html#ga9a8c05a074abad2cd4c15634dabc250f">shift</a>] &lt;&lt; <span class="charliteral">&apos;\n&apos;</span>;
+    }
+}
+</pre></div><p> This code will print all elements in <code>x</code> and <code>y</code>, each with all its neighbors indented beneath it. Note that (because box intersection calculates undirected graphs) this prints each pair twice: for every combination (m,n) present in <code>adjList</code>, there is also the combination (n,m). </p>
+</div>
 <!--- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -124,7 +148,7 @@ y, BoxGeneratorY);
 </iframe>
 </div>
 
-<hr size="1"/><address style="text-align: right;"><small>Generated on Wed Dec 22 02:29:01 2010 for libfbi by&nbsp;
+<hr size="1"/><address style="text-align: right;"><small>Generated on Thu Dec 23 10:01:51 2010 for libfbi by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.6.1 </small></address>
 </body>
