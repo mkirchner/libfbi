@@ -12,6 +12,7 @@ returns a \c std::list of \c std::sets that holds the adjecency information for
 each element in both sets (the adjacency list index starts at 0, indexes all
 elements in \c a, then continues indexing all elements in \c b).
 
+\section sec_intersect Using intersect(...)
 It is important to realize that \c libfbi never touches the data contained in
 \c a or \c b. Instead, it constructs a box for each element in \c a and \c b on
 the fly and uses these boxes throughout the calculation. But how does \c libfbi
@@ -107,4 +108,42 @@ the \c X type from above. In that case, the expression simplifies to
 \code
 auto adjList = fbi::setA<X, 1, 2>::intersect(x, BoxGeneratorX);
 \endcode
+
+\section sec_adjlist Using the adjacency list
+The call to \c intersect(...) returns an adjacency list, which in general is a
+\c std::vector<std::set<size_t> > object. The adjacency list has size \c
+x.size() + \c y.size(), is indexed starting from 0, runs through the
+indexes of all elements of \c x, and continues to index all elements of \c y.
+Hence the query results for \c x[k] are given by
+\code
+...
+std::set<size_t> queryResultIndexes = adjList[k];
+...
+\endcode
+However, note that the indexes for all elements in \c y are shifted by \c
+x.size(). Hence, indexing the elements of \c y requires some index
+calculation. For \c y[k], the query result is available with:
+\code
+...
+std::set<size_t> queryResultIndexes = adjList[k+x.size()];
+...
+\endcode
+The following illustrates indexing elements in \c y given its index in the 
+adjacency list:
+\code
+...
+size_t shift = x.size();
+typedef std::vector<std::set<size_t> >::const_iterator VSCI;
+for (VSCI i = adjList.begin(); i != adjList.end(); ++i) {
+    std::cout << x[std::distance(adjList.begin(), i)] << '\n';
+    typedef std::set<size_t>::const_iterator SCI; 
+    for (SCI j = i->begin(); j != i->end(); ++j) {
+        std::cout << "  +- " << y[*j - shift] << '\n';
+    }
+}
+\endcode
+This code will print all elements in \c x and \c y, each with all its neighbors
+indented beneath it. Note that (because box intersection calculates undirected
+graphs) this prints each pair twice: for every
+combination (m,n) present in \c adjList, there is also the combination (n,m).
 */
