@@ -29,11 +29,14 @@ fi
 # get a copy of the docs
 ( cd $1 ; rm -rf doc/html/* )
 ( cd $2 ; tar cf - doc/html | ( cd $1 ; tar xvf - ) )
+( cd $1 ; git add doc/html )
 
 echo "Synced working copy with current doc."
 echo "Please check that everything is ok, then call:"
 echo "    git commit -a -m \"doc update\""
 echo "    git push gh-pages origin/gh-pages"
+
+cd $1
 
 # commit the change
 #( cd $1 ; git commit -a -m "doc update" )
