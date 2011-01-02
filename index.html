@@ -23,9 +23,11 @@
     <div class="text">
     libfbi is a header-only C++ template library that enables the efficient
     solution of box intersection problems in an arbitrary number of dimensions.
-    The implementation is based on a publication by <a
+    The implementation 
+    <!--
+    is based on a publication by <a
     href="http://www.cs.duke.edu/~edels/Papers/2002-J-01-FastBoxIntersection.pdf"
-    >Zomorodian and Edelsbrunner (2000)</a> and makes heavy use of C++
+    >Zomorodian and Edelsbrunner (2000)</a> and--> makes heavy use of C++
     metaprogramming and variadic template programming techniques. Despite this
     complexity, the library provides a straightforward and simple interface
     that allows easy integration into new and existing projects.
@@ -56,7 +58,15 @@
 </div>
 <div class="paragraph">
     <div class="heading1">
-    Documentation and Testing
+    Development, Documentation and Testing
+    </div>
+    <div class="text">
+    The libfbi code is considered stable; it is actively maintained at <a
+    href="https://github.com/mkirchner/libfbi/">the libfbi github site</a>.
+    If you happen to run into trouble, please do not hesitate
+    to contact <a href="http://marc-kirchner.de">Marc</a> or to make use of the
+    github <a href="https://github.com/mkirchner/libfbi/issues">issue
+    tracking</a> system. 
     </div>
     <div class="text">
     We make use of the <a href="http://www.doxygen.org/">Doxygen</a>
@@ -72,34 +82,27 @@
 </div>
 <div class="paragraph">
     <div class="heading1">
-    Development
+    Download and Licensing (MIT)
     </div>
     <div class="text">
-    The libfbi code is considered stable; it is actively maintained at <a
-    href="https://github.com/mkirchner/libfbi/">github</a>.
-    If you happen to run into trouble, please do not hesitate
-    to contact <a href="http://marc-kirchner.de">Marc</a> or to make use of the
-    github <a href="https://github.com/mkirchner/libfbi/issues">issue
-    tracking</a> system. 
-    </div>
-</div>
-<div class="paragraph">
-    <div class="heading1">
-    Download
+    libfbi is available under a permissive
+    <a href="https://github.com/mkirchner/libfbi/blob/master/LICENSE.txt">
+    MIT license</a> that allows anyone to use, modify and distribute libfbi.
+    Please consider contributing your improvements.
     </div>
     <div class="text">
-    Please note that libfbi makes heavy use of TR1 and C++0x features, in
+    <b>Please note:</b> libfbi makes heavy use of TR1 and C++0x features, in
     particular tuples and variadic templates. Development was carried out under
-    GNU GCC 4.4, on an Ubuntu Linux system. <b>Windows users currently need to
+    GNU gcc 4.4, on an Ubuntu Linux system.  Windows users currently need to
     make use of the MinGW compiler as variadic template support under Microsoft
-    Visual Studio will only be available starting from Visual Studio 11</b>.
+    Visual Studio will only be available starting from Visual Studio 11.
     </div>
     <div class="text">
     Latest stable release: <a href="releases/libfbi-stable-20101222.tar.gz">
     libfbi-stable-20101222.tar.gz</a><br>
     </div>
     <div class="text">
-    Current development snapshot: via <a href="http://git-scm.com/">git</a> from
+    Current development snapshot: via <a href="http://git-scm.com/">git clone</a> from
     <a href="https://github.com/mkirchner/libfbi">github</a>.
     </div>
 </div>
