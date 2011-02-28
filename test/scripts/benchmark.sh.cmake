@@ -28,7 +28,7 @@ case $1 in
   fbi)
     # run the benchmark for libfbi
     echo -e "Points\tTime" > fbi-results.txt
-    for i in `seq -f "%02g" 1 9`; do # should be 1-9
+    for i in 0{1..9}; do # should be 01-09
         echo "Benchmark dataset ${i}:"
         rm -f ${i}/fbi-results.txt
         for j in {03..13};
@@ -48,7 +48,7 @@ case $1 in
   kdtree)
     # run the benchmark for the kdtree
     echo -e "Points\tTime" > kdtree-results.txt
-    for i in `seq -f "%02g" 1 9`; do # should be 1-9
+    for i in 0{1..9}; do # should be 01-09
         echo "Benchmark dataset ${i}:"
         rm -f ${i}/kdtree-results.txt
         for j in {03..13};
