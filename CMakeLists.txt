@@ -25,6 +25,11 @@ SET(CMAKE_CXX0X_FLAGS "-std=c++0x" )
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wconversion -Wall " )
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX0X_FLAGS}" )
 
+IF (NOT CMAKE_BUILD_TYPE)
+    SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
+        "Choose the type of build, options are None Debug Release RelWithDebInfo MinSizeRel."
+        FORCE)
+    ENDIF(NOT CMAKE_BUILD_TYPE)
 
 TRY_COMPILE (HAS_UNIFORM_INT_DISTRIBUTION
     ${CMAKE_BINARY_DIR}
