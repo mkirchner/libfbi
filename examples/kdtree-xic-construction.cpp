@@ -60,28 +60,26 @@ int main(int argc, char* argv[])
   typedef ssrc::spatial::kd_tree<KeyType, MappedType> KdTree;
   KdTree kdtree;
   typedef std::vector<Centroid>::iterator CI;
-  for (CI i = centroids.begin(); i != centroids.end(); ++i) {
-    KeyType key;
-    key[0] = i->mz_;
-    key[1] = i->sn_;
-    MappedType value = i->abundance_;
-    kdtree[key] = value;
+
+  for (CI && i = centroids.begin(), && end = centroids.end(); i != end; ++i) {
+    kdtree.insert(KeyType{{i->mz_, i->sn_}}, i->abundance_);
   }
   kdtree.optimize();
   typedef KdTree::const_iterator KCI;
   std::vector<std::set<size_t> > adjList(centroids.size());
-  for (KCI i = kdtree.begin(); i != kdtree.end(); ++i) {
+
+  for (KCI && i = kdtree.begin(); !i.end_of_range(); ++i) {
     // construct the range query
-    KeyType llh = {{ i->first[0] * (1 - mzWindowPpm * 1E-6),
+    const KeyType llh = {{ i->first[0] * (1 - mzWindowPpm * 1E-6),
       i->first[1] - snWindow - 0.3 }};
-    KeyType urh = {{ i->first[0] * (1 + mzWindowPpm * 1E-6),
+    const KeyType urh = {{ i->first[0] * (1 + mzWindowPpm * 1E-6),
       i->first[1] + snWindow + 0.3}};
     // run range query
-    KCI b = kdtree.begin(llh, urh);
+    const KCI & b = kdtree.begin(llh, urh);
+    const size_t k = std::distance(b, i);
+    size_t l = 0;
     // store connectivity
-    for (KCI j = b; j != kdtree.end(); ++j) {
-        size_t k = std::distance(b, i);
-        size_t l = std::distance(b, j);
+    for (KCI j = b; !j.end_of_range(); ++j, ++l) {
         adjList[k].insert(l);
         adjList[l].insert(k);
     }
