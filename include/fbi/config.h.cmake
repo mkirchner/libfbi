@@ -32,4 +32,6 @@
     #define uniform_int_distribution uniform_int
 #endif
 
+#cmakedefine USING_INTEL
+
 #endif 
