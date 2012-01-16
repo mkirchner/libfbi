@@ -991,14 +991,11 @@ KeyCreator{
    *  \see \ref createKey()
    */
 
-  template <typename T, typename Functor>
+  template <typename T>
   static void
   createKeys(typename std::vector<key_type>::iterator & intervalIt,
-             const T & dataValue, 
-             const Functor & functor) {
-    *intervalIt = createKey(dataValue, functor);
-    ++intervalIt; //we have to increment it so that the while loop is ok.
-  }
+             const T & dataValue 
+             ) {}
 
   /**
    *  Use functors on a given value_type object to 
@@ -1025,37 +1022,13 @@ KeyCreator{
   }
 
   /**
-   * This is the tail of a recursive call which uses different 
-   * functors to produce several queries.
-   *
-   * \param intervalIt Iterator to a container which will 
-   *  hold the different keys.
-   * \param dataValue That's the box representing the class we're working on.
-   * \param functor Functor which provides a 
-   *  std::pair<...> get<std::size_t>(value_type) member function
-   *  \see \ref createKey()
-   */
-
-  template <typename T, typename Functor>
-  static void
-  createKeys(typename std::vector<key_type>::iterator & intervalIt,
-             const T & dataValue, 
-             const std::vector<Functor> & functor) 
-  {
-    for (std::size_t i = 0; i < functor.size(); ++i) {
-      *intervalIt = createKey(dataValue, functor[i]);
-      ++intervalIt; //we have to increment it so that the while loop is ok.
-    }
-  }
-
-  /**
    *  Use functors on a given value_type object to 
    * create a key for every functor.
    *
    * \param intervalIt Iterator to a container which will 
    *  hold the different keys.
    * \param dataValue That's the box representing the class we're working on.
-   * \param functor Functor which provides a 
+   * \param functor A vector of instances of Functor which provides a 
    *  std::pair<...> get<std::size_t>(value_type) member function
    * \param functors Other functors which will be used recursively.
    * \see \ref createKey()
@@ -1065,8 +1038,8 @@ KeyCreator{
   createKeys(
       typename std::vector<key_type>::iterator & intervalIt,
       const T & dataValue, 
-      const Functor & functor, 
-      const std::vector<Functors> & ...functors) 
+      const std::vector<Functor> & functor, 
+      const Functors & ...functors) 
   {
     for (std::size_t i = 0; i < functor.size(); ++i) {
       *intervalIt = createKey(dataValue, functor[i]);
