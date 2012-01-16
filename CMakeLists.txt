@@ -22,7 +22,7 @@ MACRO_REQUIRE_OUT_OF_SRC_BUILD("LIBFBI requires out-of-source builds.")
 
 SET(CMAKE_CXX0X_FLAGS "-std=c++0x" )
 # more warnings against everything
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wconversion -Wall " )
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wconversion -Wall -Wno-sign-conversion" )
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX0X_FLAGS}" )
 
 IF (NOT CMAKE_BUILD_TYPE)
@@ -35,6 +35,10 @@ TRY_COMPILE (HAS_UNIFORM_INT_DISTRIBUTION
     ${CMAKE_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/testrandom.cxx
 )
+
+if (${CMAKE_C_COMPILER} MATCHES "icc.*$") 
+  set(USING_INTEL TRUE)
+endif ()
 
 CONFIGURE_FILE(
     ${CMAKE_CURRENT_SOURCE_DIR}/include/fbi/config.h.cmake 

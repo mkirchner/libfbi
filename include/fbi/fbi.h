@@ -221,6 +221,11 @@ class SetA{
   template <bool PointsContainQueries, std::size_t Dim>
   struct HybridScanner;
 
+#ifdef USING_INTEL
+  /* Extra Declaration for ICC */
+  template <bool PointsContainQueries>
+  struct HybridScanner<PointsContainQueries, 1>;
+#endif
 
   /**
     * \class OneWayScanner
@@ -290,6 +295,11 @@ class SetA{
   template <std::size_t Dim, std::size_t Limit>
   struct IntersectionTester;
 
+#ifdef USING_INTEL
+  /* Extra Declaration for ICC */
+  template <std::size_t Limit>
+  struct IntersectionTester<Limit, Limit>;
+#endif
 
   /** 
    * \class KeyPrinter 
@@ -297,6 +307,11 @@ class SetA{
    */
   template <std::size_t Dim, std::size_t Limit>
   struct KeyPrinter;
+#ifdef USING_INTEL
+  /* Extra Declaration for ICC */
+  template <std::size_t Limit>
+  struct KeyPrinter<Limit, Limit>;
+#endif
 
  public:
 
@@ -765,8 +780,8 @@ SetB {
         mpl::FunctorChecker::count(qfunctors...); 
     //if we're looking at two different sets, use different indices for the elements!
     const std::size_t offset = 
-        (reinterpret_cast<const char* const>(&(dataContainer)) == 
-        reinterpret_cast<const char* const>(&(qdataContainer))) ? 0 : dataContainer.size();
+        (reinterpret_cast<const char* >(&(dataContainer)) == 
+        reinterpret_cast<const char* >(&(qdataContainer))) ? 0 : dataContainer.size();
     State state(
         limits,
         numQueryFunctors,
