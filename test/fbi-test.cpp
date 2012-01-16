@@ -86,7 +86,7 @@ template <typename ... Dimensions>
 struct OffsetQueryAccessor<ValueType<Dimensions...> >
 {
 
-  const std::tuple<Dimensions...> offset_;
+  std::tuple<Dimensions...> offset_;
   
   OffsetQueryAccessor(Dimensions... offset):offset_(std::make_tuple(offset...)){}
 
@@ -150,6 +150,7 @@ struct HybridSetATestSuite : vigra::test_suite {
     add(testCase(&HybridSetATestSuite::testHybridScanNoMatch));
     add(testCase(&HybridSetATestSuite::testHybridScanOnlyPoints));
     add(testCase(&HybridSetATestSuite::testHybridScanAllPointsOutside));
+    add(testCase(&HybridSetATestSuite::testHybridScanFunctorVectors));
   }
 
   //typedef std::pair<int, std::less<int> > IntDimension;
@@ -1221,14 +1222,74 @@ struct HybridSetATestSuite : vigra::test_suite {
           }
         }
       }  
-
-
-
-
-
-
-
     }
+
+
+void testHybridScanFunctorVectors() 
+{
+
+    typedef ValueType<double, int> Map;
+    typedef fbi::SetA<Map, 0,1> TTT;
+    typedef TTT::ResultType ResultType;
+      typedef ValueTypeStandardAccessor<Map> StandardFunctor;
+      typedef OffsetQueryAccessor<Map> IntervalMover;
+
+    std::vector<Map> testVector;
+
+    const size_t intDimension=100;
+    const size_t doubleDimension=100;
+
+    for(size_t i = 0; i < intDimension; ++i){
+      for (size_t j = 0; j < doubleDimension; ++j){
+        testVector.push_back(Map(3 * i, 3 * i + 1, 5 * j, 5 * j+2));
+      }
+    }
+
+
+
+    ResultType correctResults(testVector.size());
+
+    for (size_t i = 0; i < correctResults.size(); ++i)
+    {
+      if (i % doubleDimension > 0)
+        correctResults[i].insert ((uint32_t)(i - 1));
+      if (i % doubleDimension < doubleDimension - 1)  
+        correctResults[i].insert ((uint32_t)(i + 1));
+      correctResults[i].insert((uint32_t)i);
+      if (i >= doubleDimension)
+        correctResults[i].insert ((uint32_t)(i - doubleDimension));
+      if (i < (intDimension - 1) * doubleDimension)
+        correctResults[i].insert ((uint32_t)(i + doubleDimension));
+    }
+
+    std::vector<IntervalMover> movers;
+    movers.push_back(IntervalMover(0,0));
+    movers.push_back(IntervalMover(2.1,0));
+
+
+    auto hybridResults = TTT::intersect(testVector,StandardFunctor(), 
+    movers, IntervalMover(0,4)
+    );
+
+    for (size_t i = 0; i < correctResults.size(); ++i)
+    {
+      ResultType::value_type::const_iterator it1, it3;
+      for (it1 = hybridResults[i].begin(), it3 = correctResults[i].begin(); 
+           it1 != hybridResults[i].end() || it3 != correctResults[i].end();
+           ++it1, ++it3) {
+        if (*it1 != *it3 ) {
+          std::cout << "correct: " << i << "-" << *it3 << std::endl;
+          std::cout << "hybridResults " << std::endl;
+          std::cout << i <<"-"<< *it1 << " " << std::endl;
+         // failTest("hybridScan gave a wrong result");
+        }
+      }
+    } 
+
+
+}
+
+
 
 
 
