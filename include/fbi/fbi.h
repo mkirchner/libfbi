@@ -47,6 +47,7 @@
 
 #include <fbi/tuplegenerator.h>
 
+
 namespace fbi {
 
   /**
@@ -87,8 +88,8 @@ class SetA{
   typedef SetA<BoxType, TIndices...> SETA;
 
   /** A compile-time constant to mark recursion tails.*/
-  enum {LASTDIM = sizeof...(TIndices) - 1}; 
-
+  enum {NUMDIMS = sizeof...(TIndices)}; 
+  
   /** Short typedef to offer the STL value_type identifier for this tree.*/
   typedef BoxType value_type;
   
@@ -632,7 +633,7 @@ class SetA{
    * on the number of elements
    * \see \ref getApproxMedian() 
    */
-  static const std::size_t inline heuristicHeight(std::size_t numElements)
+  static std::size_t inline heuristicHeight(std::size_t numElements)
   {
     return (size_t)(log((double)numElements));
   }
@@ -786,7 +787,7 @@ SetB {
     auto dimLimits = std::get<0>(state.getLimits()); 
 
     // Call the hybrid algorithm for stabbing queries in the interval vector.
-    HybridScanner<true, 0>::
+    HybridScanner<true, NUMDIMS>::
       scan(
         pointsPtrVector, 
         intervalsPtrVector, 
@@ -795,7 +796,7 @@ SetB {
         resultVector 
       );
     // Reverse the previous call: queries in the "point" vector.
-    HybridScanner<false,0>::
+    HybridScanner<false, NUMDIMS>::
       scan(
         intervalsPtrVector, 
         pointsPtrVector, 
@@ -904,7 +905,7 @@ SetB {
     auto dimLimits = std::get<0>(state.getLimits()); 
 
     // Call the hybrid algorithm for stabbing queries in the interval vector.
-    HybridScanner<true, 0>::
+    HybridScanner<true, NUMDIMS>::
       scan(
         pointsPtrVector, 
         intervalsPtrVector, 
@@ -913,7 +914,7 @@ SetB {
         resultVector 
       );
     // Reverse the previous call: queries in the "point" vector.
-    HybridScanner<false,0>::
+    HybridScanner<false, NUMDIMS>::
       scan(
         intervalsPtrVector, 
         pointsPtrVector, 
@@ -1244,7 +1245,7 @@ State
 
 
 template <typename BoxType, std::size_t ...TIndices>
-template <bool PointsContainQueries, std::size_t Dim>
+template <bool PointsContainQueries, std::size_t DimsLeft>
 struct SetA<BoxType, TIndices...>::
 HybridScanner{
 
@@ -1282,6 +1283,12 @@ HybridScanner{
    *   - Either set is small enough that a match in one dimension will probably 
    *      lead to a match in the others.
    */ 
+  enum {
+    Dim = SETA::NUMDIMS - DimsLeft
+  };
+  //Workaround, that way we can partially specialize for the case that DimsLeft == 1
+  //which isn't a variable dependent on a template parameter.
+
   static void scan(
     std::vector<const key_type *> & pointsPtrVector, //Points
     std::vector<const key_type *> & intervalsPtrVector,  //Intervals
@@ -1355,8 +1362,8 @@ HybridScanner{
     }
 
     auto dimLimits = std::get<Dim+1>(state.getLimits());
-
-    HybridScanner<PointsContainQueries, Dim+1>::
+    
+    HybridScanner<PointsContainQueries, DimsLeft-1>::
       scan(
         pointsPtrVector, 
         intervalsMiddle, 
@@ -1365,7 +1372,7 @@ HybridScanner{
         state, 
         resultVector
       );
-    HybridScanner<!PointsContainQueries, Dim+1>::
+    HybridScanner<!PointsContainQueries, DimsLeft-1>::
       scan(
         intervalsMiddle, 
         pointsPtrVector, 
@@ -1392,13 +1399,13 @@ HybridScanner{
       else  pointsRight.push_back(*pntVectorIt);
       ++pntVectorIt;
     }
-    HybridScanner<PointsContainQueries,Dim>::
+    HybridScanner<PointsContainQueries,DimsLeft>::
       scan(pointsLeft, intervalsLeft, lowerBound, median, state, resultVector);
     intervalsLeft.clear();
     std::vector<const key_type *>().swap(intervalsLeft);
     pointsLeft.clear();
     std::vector<const key_type *>().swap(pointsLeft);
-    HybridScanner<PointsContainQueries, Dim>::
+    HybridScanner<PointsContainQueries, DimsLeft>::
       scan(pointsRight, intervalsRight, median, upperBound, state, resultVector);
 
   }
@@ -1414,14 +1421,14 @@ HybridScanner{
 template <typename BoxType, std::size_t ...TIndices>
 template <bool PointsContainQueries>
 struct SetA<BoxType, TIndices...>::
-HybridScanner<PointsContainQueries, SetA<BoxType, TIndices...>::LASTDIM> {
+HybridScanner<PointsContainQueries, 1> {
 
   /** saves typing, referencing to parent struct type*/
   typedef SetA<BoxType, TIndices...> SETA;
   enum
   {
   /** last dimension to compare in*/
-    LASTDIM = SETA::LASTDIM
+    LASTDIM = SETA::NUMDIMS - 1
   };
   /** Use key_type from parent struct*/
   typedef SETA::key_type key_type;
@@ -1536,7 +1543,7 @@ OneWayScanner{
       SIT intersectionSetEnd = intervalsPtrSet.end();
 
       for(; intersectionSetIt != intersectionSetEnd; ++intersectionSetIt) {
-        if (IntersectionTester<Dim+1, LASTDIM+1>::
+        if (IntersectionTester<Dim+1, NUMDIMS>::
               test(pntPtr, *intersectionSetIt) ) {
             
           std::size_t edgeHead = state.calculate(PointsContainQueries, pntPtr);
