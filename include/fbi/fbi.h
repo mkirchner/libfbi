@@ -221,7 +221,7 @@ class SetA{
   template <bool PointsContainQueries, std::size_t Dim>
   struct HybridScanner;
 
-#ifdef USING_INTEL
+#ifdef __INTEL_COMPILER
   /* Extra Declaration for ICC */
   template <bool PointsContainQueries>
   struct HybridScanner<PointsContainQueries, 1>;
@@ -295,7 +295,7 @@ class SetA{
   template <std::size_t Dim, std::size_t Limit>
   struct IntersectionTester;
 
-#ifdef USING_INTEL
+#ifdef __INTEL_COMPILER
   /* Extra Declaration for ICC */
   template <std::size_t Limit>
   struct IntersectionTester<Limit, Limit>;
@@ -307,7 +307,7 @@ class SetA{
    */
   template <std::size_t Dim, std::size_t Limit>
   struct KeyPrinter;
-#ifdef USING_INTEL
+#ifdef __INTEL_COMPILER
   /* Extra Declaration for ICC */
   template <std::size_t Limit>
   struct KeyPrinter<Limit, Limit>;
