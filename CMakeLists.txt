@@ -36,10 +36,6 @@ TRY_COMPILE (HAS_UNIFORM_INT_DISTRIBUTION
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/testrandom.cxx
 )
 
-if (${CMAKE_C_COMPILER} MATCHES "icc.*$") 
-  set(USING_INTEL TRUE)
-endif ()
-
 CONFIGURE_FILE(
     ${CMAKE_CURRENT_SOURCE_DIR}/include/fbi/config.h.cmake 
     ${LIBFBI_BINARY_DIR}/include/fbi/config.h
