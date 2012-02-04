@@ -27,8 +27,6 @@
 #ifndef __LIBFBI_INCLUDE_FBI_TRAITS_H__
 #define __LIBFBI_INCLUDE_FBI_TRAITS_H__
 
-#include <fbi/tuplegenerator.h>
-
 namespace fbi {
 
 /**
@@ -74,8 +72,10 @@ namespace fbi {
  *
  */
 
-template <class T>
-struct Traits : public mpl::TraitsGenerator<>{};
+
+template<typename T> 
+struct Traits; 
+
 
 } //end namespace fbi
 

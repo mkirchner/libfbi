@@ -22,7 +22,7 @@ MACRO_REQUIRE_OUT_OF_SRC_BUILD("LIBFBI requires out-of-source builds.")
 
 SET(CMAKE_CXX0X_FLAGS "-std=c++0x" )
 # more warnings against everything
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wconversion -Wall -Wno-sign-conversion" )
+#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wconversion -Wall -Wno-sign-conversion" )
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX0X_FLAGS}" )
 
 IF (NOT CMAKE_BUILD_TYPE)
