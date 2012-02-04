@@ -31,21 +31,99 @@
 #include <functional>
 
 //c++0x includes
-#include <tuple>
-
+//#include <tuple>
 #include "unittest.hxx"
 // hack for testing purposes
 #define private public
 #include <fbi/fbi.h>
 #undef private
-#include <fbi/tuplegenerator.h>
-#include <fbi/connectedcomponents.h>
+#include <fbi/traits.h>
+//#include <fbi/tuplegenerator.h>
+//#include <fbi/connectedcomponents.h>
 using namespace vigra;
 
 
 // This is a ValueType for testing, the user has to create structs similar to
 // this one: the typedefs dim_type is needed, same is true for getInterval
 // which should be available for all active dimensions.
+
+struct Centroid 
+{
+  double rt_;
+  double mz_;
+  double sn_;
+  double abundance_;
+  Centroid(const double &rt, const double& mz, const double & sn, 
+    const double & abundance) 
+    : rt_(rt), mz_(mz), sn_(sn), abundance_(abundance) {}
+};
+
+
+namespace fbi {
+
+template<>
+struct Traits<Centroid> : mpl::TraitsGenerator<
+  double, double, double, double> {};
+
+} //end namespace fbi
+
+struct BoxGenerator
+{
+  template <size_t N>
+  typename boost::tuples::element<N, 
+    typename fbi::Traits<Centroid>::key_type>::type 
+  get(const Centroid &) const;
+
+  double mzOffset_;
+  double mzWindowPpm_;
+  double snOffset_;
+  double snWindow_;
+
+  BoxGenerator(double mzWindowPpm, double snWindow)
+    : mzOffset_(0.0), mzWindowPpm_(mzWindowPpm),
+      snOffset_(0.0), snWindow_(snWindow)
+  {}
+
+  BoxGenerator(double mzOffset, double mzWindowPpm, 
+    double snOffset, double snWindow)
+    : mzOffset_(mzOffset), mzWindowPpm_(mzWindowPpm),
+      snOffset_(snOffset), snWindow_(snWindow)
+  {}
+};
+//BOOST_STATIC_ASSERT( (boost::is_same<testtype, correcttype>::type::value));
+
+
+
+template <>
+std::pair<double, double>  
+BoxGenerator::get<1>(const Centroid & centroid) const 
+{
+  return std::make_pair(
+    mzOffset_ + centroid.mz_* (1-  mzWindowPpm_* 1E-6), 
+    mzOffset_ + centroid.mz_* (1+ mzWindowPpm_ * 1E-6) );
+}
+
+template <>
+std::pair<double, double>  
+BoxGenerator::get<2>(const Centroid & centroid) const
+{
+  return std::make_pair(
+    snOffset_ + centroid.sn_ - snWindow_ - 0.3, 
+    snOffset_ + centroid.sn_ + snWindow_ + 0.3 );
+}
+
+template < BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(MAX_DIMENSIONS, typename T, boost::mpl::void_) >
+struct ValueType {
+
+typedef typename fbi::mpl::TraitsGenerator<BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, T)>::key_type key_type;
+
+key_type key_;
+
+ValueType(const key_type & newKey):key_(newKey){}
+};
+
+/*
+
 template <typename ... Dimensions>
 struct ValueType{
 
@@ -106,51 +184,56 @@ struct OffsetQueryAccessor<ValueType<Dimensions...> >
 
 
 
-
+*/
 
 namespace fbi{
-
+/*
 template <typename ... Dimensions>
 struct Traits<ValueType<Dimensions...> >: public mpl::TraitsGenerator<Dimensions...>{};
+*/
 
+template < BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS,typename T) >
+struct Traits<ValueType<BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, T) > >: 
+  public mpl::TraitsGenerator<BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, T) > {};
 
 }
 
 struct HybridSetATestSuite : vigra::test_suite {
   HybridSetATestSuite() : vigra::test_suite("HybridSetA") {
     add(testCase(&HybridSetATestSuite::testSetAType));
-    add(testCase(&HybridSetATestSuite::testCreateKeyTypes));
+    add(testCase(&HybridSetATestSuite::testSetBType));
+//    add(testCase(&HybridSetATestSuite::testCreateKeyTypes));
     //add(testCase(&HybridSetATestSuite::testAccessor)); 
     // add(testCase(&HybridSetATestSuite::testPtrCreator));
     //add(testCase(&HybridSetATestSuite::testCompAccessor));
     //add(testCase(&HybridSetATestSuite::testSortFunctor));
     //add(testCase(&HybridSetATestSuite::testOneWayScan)); 
 
-    add(testCase(&HybridSetATestSuite::testTwoWayScanIntersect));
+//    add(testCase(&HybridSetATestSuite::testTwoWayScanIntersect));
     //add(testCase(&HybridSetATestSuite::testTwoWayScan));
 
-    add(testCase(&HybridSetATestSuite::testHybridScanBig));
+//    add(testCase(&HybridSetATestSuite::testHybridScanBig));
 
-    add(testCase(&HybridSetATestSuite::testHybridScanTop));
-    add(testCase(&HybridSetATestSuite::testHybridScanBottom));
+//    add(testCase(&HybridSetATestSuite::testHybridScanTop));
+//    add(testCase(&HybridSetATestSuite::testHybridScanBottom));
 
-    add(testCase(&HybridSetATestSuite::testHybridScanLeft));
-    add(testCase(&HybridSetATestSuite::testHybridScanRight));
-    add(testCase(&HybridSetATestSuite::testHybridScanTopRightCorner));
-    add(testCase(&HybridSetATestSuite::testHybridScanTopLeftCorner));
-    add(testCase(&HybridSetATestSuite::testHybridScanBottomRightCorner));
-    add(testCase(&HybridSetATestSuite::testHybridScanBottomLeftCorner));
-    add(testCase(&HybridSetATestSuite::testHybridScanOverlap));
-    add(testCase(&HybridSetATestSuite::testHybridScanRightSide));
-    add(testCase(&HybridSetATestSuite::testHybridScanTopSide));
-    add(testCase(&HybridSetATestSuite::testHybridScanLeftSide));
-    add(testCase(&HybridSetATestSuite::testHybridScanBottomSide));
-    add(testCase(&HybridSetATestSuite::testHybridScanFrontSide));
-    add(testCase(&HybridSetATestSuite::testHybridScanBackSide));
-    add(testCase(&HybridSetATestSuite::testHybridScanNoMatch));
-    add(testCase(&HybridSetATestSuite::testHybridScanOnlyPoints));
-    add(testCase(&HybridSetATestSuite::testHybridScanAllPointsOutside));
-    add(testCase(&HybridSetATestSuite::testHybridScanFunctorVectors));
+//    add(testCase(&HybridSetATestSuite::testHybridScanLeft));
+//    add(testCase(&HybridSetATestSuite::testHybridScanRight));
+//    add(testCase(&HybridSetATestSuite::testHybridScanTopRightCorner));
+//    add(testCase(&HybridSetATestSuite::testHybridScanTopLeftCorner));
+//    add(testCase(&HybridSetATestSuite::testHybridScanBottomRightCorner));
+//    add(testCase(&HybridSetATestSuite::testHybridScanBottomLeftCorner));
+//    add(testCase(&HybridSetATestSuite::testHybridScanOverlap));
+//    add(testCase(&HybridSetATestSuite::testHybridScanRightSide));
+//    add(testCase(&HybridSetATestSuite::testHybridScanTopSide));
+//    add(testCase(&HybridSetATestSuite::testHybridScanLeftSide));
+//    add(testCase(&HybridSetATestSuite::testHybridScanBottomSide));
+//    add(testCase(&HybridSetATestSuite::testHybridScanFrontSide));
+//    add(testCase(&HybridSetATestSuite::testHybridScanBackSide));
+//    add(testCase(&HybridSetATestSuite::testHybridScanNoMatch));
+//    add(testCase(&HybridSetATestSuite::testHybridScanOnlyPoints));
+//    add(testCase(&HybridSetATestSuite::testHybridScanAllPointsOutside));
+//    add(testCase(&HybridSetATestSuite::testHybridScanFunctorVectors));
   }
 
   //typedef std::pair<int, std::less<int> > IntDimension;
@@ -158,18 +241,31 @@ struct HybridSetATestSuite : vigra::test_suite {
 
 
   void testSetAType() {
+
     typedef ValueType<int, double, std::string> Map;
-
     typedef fbi::SetA<Map, 1,0 > TTT;
-
-    if (!std::is_same<TTT::key_type, std::tuple<std::pair<double, double>, std::pair<int, int> > >::value){
-      failTest("The SetA doesn't have the correct key_type");
-    }
-    if (!std::is_same<TTT::comp_type, std::tuple<std::less<double>, std::less<int> > >::value){
-      failTest("The SetA doesn't have the correct comparison_type");
-    }
+    BOOST_MPL_ASSERT_RELATION(TTT::NUMDIMS,==, 2);
+    typedef boost::tuples::tuple<std::pair<double, double>, std::pair<int, int> > corr_key_type;
+    BOOST_MPL_ASSERT_MSG((boost::is_same<TTT::key_type, corr_key_type>::value), TTT_HAS_THE_WRONG_KEYTYPE, (TTT::key_type));
+    typedef boost::tuples::tuple<std::less<double>, std::less<int> > corr_comp_type;
+    BOOST_MPL_ASSERT_MSG((boost::is_same<TTT::comp_type, corr_comp_type>::value), TTT_HAS_THE_WRONG_COMPTYPE, (TTT::comp_type));
   }
+  
+  void testSetBType() {
 
+    typedef ValueType<double, short, int> Map;
+    typedef fbi::SetA<Map, 0,2 > TTT;
+    typedef ValueType<double, int, float, int> Map2;
+    typedef TTT::SetB<Map2, 0,3 > QQQ;
+    BOOST_MPL_ASSERT_RELATION(QQQ::QNUMDIMS,==, 2);
+    typedef boost::tuples::tuple<std::pair<double, double>, std::pair<int, int> > corr_key_type;
+    BOOST_MPL_ASSERT_MSG((boost::is_same<TTT::key_type, corr_key_type>::value), TTT_HAS_THE_WRONG_KEYTYPE, (TTT::key_type));
+    BOOST_MPL_ASSERT_MSG((boost::is_same<QQQ::qkey_type, corr_key_type>::value), QQQ_HAS_THE_WRONG_KEYTYPE, (QQQ::qkey_type));
+    typedef boost::tuples::tuple<std::less<double>, std::less<int> > corr_comp_type;
+    BOOST_MPL_ASSERT_MSG((boost::is_same<QQQ::qcomp_type, corr_comp_type>::value), QQQ_HAS_THE_WRONG_COMPTYPE, (QQQ::qcomp_type));
+  }
+  
+/*
 
 
   void testCreateKeyTypes(){
@@ -1288,7 +1384,7 @@ void testHybridScanFunctorVectors()
 
 
 }
-
+*/
 
 
 
@@ -1298,7 +1394,7 @@ void testHybridScanFunctorVectors()
 
 }; //end HybridSetATestSuite
 
-
+/*
 struct HybridSetAProfileSuite : vigra::test_suite {
   HybridSetAProfileSuite() : vigra::test_suite("HybridSetAProfiler")
   {
@@ -1400,32 +1496,34 @@ struct ConnectedComponentsTestSuite : vigra::test_suite {
       }
     }
   }
+
+  
 };
 
 
 
 
-
+*/
 
 
 
 
 int main() {
-
   HybridSetATestSuite test;
   int success = test.run();
   std::cout << test.report() << std::endl;
 
-  ConnectedComponentsTestSuite ccTest;
-  int success1 = ccTest.run();
-  std::cout << ccTest.report() << std::endl;
+//  ConnectedComponentsTestSuite ccTest;
+//  int success1 = ccTest.run();
+//  std::cout << ccTest.report() << std::endl;
 
-  HybridSetAProfileSuite profile;
-  int success2 = profile.run();
-  std::cout << profile.report() << std::endl;
+//  HybridSetAProfileSuite profile;
+//  int success2 = profile.run();
+//  std::cout << profile.report() << std::endl;
 
 
-  return success || success1 || success2;
+//  return success || success1 || success2;
+return success;
 
   //return success || success1;
 }
