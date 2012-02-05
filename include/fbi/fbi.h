@@ -117,7 +117,7 @@ public:
    * another template class to use different int parameter packs.
    *
    */
-  //template <int ...KeyCreatorIndices>
+  template <BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int KeyCreatorIndex) > 
   struct KeyCreator;
 
 
@@ -712,22 +712,20 @@ private:
       const QContainer & qdataContainer,
       const QueryFunctors& qfunctors
       ) {
-        BOOST_MPL_ASSERT_RELATION(boost::tuples::length<qfunctors>::value, > 0);
+        BOOST_MPL_ASSERT_RELATION(boost::tuples::length<QueryFunctors>::value, >, 0);
     if (dataContainer.empty()) { return ResultType();}
+    // Generate the set of data boxes. See above, just for the QueryBoxType.
+    const auto dataIntervalVector = KeyCreator<BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
+      getVector(dataContainer, ifunctor);
+    
     // Generate the set of query boxes. The BoxType is an arbitrary,
     // user-specified type, that does not necessarily have any notion of
     // dimensionality. This call converts the BoxType data into the 
     // K-dimenstional boxes for fast box intersection.
-    const auto queryIntervalVector = KeyCreator<QIndices...>::
+    const auto queryIntervalVector = KeyCreator<BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, QIndex)>::
       getVector(qdataContainer, qfunctors);
-    // Generate the set of data boxes. See above, just for the QueryBoxType.
-    const auto dataIntervalVector = KeyCreator<TIndices...>::
-      getVector(dataContainer, ifunctor);
 
-    key_type limits = 
-      make_tuple(
-        std::get<TIndices>(Traits<value_type>::getLimits())
-      ... );
+    key_type limits = typeHelper::template TupleGetter<NUMDIMS, NUMDIMS>::get();
 
     //const std::size_t numQueryFunctors = sizeof...(QueryFunctors); 
     
@@ -776,131 +774,14 @@ private:
       );
     return resultVector;
   }
-//   /**
-//   * \callgraph
-//   * \brief The public interface for the user to start the algorithm. 
-//   *
-//   * This function initializes the keys (consisting of intervals in 
-//   * several dimensions) of the intervalSet and the querySet, along with 
-//   * pointers to pass them to separation algorithms.
-//   * \ref State::calculate has to be used to 
-//   * recalculate the original indices from the pointers.
-//   *
-//   * \param[in] cutoff The theta cutoff value for switching into OneWayScan
-//   * \param[in] dataContainer STL Container providing a 
-//   *  forward iterator and holding a value_type.
-//   * \param[in] ifunctor This has to be either a class with a public 
-//   * \verbatim get<Dim>(const BoxType & ) const; \endverbatim method or
-//   * a std::vector holding that kind of class, if multiple interval objects
-//   * per box should be made. 
-//   * The tree will create the keys by using the functor to extract 
-//   * the indexed dimensions from the BoxType. They will work on every object in
-//   * dataContainer.
-//   * \param[in] qdataContainer STL Container providing a 
-//   *  forward iterator and holding a qvalue_type.
-//   * \param[in] qfunctors Like ifunctor, 
-//   * these functors will each create a different key, they can also be of type
-//   * std::vector<functor>, for every object in each vector
-//   * one query will be created per object in qdataContainer.
-//   * (|qfunctors.size()| * |qdataContainer| for every qfunctors type)
-//   * as parallel edges are possible but not desired for the end result.
-//   * Note that in the bipartite case, the boxes in dataContainer will be indexed
-//   * from 0 upto |dataContainer|-1, whereas the ones in qdataContainer are 
-//   * identified by |dataContainer|..|dataContainer + qdataContainer|-1.
-//   * An edge (pair of two boxes), consisting of 2 IntType values a and b,
-//   * is represented by b being in the set of tails belonging to the head a
-//   * (and vice versa) as there are |dataContainer + qdataContainer|-1 sets in the 
-//   * result.
-//   * Note that every edge is inserted twice as intersection is reflective and 
-//   * the result an undirected graph.
-//   */
-//  template <
-//  class BoxContainer,
-//        typename = typename std::enable_if<std::is_same<typename BoxContainer::value_type, value_type>::value>::type,
-//        class QContainer,
-//        typename = typename std::enable_if<std::is_same<typename QContainer::value_type, qvalue_type>::value>::type,
-//        typename IntervalFunctor, 
-//        typename ... QueryFunctors
-//  > static
-//  ResultType thetaIntersect(
-//      const size_t cutoff,
-//      const BoxContainer & dataContainer, 
-//      const IntervalFunctor & ifunctor, 
-//      const QContainer & qdataContainer,
-//      const QueryFunctors& ... qfunctors
-//      ) {
-//    static_assert( (sizeof...(QueryFunctors) > 0), 
-//      "Need at least one query functor.");
-//    if (dataContainer.empty()) { return ResultType();}
-//    // Generate the set of query boxes. The BoxType is an arbitrary,
-//    // user-specified type, that does not necessarily have any notion of
-//    // dimensionality. This call converts the BoxType data into the 
-//    // K-dimenstional boxes for fast box intersection.
-//    const auto queryIntervalVector = KeyCreator<QIndices...>::
-//      getVector(qdataContainer, qfunctors...);
-//    // Generate the set of data boxes. See above, just for the QueryBoxType.
-//    const auto dataIntervalVector = KeyCreator<TIndices...>::
-//      getVector(dataContainer, ifunctor);
-//
-//    key_type limits = 
-//      make_tuple(
-//        std::get<TIndices>(Traits<value_type>::getLimits())
-//      ... );
-//
-//    //const std::size_t numQueryFunctors = sizeof...(QueryFunctors); 
-//    const std::size_t numQueryFunctors = 
-//        mpl::FunctorChecker::count(qfunctors...); 
-//    //if we're looking at two different sets, use different indices for the elements!
-//    const std::size_t offset = 
-//        (reinterpret_cast<const char* const>(&(dataContainer)) == 
-//        reinterpret_cast<const char* const>(&(qdataContainer))) ? 0 : dataContainer.size();
-//    State state(
-//        limits,
-//        numQueryFunctors,
-//        &(queryIntervalVector[0]),
-//        &(dataIntervalVector[0]),
-//        offset,
-//        cutoff
-//        );
-//
-//    // Create a vector of pointers that reference the above query boxes. This
-//    // allows us to work on pointers and save a bit of memory.
-//    std::vector<const key_type *> pointsPtrVector = 
-//      createPtrVector(queryIntervalVector);
-//    std::vector<const key_type *> intervalsPtrVector = 
-//      createPtrVector(dataIntervalVector);
-//
-//    ResultType resultVector(offset + qdataContainer.size());
-//
-//    auto dimLimits = std::get<0>(state.getLimits()); 
-//
-//    // Call the hybrid algorithm for stabbing queries in the interval vector.
-//    HybridScanner<true, NUMDIMS>::
-//      scan(
-//        pointsPtrVector, 
-//        intervalsPtrVector, 
-//        dimLimits.first, 
-//        dimLimits.second,state, 
-//        resultVector 
-//      );
-//    // Reverse the previous call: queries in the "point" vector.
-//    HybridScanner<false, NUMDIMS>::
-//      scan(
-//        intervalsPtrVector, 
-//        pointsPtrVector, 
-//        dimLimits.first, 
-//        dimLimits.second,state, 
-//        resultVector
-//      );
-//    return resultVector;
-//  }
+
 }; //end class SetB
 
 
 
-template <typename BoxType, std::size_t ... TIndices>
-template <std::size_t ... KeyCreatorIndices>
-struct SetA<BoxType, TIndices...>::
+template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
+template <BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int KeyCreatorIndex) > 
+class SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
 KeyCreator{
 
   /**
@@ -917,20 +798,22 @@ KeyCreator{
    * \see \ref createKey()
    */
 
-  template <class Container, class ... Functors>
+  //template <class Container, class ... Functors>
+  template <class Container, class Functors>
   static std::vector<key_type>
-  getVector(const Container & container, const Functors& ...functors){
+  //getVector(const Container & container, const Functors& ...functors){
+  getVector(const Container & container, const Functors& functors){
     /** If there is no functor, we can't extract data from the boxes.*/
-    static_assert(sizeof...(Functors) > 0, 
+    static_assert(boost::tuples::length<Functors>::value > 0, 
       "You need at least one functor to access your objects"); 
     typename Container::const_iterator it = container.begin();
     std::vector<key_type> intervalVector(
-        container.size()* mpl::FunctorChecker::count(functors...)); 
+        container.size()* mpl::FunctorChecker::count(functors)); 
 
     typename std::vector<key_type>::iterator intervalIt= intervalVector.begin();
     while (it != container.end())
     {
-      createKeys(intervalIt, *it, functors...);
+      createKeys(intervalIt, *it, functors);
       ++it;
     }
     return intervalVector;
@@ -951,7 +834,7 @@ KeyCreator{
   template <typename T>
   static void
   createKeys(typename std::vector<key_type>::iterator & intervalIt,
-             const T & dataValue 
+             const T & dataValue, boost::tuples::null_type
              ) {}
 
   /**
@@ -966,16 +849,15 @@ KeyCreator{
    * \param functors Other functors which will be used recursively.
    * \see \ref createKey()
    */
-  template <typename T, typename Functor, typename ...Functors>
+  template <typename T, typename Functor, typename Functors>
   static void 
   createKeys(
       typename std::vector<key_type>::iterator & intervalIt,
       const T & dataValue, 
-      const Functor & functor, 
-      const Functors & ...functors) {
-    *intervalIt = createKey(dataValue, functor); 
+      const boost::tuples::cons<Functor, Functors> & functorTuple) {
+    *intervalIt = createKey(dataValue, functorTuple.get_head()); 
     ++intervalIt;
-    createKeys(intervalIt, dataValue, functors...);
+    createKeys(intervalIt, dataValue, functorTuple.get_tail());
   }
 
   /**
@@ -990,19 +872,19 @@ KeyCreator{
    * \param functors Other functors which will be used recursively.
    * \see \ref createKey()
    */
-  template <typename T, typename Functor, typename ...Functors>
+  template <typename T, typename Functor, typename Functors>
   static void 
   createKeys(
       typename std::vector<key_type>::iterator & intervalIt,
       const T & dataValue, 
-      const std::vector<Functor> & functor, 
-      const Functors & ...functors) 
+      const boost::tuples::cons<std::vector<Functor>, Functors> & functorTuple) 
   {
+    const std::vector<Functor> & functor = functorTuple.get_head();
     for (std::size_t i = 0; i < functor.size(); ++i) {
       *intervalIt = createKey(dataValue, functor[i]);
       ++intervalIt; //we have to increment it so that the while loop is ok.
     }
-    createKeys(intervalIt, dataValue, functors...);
+    createKeys(intervalIt, dataValue, functorTuple.get_tail());
   }
 
   /**
@@ -1016,10 +898,11 @@ KeyCreator{
   static inline const
   key_type 
   createKey(const T& val, const Functor & functor) {
-    return std::make_tuple(functor.template get<KeyCreatorIndices>(val)...);
+    return typeHelper::template TupleGetter<NUMDIMS, NUMDIMS>::createKey(val, functor);
   }
 
 }; //end struct KeyCreator
+
 
 
 template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
