@@ -202,6 +202,7 @@ struct HybridSetATestSuite : vigra::test_suite {
   HybridSetATestSuite() : vigra::test_suite("HybridSetA") {
     add(testCase(&HybridSetATestSuite::testSetAType));
     add(testCase(&HybridSetATestSuite::testSetBType));
+    add(testCase(&HybridSetATestSuite::testCountFunctor));
 //    add(testCase(&HybridSetATestSuite::testCreateKeyTypes));
     //add(testCase(&HybridSetATestSuite::testAccessor)); 
     // add(testCase(&HybridSetATestSuite::testPtrCreator));
@@ -264,7 +265,53 @@ struct HybridSetATestSuite : vigra::test_suite {
     typedef boost::tuples::tuple<std::less<double>, std::less<int> > corr_comp_type;
     BOOST_MPL_ASSERT_MSG((boost::is_same<QQQ::qcomp_type, corr_comp_type>::value), QQQ_HAS_THE_WRONG_COMPTYPE, (QQQ::qcomp_type));
   }
+  void testCountFunctor() {
+    std::vector<int> a(2),b(3),c(4),d(5),e(6);
+    
+    boost::tuples::tuple<int, std::vector<int>, int> test1 = 
+      boost::tuples::make_tuple(0, a, 0);
+    boost::tuples::tuple<int, double, std::vector<int> > test2 =
+      boost::tuples::make_tuple(0, 0, b);
+    boost::tuples::tuple<std::vector<int>, double, double> test3 =
+      boost::tuples::make_tuple(c, 0, 0);
+    boost::tuples::tuple<int, std::vector<int> > test4 = 
+      boost::tuples::make_tuple(0, d);
+    boost::tuples::tuple<std::vector<int> > test5 = 
+      boost::tuples::make_tuple(e);
+    boost::tuples::tuple<int, double > test6 = 
+      boost::tuples::make_tuple(0, 0);
   
+    if(fbi::mpl::FunctorChecker::count(test1) != 4)
+    {
+      failTest("FunctorChecker test 1 failed");
+    }
+    if(fbi::mpl::FunctorChecker::count(test2) != 5)
+    {
+      failTest("FunctorChecker test 2 failed");
+    }
+    if(fbi::mpl::FunctorChecker::count(test3) != 6)
+    {
+      failTest("FunctorChecker test 3 failed");
+    }
+    if(fbi::mpl::FunctorChecker::count(test4) != 6)
+    {
+      failTest("FunctorChecker test 4 failed");
+    }
+    if(fbi::mpl::FunctorChecker::count(test5) != 6)
+    {
+      failTest("FunctorChecker test 5 failed");
+    }
+    if(fbi::mpl::FunctorChecker::count(test6) != 2)
+    {
+      failTest("FunctorChecker test 6 failed");
+    }
+    
+  
+  }
+
+
+
+
 /*
 
 

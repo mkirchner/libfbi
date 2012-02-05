@@ -53,7 +53,8 @@
 #include <boost/mpl/equal_to.hpp>
 #include <boost/mpl/arithmetic.hpp>
 #include <boost/mpl/assert.hpp>
-#include <boost/tuple/tuple.hpp>
+#include <boost/tuple/tuple.hpp> 
+#include <boost/utility/enable_if.hpp>
 #ifndef MAX_DIMENSIONS 
 #define MAX_DIMENSIONS 4
 #endif
@@ -364,51 +365,33 @@ struct convertTupleToVector<Tup, n> { \
   
    /** 
     *If the current head is a single functor-object, add 1
-    * \param functor A single functor, having a
+    * \param qfunctors A tuple of functors, each having a
     * \verbatim get<Dim>(const BoxType & ) const; \endverbatim method
-     * \param functors Other functors, see functor
-     */
-    template <class Functor, class ...Functors>
-    static std::size_t count(const Functor & functor, const Functors& ...functors) {
-      return 1 + count(functors...);
+    */
+
+    template <typename T, typename U>
+    static int count(const boost::tuples::cons<T,U> & qfunctors) {
+      return 1 + count(qfunctors.get_tail());
     }
-  
-   /** If there is only a single functor left, add 1
+    
+   /** 
+    *If the current head is a vector containing functor-objects, add head.size()
+    * \param qfunctors A tuple of functors, each having a
+    * \verbatim get<Dim>(const BoxType & ) const; \endverbatim method
+    */
+    template <typename T, typename U>
+    static int count(const boost::tuples::cons<std::vector<T>,U> & qfunctors) {
+      return qfunctors.get_head().size() + count(qfunctors.get_tail());
+    }
+
+
+   /** If there is only no functor left, add 0
      * \param functor A single functor, having a
      * \verbatim get<Dim>(const BoxType & ) const; \endverbatim method
      */
-    template <class Functor>
-    static std::size_t count(const Functor & functor) {
-      return 1;
+    static int count(const boost::tuples::null_type & n){
+      return 0;
     }
-  
-    /** Specialized function call, if the passed object is a std::vector of functors,
-     * count all of them as we will create one object per vector-size.
-     * \param functor A single functor or a vector of functors of the same type,
-     *  having a \verbatim get<Dim>(const BoxType & ) const; \endverbatim method
-     * \param functors More functors
-     * 
-     */
-    template <class Functor, class ...Functors>
-    static
-    std::size_t count(const std::vector<Functor> & functor, const Functors& ...functors) {
-      return functor.size() + count(functors...);
-    }
-    /** 
-     * Specialized case, if only one functor-type is left and that one is a vector,
-     * count every instantiated object of that typein the container.
-     * \param functor A single functor or a vector of functors of the same type,
-     *  having a \verbatim get<Dim>(const BoxType & ) const; \endverbatim method
-     *
-     */
-    template <class Functor>
-    static std::size_t count(const std::vector<Functor> & functor) {
-      return functor.size();
-   }
-  
- 
-  
-
   };
 
   template <int T>
@@ -423,8 +406,7 @@ struct CountNonNegative {
   enum { 
     value = boost::mpl::minus<boost::mpl::int_<MAX_DIMENSIONS>,
       BOOST_PP_ENUM(MAX_DIMENSIONS, PREPOSTWRAPPER, \
-	  (typename equal_to_neg1<)(TIndex)(>::type) \
-	  )
+	  (typename equal_to_neg1<)(TIndex)(>::type))
     >::type::value
 
   };
@@ -460,9 +442,45 @@ struct indexFilter {
 
   typedef typename fbi::mpl::convertVectorToTuple<comp_type_vector, NUMDIMS>::type comp_type;
 
-
+template <int N, int Dummy>
+struct TupleGetter;
 
 };
+/*
+  #define BOOST_PP_LOCAL_MACRO(n)\
+  template <int N, typename boost::lazy_enable_if_c<n == NUMDIMS, int>::type = 0>\
+  static key_type\
+  getLimits() {}\
+  
+  #define BOOST_PP_LOCAL_LIMITS (1, MAX_DIMENSIONS)
+  #include BOOST_PP_LOCAL_ITERATE()
+*/
+
+#define BOOST_PP_LOCAL_MACRO(n) \
+template <typename value_type, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex)>\
+template <int Dummy>\
+struct indexFilter<value_type, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::\
+TupleGetter<n, Dummy>{\
+  static key_type get() {\
+    return boost::tuples::make_tuple(\
+      BOOST_PP_ENUM(n, PREPOSTWRAPPER, (boost::tuples::get<)(TIndex)(>(Traits<value_type>::getLimits()))\
+      )\
+    );\
+  }\
+  template <typename T, typename Functor>\
+  static const key_type\
+  create(const T& val, const Functor & functor) {\
+    return boost::tuples::make_tuple(\
+      BOOST_PP_ENUM(n, PREPOSTWRAPPER, (functor.template get<)(TIndex)(>(val)))\
+    );\
+  }\
+};
+  #define BOOST_PP_LOCAL_LIMITS (1, MAX_DIMENSIONS)
+  #include BOOST_PP_LOCAL_ITERATE()
+
+
+
+
 
 
 
