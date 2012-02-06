@@ -36,7 +36,6 @@
 #include <limits>
 #include <vector>
 //c++0x
-#include <tuple> //for tuple_element and std::get
 
 #include <functional>
 #include <fbi/traits.h>
