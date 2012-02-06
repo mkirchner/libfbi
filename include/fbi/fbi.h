@@ -55,7 +55,7 @@ namespace fbi {
    /**
    *  The key is represented by a pair of values for each dimension that 
    *  should be considered for intersection tests, 
-   * these pairs are wrapped in a std::tuple for easy access via std::get.
+   * these pairs are wrapped in a std::tuple for easy access via boost::tuples::get.
    * \see \ref fbi::Traits
    * \note This key_type is a subset of the original key_type, 
    * depending on the indices we're using.
@@ -106,7 +106,7 @@ public:
    * additional layer of template specialization.
    */
 
-  template <typename QueryType, BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(MAX_DIMENSIONS, int QIndex, -1) > 
+  template <typename QueryType, BOOST_PP_ENUM_BINARY_PARAMS(MAX_DIMENSIONS, int QIndex, =-1 BOOST_PP_INTERCEPT) > 
   struct SetB;
 
   private:
@@ -117,7 +117,7 @@ public:
    * another template class to use different int parameter packs.
    *
    */
-  template <BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int KeyCreatorIndex) > 
+  template <BOOST_PP_ENUM_BINARY_PARAMS(MAX_DIMENSIONS, int KeyCreatorIndex, =-1 BOOST_PP_INTERCEPT) > 
   struct KeyCreator;
 
 
@@ -230,7 +230,10 @@ public:
   template <int Dim, int Limit>
   struct KeyPrinter;
  
- 
+public: 
+
+
+
  /**
    * \brief Create two sets of keys by intersecting two sets of functors on a 
    * given dataContainer, and check if there are intersections 
@@ -284,7 +287,7 @@ public:
     ) {\
       boost::tuples::tuple<BOOST_PP_ENUM_PARAMS(n,QueryFunctor)> qfunctors = boost::tuples::make_tuple(BOOST_PP_ENUM_PARAMS(n, qfunctor));\
       return SetB<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::\
-      wrappedIntersect(State::defaultCutoff, dataContainer, ifunctor, qfunctors);\
+      wrappedIntersect(State::defaultCutoff, dataContainer, boost::tuples::make_tuple(ifunctor), dataContainer, qfunctors);\
   }
 
 #define BOOST_PP_LOCAL_LIMITS (1, MAX_QFUNCTORS)
@@ -347,7 +350,7 @@ public:
     ) {\
       boost::tuples::tuple<BOOST_PP_ENUM_PARAMS(n,QueryFunctor)> qfunctors = boost::tuples::make_tuple(BOOST_PP_ENUM_PARAMS(n, qfunctor));\
       return SetB<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::\
-      wrappedIntersect(cutoff, dataContainer, ifunctor, qfunctors);\
+      wrappedIntersect(cutoff, dataContainer, boost::tuples::make_tuple(ifunctor), dataContainer, qfunctors);\
   }
 
 #define BOOST_PP_LOCAL_LIMITS (1, MAX_QFUNCTORS)
@@ -384,8 +387,8 @@ private:
       ValType;
     
     if (height == 0) {
-      int random = state.randInt(0, container.size()-1);
-      int rand1 = state.randInt(0,1);
+      size_type random = (size_type) state.randInt(0, container.size()-1);
+      size_type rand1 = (size_type) state.randInt(0,1);
       if (rand1 == 0)
       {
         return getHead<Dim>(container[random]);
@@ -418,7 +421,7 @@ private:
   createPtrVector (const std::vector<key_type> & container) {
     std::vector<const key_type *> ptrVector(container.size());
     typename std::vector<key_type>::const_iterator it = container.begin();
-    int i = 0;
+    size_type i = 0;
     while (it != container.end()){
       ptrVector[i] = &(*it);
       ++it;
@@ -440,7 +443,7 @@ private:
   template <int Dim>
   static inline typename boost::tuples::element<Dim,key_type>::type 
   getKey(const key_type & key) {
-    return std::get<Dim>(key);
+    return boost::tuples::get<Dim>(key);
   }
 
   /** Comfort function to get the interval in the correct dimension 
@@ -449,7 +452,7 @@ private:
   template <int Dim>
   static inline typename boost::tuples::element<Dim,key_type>::type 
   getKey(const key_type * key) {
-    return std::get<Dim>(*key);
+    return boost::tuples::get<Dim>(*key);
   }
 
   /** Comfort function to get the lower endpoint in the correct dimension 
@@ -561,18 +564,17 @@ private:
    * on the number of elements
    * \see \ref getApproxMedian() 
    */
-  static int inline heuristicHeight(int numElements)
+  static size_type inline heuristicHeight(size_type numElements)
   {
-    return (int)(log((double)numElements));
+    return (size_type)(log((double)numElements));
   }
 
-}; //end class tree
+}; //end class SetA 
 
 template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
 template <typename QBoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int QIndex) > 
 class SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
 SetB {
-
  private:
 
 
@@ -592,7 +594,7 @@ SetB {
   /**
    *  The key is represented by a pair of values for each dimension that 
    *  should be considered for intersection tests, 
-   * these pairs are wrapped in a std::tuple for easy access via std::get.
+   * these pairs are wrapped in a std::tuple for easy access via boost::tuples::get.
    * \see \ref fbi::Traits
    * \note This key_type is a subset of the original key_type, 
    * depending on the indices we're using.
@@ -668,7 +670,7 @@ BOOST_MPL_ASSERT_MSG((boost::is_same<key_type, qkey_type>::value), KEY_TYPES_DON
     ) {\
       boost::tuples::tuple<BOOST_PP_ENUM_PARAMS(n,QueryFunctor)> qfunctors = boost::tuples::make_tuple(BOOST_PP_ENUM_PARAMS(n, qfunctor));\
       return SetB<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::\
-      wrappedIntersect(State::defaultCutoff, dataContainer, ifunctor, qfunctors);\
+      wrappedIntersect(State::defaultCutoff, dataContainer, boost::tuples::make_tuple(ifunctor), qdataContainer, qfunctors);\
   }
 
 #define BOOST_PP_LOCAL_LIMITS (1, MAX_QFUNCTORS)
@@ -690,7 +692,7 @@ BOOST_MPL_ASSERT_MSG((boost::is_same<key_type, qkey_type>::value), KEY_TYPES_DON
     ) {\
       boost::tuples::tuple<BOOST_PP_ENUM_PARAMS(n,QueryFunctor)> qfunctors = boost::tuples::make_tuple(BOOST_PP_ENUM_PARAMS(n, qfunctor));\
       return SetB<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::\
-      wrappedIntersect(State::defaultCutoff, dataContainer, ifunctor, qfunctors);\
+      wrappedIntersect(cutoff, dataContainer, boost::tuples::make_tuple(ifunctor), qdataContainer, qfunctors);\
   }
 
 #define BOOST_PP_LOCAL_LIMITS (1, MAX_QFUNCTORS)
@@ -715,14 +717,14 @@ private:
         BOOST_MPL_ASSERT_RELATION(boost::tuples::length<QueryFunctors>::value, >, 0);
     if (dataContainer.empty()) { return ResultType();}
     // Generate the set of data boxes. See above, just for the QueryBoxType.
-    const auto dataIntervalVector = KeyCreator<BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
+    const std::vector<key_type> dataIntervalVector = KeyCreator<BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
       getVector(dataContainer, ifunctor);
     
     // Generate the set of query boxes. The BoxType is an arbitrary,
     // user-specified type, that does not necessarily have any notion of
     // dimensionality. This call converts the BoxType data into the 
     // K-dimenstional boxes for fast box intersection.
-    const auto queryIntervalVector = KeyCreator<BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, QIndex)>::
+    const std::vector<key_type> queryIntervalVector = KeyCreator<BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, QIndex)>::
       getVector(qdataContainer, qfunctors);
 
     key_type limits = typeHelper::template TupleGetter<NUMDIMS, NUMDIMS>::get();
@@ -752,7 +754,7 @@ private:
 
     ResultType resultVector(offset + qdataContainer.size());
 
-    auto dimLimits = boost::tuples::get<0>(state.getLimits()); 
+    typename boost::tuples::element<0,key_type>::type dimLimits = boost::tuples::get<0>(state.getLimits()); 
 
     // Call the hybrid algorithm for stabbing queries in the interval vector.
     HybridScanner<true, NUMDIMS>::
@@ -781,7 +783,7 @@ private:
 
 template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
 template <BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int KeyCreatorIndex) > 
-class SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
+struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
 KeyCreator{
 
   /**
@@ -1073,7 +1075,488 @@ State
 
 
 
+template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
+template <bool PointsContainQueries, int DimsLeft>
+struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
+HybridScanner{
 
+  /** 
+   * \brief Find intersections by solving the 1-dimensional problems of 
+   *  overlapping intervals.
+   *
+   * This is the main recursion function, it is a 
+   *  divide & conquer algorithm, quite similar to quicksort.
+   * By creating the nodes of a virtual segment tree in post-order, 
+   *  we don't have to look at the whole tree at once (saving memory).
+   * In 1 iteration, we can split the intervalset in 3 separate sets: 
+   *   - Two of them represent the child-nodes of the virtual segment tree we're
+   *      working on (we have to further seperate in the current dimension).
+   *   - The third one is a set of solutions in the current dimension -> 
+   *      we can solve the problem in the next dimension.
+   *
+   * \param[in] pointsPtrVector As we're looking at two subsets of intervals, 
+   * this is the one representing the points.
+   * \param[in] intervalsPtrVector These are the intervals, for this call.
+   * \param[in] lowerBound As a recursion invariant, all points 
+   *  represented by pointsPtrVector are inbetween the two 
+   *  bounds (check recursion), which is why all intervals spanning across these
+   *  bounds are intersecting with the points (in the current dimension).
+   * \param[in] upperBound see lowerBound 
+   * \param[in, out] state Contains a rng, can be used to track the 
+   *  recursion and is able to calculate the indices.
+   * \param[in, out] resultVector We pass the resultVector around to 
+   *  add to it in OneWayScan
+   * \note The resultVector is only modified in OneWayScanner so the 
+   *  algorithm has to end there. We're switching to the
+   *  OneWayScanner, which is more of a brute-force approach, when 
+   *  either of the two cutoff values is met: 
+   *   - Only one dimension is left
+   *   - Either set is small enough that a match in one dimension will probably 
+   *      lead to a match in the others.
+   */ 
+  enum {
+    Dim = SETA::NUMDIMS - DimsLeft
+  };
+  //Workaround, that way we can partially specialize for the case that DimsLeft == 1
+  //which isn't a variable dependent on a template parameter.
+
+  static void scan(
+    std::vector<const key_type *> & pointsPtrVector, //Points
+    std::vector<const key_type *> & intervalsPtrVector,  //Intervals
+    const typename boost::tuples::element<Dim, key_type>::type::first_type & lowerBound,
+    const typename boost::tuples::element<Dim, key_type>::type::first_type & upperBound,
+    State & state,
+    ResultType & resultVector
+    ) {
+
+    typedef typename boost::tuples::element<Dim, key_type>::type Key;
+    typedef typename boost::tuples::element<Dim, comp_type>::type Comp;
+    Comp less;
+
+    if (
+      pointsPtrVector.size() == 0 || 
+      intervalsPtrVector.size() == 0 || 
+      !less(lowerBound, upperBound) 
+    ) {
+      return;
+    }
+    // switch into scanning mode if set sizes fall under the threshold
+    if (
+      pointsPtrVector.size() < state.getCutoff() || 
+      intervalsPtrVector.size() < state.getCutoff() 
+    ) {
+      sortContainerHead<Dim>(pointsPtrVector);
+      sortContainerHead<Dim>(intervalsPtrVector);
+      OneWayScanner<PointsContainQueries, Dim>::
+        scan(pointsPtrVector, intervalsPtrVector, state, resultVector);
+      return;
+    }
+    // Set sizes are still above the threshold. We follow a divide and conquer
+    // scheme: determine the median in the current dimension and use the
+    // value to split the intervals and points for the next (recursive) call.
+    std::size_t heuristicHeight = state.heuristicHeight(intervalsPtrVector.size());
+
+    //Using the intervals to provide a median, it can be guaranteed
+    //that the recursion will come to an end, for additional information refer to
+    //the supplementary.
+    typename Key::first_type median = 
+      getApproxMedian<Dim>(intervalsPtrVector, heuristicHeight, state, less);
+    
+    std::vector<const key_type *> 
+      intervalsMiddle, intervalsLeft, intervalsRight;
+
+    typename std::vector<const key_type *>::const_iterator intVectorIt = 
+      intervalsPtrVector.begin();
+
+    while (intVectorIt != intervalsPtrVector.end()){
+      Key interval = getKey<Dim>(*intVectorIt);
+      const key_type * intPtr = *intVectorIt;
+      ++intVectorIt;
+      if (!less(lowerBound, interval.first)) { 
+        if (!less(interval.second, upperBound)) { 
+          intervalsMiddle.push_back(intPtr);
+          continue;
+        }
+        intervalsLeft.push_back(intPtr);
+        if (less(median, interval.second)) {
+          intervalsRight.push_back(intPtr);
+        }
+      } else {
+        if (!less(interval.first,median)){
+          intervalsRight.push_back(intPtr);
+          continue;
+        }
+        intervalsLeft.push_back(intPtr);
+        if (less(median, interval.second))
+          intervalsRight.push_back(intPtr);
+      }
+    }
+
+    typename boost::tuples::element<Dim+1,key_type>::type dimLimits = boost::tuples::get<Dim+1>(state.getLimits());
+    
+    HybridScanner<PointsContainQueries, DimsLeft-1>::
+      scan(
+        pointsPtrVector, 
+        intervalsMiddle, 
+        dimLimits.first, 
+        dimLimits.second, 
+        state, 
+        resultVector
+      );
+    HybridScanner<!PointsContainQueries, DimsLeft-1>::
+      scan(
+        intervalsMiddle, 
+        pointsPtrVector, 
+        dimLimits.first, 
+        dimLimits.second, 
+        state, 
+        resultVector
+      );
+
+    //intervalsMiddle.swap(std::vector<const key_type *>());
+    intervalsMiddle.clear();
+    std::vector<const key_type *>().swap(intervalsMiddle);
+
+    std::vector<const key_type *> pointsLeft, pointsRight;
+    // all points which are to the left of the 
+    // median have to be entered in pointsLeft.
+    typename std::vector<const key_type *>::const_iterator pntVectorIt = 
+      pointsPtrVector.begin();
+
+    while (pntVectorIt != pointsPtrVector.end())
+    {
+      typename Key::first_type point = getHead<Dim>(*pntVectorIt);
+      if (less(point, median)) pointsLeft.push_back(*pntVectorIt);
+      else  pointsRight.push_back(*pntVectorIt);
+      ++pntVectorIt;
+    }
+    HybridScanner<PointsContainQueries,DimsLeft>::
+      scan(pointsLeft, intervalsLeft, lowerBound, median, state, resultVector);
+    intervalsLeft.clear();
+    std::vector<const key_type *>().swap(intervalsLeft);
+    pointsLeft.clear();
+    std::vector<const key_type *>().swap(pointsLeft);
+    HybridScanner<PointsContainQueries, DimsLeft>::
+      scan(pointsRight, intervalsRight, median, upperBound, state, resultVector);
+
+  }
+
+}; //end struct HybridScanner
+
+
+
+/** 
+ * This is a specialization of the HybridScanner when there's only 
+ * one dimension left to compare in: just pass the sets to the OneWayScanner
+ */
+template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
+template <bool PointsContainQueries>
+struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
+HybridScanner<PointsContainQueries, 1> {
+
+  enum
+  {
+  /** last dimension to compare in*/
+    LASTDIM = SETA::NUMDIMS - 1
+  };
+  /** Use key_type from parent struct*/
+  typedef SETA::key_type key_type;
+ /** \see \ref HybridScanner::scan()
+  * This is the special case, when only the last dimension has to be considered,
+  * switch to a brute-force approach, i.e. \ref OneWayScanner::scan()
+  * \param[in] pointsPtrVector As we're looking at two subsets of intervals, 
+  * this is the one representing the points.
+  * \param[in] intervalsPtrVector These are the intervals, for this call.
+  * \param[in] lowerBound As a recursion invariant, all points 
+  *  represented by pointsPtrVector are inbetween the two 
+  *  bounds (check recursion), which is why all intervals spanning across these
+  *  bounds are intersecting with the points (in the current dimension).
+  * \param[in] upperBound see lowerBound 
+  * \param[in, out] state Contains a rng, can be used to track the 
+  *  recursion and is able to calculate the indices.
+  * \param[in, out] resultVector We pass the resultVector around to 
+  *  add to it in OneWayScan
+  */
+  inline static void scan(
+      std::vector<const key_type *> & pointsPtrVector,
+      std::vector<const key_type *> & intervalsPtrVector,
+      const typename boost::tuples::element<LASTDIM, key_type>::type::first_type & lowerBound,
+      const typename boost::tuples::element<LASTDIM, key_type>::type::first_type & upperBound,
+      SETA::State & state,
+      SETA::ResultType & resultVector
+      )
+  {
+    SETA::sortContainerHead<LASTDIM>(pointsPtrVector);
+    SETA::sortContainerHead<LASTDIM>(intervalsPtrVector);
+    SETA::OneWayScanner<PointsContainQueries, LASTDIM>::
+        scan(pointsPtrVector, intervalsPtrVector, state, resultVector);
+  }
+}; //end struct HybridScanner specialization
+
+
+
+template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
+template <bool PointsContainQueries, int Dim>
+struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
+OneWayScanner{
+  /**
+   * \brief Pass through two sorted vectors and look for matches accordingly.
+   * \param[in] pointsPtrVector As we're looking at two subsets of intervals, 
+   * this is the one representing the points.
+   * \param[in] intervalsPtrVector These are the intervals, for this call.
+   * \param[in, out] state We need the state (containing 2 pointers) to 
+   *  calculate the correct indices.
+   * \param[in, out] resultVector Add our results. 
+   *  \note As the OneWayScanner isn't necessarily be called for the 
+   *  last dimension only, we have to use the IntersectionTester to 
+   *  check for intersections in the remaining dimensions.
+   */
+  static void scan(
+      const std::vector<const key_type * > & pointsPtrVector, 
+      const std::vector<const key_type * > & intervalsPtrVector,
+      State & state,
+      ResultType & resultVector 
+      ) {
+    typedef typename boost::tuples::element<Dim, key_type>::type::first_type Key;
+    typedef typename boost::tuples::element<Dim, comp_type>::type Comp; 
+    typedef typename std::vector<const key_type * >::const_iterator CIT;
+    typedef std::multiset<const key_type * , lessTail<Dim> > SortTailSet;
+    SortTailSet intervalsPtrSet;
+    typedef typename SortTailSet::const_iterator SIT;
+
+    
+    if (intervalsPtrVector.empty())
+      return;
+
+    Comp less;
+    CIT pntVectorIt = pointsPtrVector.begin();
+    CIT intVectorIt = intervalsPtrVector.begin();
+
+
+    while (pntVectorIt != pointsPtrVector.end()){
+
+      const key_type * pntPtr = *pntVectorIt;
+      ++pntVectorIt; //don't look at the same point again!
+      //const Key point = getHead<Dim>(pntPtr);
+      key_type point = *pntPtr;
+      Key lowerBound = boost::tuples::get<Dim>(point).first; 
+      boost::tuples::get<Dim>(point).second = lowerBound;
+
+
+      CIT oldIntVectorIt = intVectorIt; 
+      while ( intVectorIt != intervalsPtrVector.end())
+      {
+        //if this is true, the lower endpoint of the intervals is greater than 
+        //the query point - it is impossible for the query point to be inside.
+        if (less(lowerBound,getHead<Dim>(*intVectorIt))) break;
+        ++intVectorIt;
+      }
+      //add all intervals that weren't in the intervalSet yet whose lower end 
+      //is not higher than the query point, these are the viable intervals.
+      intervalsPtrSet.insert(oldIntVectorIt, intVectorIt);
+
+      //return an iterator to the first object whose upper endpoint is 
+      //greater than the point
+      SIT activeSetIt = intervalsPtrSet.upper_bound(&point);
+      //erase all intervals whose upper endpoints aren't greater than the point.
+      intervalsPtrSet.erase(intervalsPtrSet.begin(), activeSetIt);
+      //iterate through the data intervals till we find one whose 
+      //lower endpoint is too big
+      //fill up the intervalSet with all intervals before. 
+
+      //erase all intervals from the active set whose upper endpoint are
+      //lower than the query point, these can't encompass it.
+
+      //add all intersections to the results
+      SIT intersectionSetIt = intervalsPtrSet.begin();
+      SIT intersectionSetEnd = intervalsPtrSet.end();
+
+      for(; intersectionSetIt != intersectionSetEnd; ++intersectionSetIt) {
+        if (IntersectionTester<Dim+1, NUMDIMS>::
+              test(pntPtr, *intersectionSetIt) ) {
+            
+          std::size_t edgeHead = state.calculate(PointsContainQueries, pntPtr);
+          std::size_t edgeTail = state.calculate(!PointsContainQueries, *intersectionSetIt);
+          resultVector[edgeHead].insert(resultVector[edgeHead].end(),static_cast<IntType>(edgeTail));
+          resultVector[edgeTail].insert(resultVector[edgeTail].end(),static_cast<IntType>(edgeHead));
+        }
+      } //end add all intersections to the results.
+    } //end while qContainerIt != pointsContainer.end() 
+    // do loop for every query point.
+  } //end scan
+
+}; //end struct OneWayScanner
+
+
+/**
+ * \brief Check in \f$ O(Limit - Dim) \f$ if two intervals intersect by 
+ *  comparing in all dimensions till it's either false
+ *  or all tests evaluated to true.
+ *   
+ *
+ * \tparam Dim The dimension of the _key_ we're primarily working on, 
+ * this can differ from the actual dimension in value_type.
+ * \tparam Limit As we're looking for intersections in the 
+ *  Dim, we have to check for every intersection-pair
+ *  if they're also matching in the other dimensions, the 
+ *  parameter is used for termination.
+ * 
+ */
+
+template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
+template <int Dim, int Limit>
+struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
+IntersectionTester {
+/**
+ * Check for intersection between its two inputs
+ * \param x Pointer to first interval.
+ * \param y Pointer to second interval.
+ */
+  static bool test(const key_type * x, const key_type * y)
+  {
+    bool result;
+    typedef typename boost::tuples::element<Dim, key_type>::type Key;
+    typedef typename boost::tuples::element<Dim, comp_type>::type Comp;
+    Key firstKey = getKey<Dim>(x);
+    Key secondKey = getKey<Dim>(y);
+    Comp less;
+    if (less(firstKey.first, secondKey.first)){
+      if (less(secondKey.first, firstKey.second)) result = true;
+      else result = false;
+    }
+    else {
+      if (less(firstKey.first, secondKey.second)) result = true;
+      else result = false;
+    }
+
+    //bool short-circuiting saves us from comparing useless dimensions
+    return result &&  IntersectionTester<Dim+1, Limit>::test(x, y); 
+
+  }
+};
+
+template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
+template <int Limit>
+struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
+IntersectionTester<Limit, Limit> {
+  static bool test(const key_type * x, const key_type * y){ return true; }
+};
+
+
+
+template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
+template <int Dim>
+struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
+lessHead {
+   /** 
+    * To sort a vector/set of keys by their lower end in a given dimension,
+    * we define a functor similar to operator() in std::less.
+    * \param[in] x First object
+    * \param[in] y Second object
+    * Return true if x < y
+    */
+  bool inline operator() (const key_type * x, const key_type * y) const {
+    return 
+        getCompareFunctor<Dim>()(
+            getHead<Dim>(x),
+            getHead<Dim>(y)
+            );
+  }
+   /** 
+    * To sort a vector/set of keys by their upper end in a given dimension,
+    * we define a functor similar to operator() in std::less.
+    * \param[in] x First object
+    * \param[in] y Second object
+    * Return true if x < y
+    */
+  bool inline operator() (const key_type & x, const key_type & y) const  {
+    return 
+        getCompareFunctor<Dim>()(
+            getHead<Dim>(x),
+            getHead<Dim>(y)
+            );
+  }
+};
+
+
+template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
+template <int Dim>
+struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
+lessTail{
+   /** 
+    * To sort a vector/set of keys by their upper end in a given dimension,
+    * we define a functor similar to operator() in std::less.
+    * \param[in] x First object
+    * \param[in] y Second object
+    * Return true if x < y
+    */
+  bool inline operator() (const key_type * x, const key_type * y) const {
+    return 
+        getCompareFunctor<Dim>()(
+            getTail<Dim>(x),
+            getTail<Dim>(y)
+            );
+  }
+    /** 
+    * To sort a vector/set of keys by their upper end in a given dimension,
+    * we define a functor similar to operator() in std::less.
+    * \param[in] x First object
+    * \param[in] y Second object
+    * Return true if x < y
+    */
+  bool inline operator() (const key_type & x, const key_type & y) const {
+    return 
+        getCompareFunctor<Dim>()(
+            getTail<Dim>(x),
+            getTail<Dim>(y)
+            );
+  }
+};
+
+
+/**
+ * Sometimes we would like to see if the key we're looking at has the
+ * correct values.
+ * \tparam I Dimension the print should start with.
+ * \tparam Number of dimensions the key_type possesses.
+ */
+template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
+template <int I, int N>
+struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
+KeyPrinter
+{
+  /** 
+   * print key 
+   * \param[in] key Print this key
+   */
+  static void 
+      print(const key_type& key) {
+        std::cout.setf(std::ios::fixed, std::ios::floatfield);
+        std::cout << "Dim" << I <<": "<< 
+          getHead<I>(key) << "-" << 
+          getTail<I>(key) << '\n';
+        KeyPrinter<I+1,N>::print(key);
+      }
+};
+
+/**
+ * Sometimes we would like to see if the key we're looking at has the
+ * correct values, template specialization to terminate the recursion.
+ */
+template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
+template <int N>
+struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
+KeyPrinter<N,N>
+{
+  /** 
+   * print key 
+   * \param[in] key Print this key
+   */
+  static void 
+      print(const key_type & key) {
+        return;
+      }
+};
 
 
 } //end namespace fbi
