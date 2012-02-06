@@ -33,13 +33,14 @@
 //c++0x includes
 //#include <tuple>
 #include "unittest.hxx"
+#include <boost/utility/enable_if.hpp>
 // hack for testing purposes
 #define private public
 #include <fbi/fbi.h>
 #undef private
 #include <fbi/traits.h>
 //#include <fbi/tuplegenerator.h>
-//#include <fbi/connectedcomponents.h>
+#include <fbi/connectedcomponents.h>
 using namespace vigra;
 
 
@@ -112,79 +113,72 @@ BoxGenerator::get<2>(const Centroid & centroid) const
     snOffset_ + centroid.sn_ + snWindow_ + 0.3 );
 }
 
-template < BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(MAX_DIMENSIONS, typename T, boost::mpl::void_) >
+#define MAKEPAIR(z,n,text) std::make_pair BOOST_PP_LPAREN() BOOST_PP_CAT(text,BOOST_PP_MUL(2,n)) BOOST_PP_COMMA() BOOST_PP_CAT(text, BOOST_PP_INC(BOOST_PP_MUL(2,n))) BOOST_PP_RPAREN()
+
+template < BOOST_PP_ENUM_BINARY_PARAMS(MAX_DIMENSIONS, typename T, = boost::mpl::void_ BOOST_PP_INTERCEPT) >
 struct ValueType {
 
 typedef typename fbi::mpl::TraitsGenerator<BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, T)>::key_type key_type;
+typedef typename fbi::mpl::TraitsGenerator<BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, T)>::single_key_type single_key_type;
 
 key_type key_;
+
+#define BOOST_PP_LOCAL_MACRO(n) \
+template <BOOST_PP_ENUM_PARAMS(BOOST_PP_MUL(2,n), typename P)> \
+ValueType(BOOST_PP_ENUM_BINARY_PARAMS(BOOST_PP_MUL(2,n), P, p) ){\
+  key_ = boost::tuples::make_tuple(BOOST_PP_ENUM(n, MAKEPAIR, p));\
+}\
+
+#define BOOST_PP_LOCAL_LIMITS (1, MAX_DIMENSIONS)
+#include BOOST_PP_LOCAL_ITERATE()
 
 ValueType(const key_type & newKey):key_(newKey){}
 };
 
-/*
 
-template <typename ... Dimensions>
-struct ValueType{
 
-  typedef std::tuple<std::pair<Dimensions, std::less<Dimensions> >... > dim_type;
-
-  typedef std::tuple<std::pair<Dimensions, Dimensions> ...> key_type;
-  key_type key_;
-
-  template<typename ... Params,
-  typename = typename std::enable_if<
-      sizeof...(Params) == 2 * sizeof...(Dimensions) >::type>
-
-      ValueType(Params ... params) {
-        key_ = fbi::mpl::Pack<Params...>::Make(params...);
-      }
-
-  ValueType(const key_type & newKey):key_(newKey){}
-};
 
 template <typename ValueType>
-struct ValueTypeStandardAccessor;
-
-template <typename ... Dimensions>
-struct ValueTypeStandardAccessor<ValueType<Dimensions...> >
+struct ValueTypeStandardAccessor
 {
+  typedef ValueType BoxType;
   template <size_t N>
-  typename std::tuple_element<N, typename ValueType<Dimensions...>::key_type >::type
-  get (const ValueType<Dimensions...> & box) const {
-     return std::get<N>(box.key_);
+  typename boost::tuples::element<N, typename BoxType::key_type >::type
+  get (const BoxType & box) const {
+     return boost::tuples::get<N>(box.key_);
   }
 
 };
 
 template <typename ValueType>
-struct OffsetQueryAccessor;
-
-template <typename ... Dimensions>
-struct OffsetQueryAccessor<ValueType<Dimensions...> >
+struct OffsetQueryAccessor
 {
 
-  std::tuple<Dimensions...> offset_;
-  
-  OffsetQueryAccessor(Dimensions... offset):offset_(std::make_tuple(offset...)){}
+  typedef ValueType BoxType;
+  typedef typename BoxType::single_key_type single_key_type;
+  single_key_type offset_;
+
+#define  BOOST_PP_LOCAL_MACRO(n) \
+  template <BOOST_PP_ENUM_PARAMS(n, typename Offset)>\
+  OffsetQueryAccessor(BOOST_PP_ENUM_BINARY_PARAMS(n, Offset, offset)){\
+    offset_ = boost::tuples::make_tuple(BOOST_PP_ENUM_PARAMS(n, offset));\
+    }\
+
+#define BOOST_PP_LOCAL_LIMITS (1, MAX_DIMENSIONS)
+#include BOOST_PP_LOCAL_ITERATE()
+
 
   template <size_t N>
-  typename std::tuple_element<N, typename ValueType<Dimensions...>::key_type >::type
-  get (const ValueType<Dimensions...> & box) const {
-    auto val = std::get<N>(box.key_);
-    auto offset = std::get<N>(offset_);
+  typename boost::tuples::element<N, typename BoxType::key_type >::type
+  get (const BoxType & box) const {
+    typename boost::tuples::element<N, typename BoxType::key_type>::type val = boost::tuples::get<N>(box.key_);
+    typename boost::tuples::element<N, single_key_type>::type offset = boost::tuples::get<N>(offset_);
   
     return std::make_pair(val.first + offset, val.second + offset) ;
   }
 
 };
 
-
-
-
-
-
-*/
 
 namespace fbi{
 /*
@@ -203,38 +197,40 @@ struct HybridSetATestSuite : vigra::test_suite {
     add(testCase(&HybridSetATestSuite::testSetAType));
     add(testCase(&HybridSetATestSuite::testSetBType));
     add(testCase(&HybridSetATestSuite::testCountFunctor));
-//    add(testCase(&HybridSetATestSuite::testCreateKeyTypes));
+    
+    add(testCase(&HybridSetATestSuite::testCreateKeyTypes));
     //add(testCase(&HybridSetATestSuite::testAccessor)); 
     // add(testCase(&HybridSetATestSuite::testPtrCreator));
     //add(testCase(&HybridSetATestSuite::testCompAccessor));
     //add(testCase(&HybridSetATestSuite::testSortFunctor));
     //add(testCase(&HybridSetATestSuite::testOneWayScan)); 
 
-//    add(testCase(&HybridSetATestSuite::testTwoWayScanIntersect));
+    add(testCase(&HybridSetATestSuite::testTwoWayScanIntersect));
     //add(testCase(&HybridSetATestSuite::testTwoWayScan));
 
-//    add(testCase(&HybridSetATestSuite::testHybridScanBig));
+    add(testCase(&HybridSetATestSuite::testHybridScanBig));
 
-//    add(testCase(&HybridSetATestSuite::testHybridScanTop));
-//    add(testCase(&HybridSetATestSuite::testHybridScanBottom));
+    add(testCase(&HybridSetATestSuite::testHybridScanTop));
+    add(testCase(&HybridSetATestSuite::testHybridScanBottom));
 
-//    add(testCase(&HybridSetATestSuite::testHybridScanLeft));
-//    add(testCase(&HybridSetATestSuite::testHybridScanRight));
-//    add(testCase(&HybridSetATestSuite::testHybridScanTopRightCorner));
-//    add(testCase(&HybridSetATestSuite::testHybridScanTopLeftCorner));
-//    add(testCase(&HybridSetATestSuite::testHybridScanBottomRightCorner));
-//    add(testCase(&HybridSetATestSuite::testHybridScanBottomLeftCorner));
-//    add(testCase(&HybridSetATestSuite::testHybridScanOverlap));
-//    add(testCase(&HybridSetATestSuite::testHybridScanRightSide));
-//    add(testCase(&HybridSetATestSuite::testHybridScanTopSide));
-//    add(testCase(&HybridSetATestSuite::testHybridScanLeftSide));
-//    add(testCase(&HybridSetATestSuite::testHybridScanBottomSide));
-//    add(testCase(&HybridSetATestSuite::testHybridScanFrontSide));
-//    add(testCase(&HybridSetATestSuite::testHybridScanBackSide));
-//    add(testCase(&HybridSetATestSuite::testHybridScanNoMatch));
-//    add(testCase(&HybridSetATestSuite::testHybridScanOnlyPoints));
-//    add(testCase(&HybridSetATestSuite::testHybridScanAllPointsOutside));
-//    add(testCase(&HybridSetATestSuite::testHybridScanFunctorVectors));
+    add(testCase(&HybridSetATestSuite::testHybridScanLeft));
+    add(testCase(&HybridSetATestSuite::testHybridScanRight));
+    add(testCase(&HybridSetATestSuite::testHybridScanTopRightCorner));
+    add(testCase(&HybridSetATestSuite::testHybridScanTopLeftCorner));
+    add(testCase(&HybridSetATestSuite::testHybridScanBottomRightCorner));
+    add(testCase(&HybridSetATestSuite::testHybridScanBottomLeftCorner));
+    add(testCase(&HybridSetATestSuite::testHybridScanOverlap));
+    add(testCase(&HybridSetATestSuite::testHybridScanRightSide));
+    add(testCase(&HybridSetATestSuite::testHybridScanTopSide));
+    add(testCase(&HybridSetATestSuite::testHybridScanLeftSide));
+    add(testCase(&HybridSetATestSuite::testHybridScanBottomSide));
+    add(testCase(&HybridSetATestSuite::testHybridScanFrontSide));
+    add(testCase(&HybridSetATestSuite::testHybridScanBackSide));
+    add(testCase(&HybridSetATestSuite::testHybridScanNoMatch));
+    add(testCase(&HybridSetATestSuite::testHybridScanOnlyPoints));
+    add(testCase(&HybridSetATestSuite::testHybridScanAllPointsOutside));
+    add(testCase(&HybridSetATestSuite::testHybridScanFunctorVectors));
+  
   }
 
   //typedef std::pair<int, std::less<int> > IntDimension;
@@ -312,7 +308,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
 
 
-/*
+
 
 
   void testCreateKeyTypes(){
@@ -328,7 +324,7 @@ struct HybridSetATestSuite : vigra::test_suite {
     testVector.push_back(Map(13,14,15.0,16.0,std::string("g"), std::string("h")));
 
     std::vector<TTT::key_type> intervalVector = 
-        TTT::KeyCreator<2,0,1>::getVector(testVector, ValueTypeStandardAccessor<Map>() );
+        TTT::KeyCreator<2,0,1>::getVector(testVector, boost::tuples::make_tuple(ValueTypeStandardAccessor<Map>()) );
 
 
     if(TTT::getKey<0>(intervalVector[0]) != std::make_pair(std::string("a"), std::string("b") ))
@@ -364,8 +360,7 @@ struct HybridSetATestSuite : vigra::test_suite {
     testVector.push_back(Map( 3.0, 7.0, 3.0, 4.0  ,11.0,13.0));
     testVector.push_back(Map(-5.0, 0.1, 2.0, 5.0  ,7.0,10.0));
 
-    std::vector<TTT::key_type> testIntervalVector = TTT::KeyCreator<0,1>::getVector(testVector, ValueTypeStandardAccessor<Map>());
-
+    std::vector<TTT::key_type> testIntervalVector = TTT::KeyCreator<0,1>::getVector(testVector, boost::tuples::make_tuple(ValueTypeStandardAccessor<Map>()));
     std::vector<const TTT::key_type * > testPtrVector= TTT::createPtrVector(testIntervalVector); 
 
     std::vector<bool> correctBoolVector;
@@ -402,8 +397,6 @@ struct HybridSetATestSuite : vigra::test_suite {
       }
     }
   }
-
-
 
   void testHybridScanBig(){
     typedef ValueType<int, double> Map;
@@ -454,7 +447,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       }
     }
   }
-
+  
   void testHybridScanTop() {
 
     typedef ValueType<int, double> Map;
@@ -1431,8 +1424,6 @@ void testHybridScanFunctorVectors()
 
 
 }
-*/
-
 
 
 
@@ -1441,7 +1432,7 @@ void testHybridScanFunctorVectors()
 
 }; //end HybridSetATestSuite
 
-/*
+
 struct HybridSetAProfileSuite : vigra::test_suite {
   HybridSetAProfileSuite() : vigra::test_suite("HybridSetAProfiler")
   {
@@ -1550,7 +1541,7 @@ struct ConnectedComponentsTestSuite : vigra::test_suite {
 
 
 
-*/
+
 
 
 
@@ -1560,16 +1551,16 @@ int main() {
   int success = test.run();
   std::cout << test.report() << std::endl;
 
-//  ConnectedComponentsTestSuite ccTest;
-//  int success1 = ccTest.run();
-//  std::cout << ccTest.report() << std::endl;
+  ConnectedComponentsTestSuite ccTest;
+  int success1 = ccTest.run();
+  std::cout << ccTest.report() << std::endl;
 
-//  HybridSetAProfileSuite profile;
-//  int success2 = profile.run();
-//  std::cout << profile.report() << std::endl;
+  HybridSetAProfileSuite profile;
+  int success2 = profile.run();
+  std::cout << profile.report() << std::endl;
 
 
-//  return success || success1 || success2;
+  return success || success1 || success2;
 return success;
 
   //return success || success1;

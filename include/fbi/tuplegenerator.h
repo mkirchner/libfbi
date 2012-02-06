@@ -54,7 +54,6 @@
 #include <boost/mpl/arithmetic.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/tuple/tuple.hpp> 
-#include <boost/utility/enable_if.hpp>
 #ifndef MAX_DIMENSIONS 
 #define MAX_DIMENSIONS 4
 #endif
@@ -122,7 +121,7 @@ struct convertTupleToVector<Tup, n> { \
 
 
 
-#define PREPOSTWRAPPER(z,n,sequence) BOOST_PP_SEQ_ELEM(0, sequence)  BOOST_PP_CAT(BOOST_PP_SEQ_ELEM(1, sequence),n) BOOST_PP_SEQ_ELEM(2, sequence)
+#define PREPOSTWRAPPER(z,n,sequence) BOOST_PP_SEQ_ELEM(0, sequence) BOOST_PP_CAT(BOOST_PP_SEQ_ELEM(1, sequence),n) BOOST_PP_SEQ_ELEM(2, sequence)
 
 
     //struct ConstructPair {
@@ -271,7 +270,7 @@ struct convertTupleToVector<Tup, n> { \
 
 
 
-    template < BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(MAX_DIMENSIONS,typename T,boost::mpl::void_) >
+    template < BOOST_PP_ENUM_BINARY_PARAMS(MAX_DIMENSIONS,typename T,= boost::mpl::void_ BOOST_PP_INTERCEPT) >
     struct TraitsGenerator{
       /**
        * Define the dimensions and their corresponding comparison, 
@@ -290,19 +289,6 @@ struct convertTupleToVector<Tup, n> { \
         dim_type_vector;
       typedef typename convertVectorToTuple<dim_type_vector, boost::mpl::size<dim_type_vector>::value>::type dim_type;
 
-      /*
-
-         typedef boost::fusion::tuple<
-         boost::mpl::transform<
-         typename boost::mpl::filter_view<
-         boost::fusion::tuple<
-         BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, T)
-         >,boost::mpl::not_<boost::is_void<boost::mpl::_> > 
-         >::type,
-         boost::mpl::apply1<ApplyPairLessA, boost::mpl::_>
-         >
-         > dim_type; 
-         */
       /** 
        * As every dimension holds a pair of values, we define the correct tuples as key_type, 
        * using the types given in dim_type
@@ -319,15 +305,54 @@ struct convertTupleToVector<Tup, n> { \
         key_type_vector;
       typedef typename convertVectorToTuple<key_type_vector, boost::mpl::size<key_type_vector>::value>::type key_type;
 
+      /** Pack just the filtered types, without void-types in a tuple. */
+typedef 
+        typename boost::mpl::remove<
+        boost::mpl::vector<BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, T)>
+        ,boost::mpl::void_
+        >::type
+        single_key_type_vector;
+      typedef typename convertVectorToTuple<single_key_type_vector, boost::mpl::size<single_key_type_vector>::value>::type single_key_type;
 
 
-
+      private:
+        template <int N, typename T>
+      struct LimitsHelper;
+      public:
       /**For every dimensionof the key_type, upper and lower bounds have to be defined */
 
-      // static key_type getLimits(){
-      //   return std::make_tuple(std::make_pair(std::numeric_limits<T>::min(), std::numeric_limits<T>::max())...);
-      // }
+       static key_type getLimits(){
+         //return std::make_tuple(std::make_pair(std::numeric_limits<T>::min(), std::numeric_limits<T>::max())...);
+        return LimitsHelper<boost::tuples::length<key_type>::value, typename key_type::inherited>::getLimit();
+       }
     };
+
+    template < BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS,typename T) >
+    template <int N, typename T>
+    struct TraitsGenerator<BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, T)>::
+    LimitsHelper {
+      typedef typename T::head_type::first_type h_type;
+      static T
+      getLimit() {
+        return boost::tuples::cons<typename T::head_type, typename T::tail_type>(
+          std::make_pair(std::numeric_limits<h_type>::min(), std::numeric_limits<h_type>::max()),
+          LimitsHelper<N-1, typename T::tail_type>::getLimit()
+          
+        );
+      }
+    };
+
+    template < BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS,typename T) >
+    template <typename T>
+    struct TraitsGenerator<BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, T)>::
+    LimitsHelper<0, T> {
+      static T
+      getLimit() {
+        return boost::tuples::null_type();
+      }
+    };
+
+
 
 
   ///** Base template class*/
@@ -469,7 +494,7 @@ TupleGetter<n, Dummy>{\
   }\
   template <typename T, typename Functor>\
   static const key_type\
-  create(const T& val, const Functor & functor) {\
+  createKey(const T& val, const Functor & functor) {\
     return boost::tuples::make_tuple(\
       BOOST_PP_ENUM(n, PREPOSTWRAPPER, (functor.template get<)(TIndex)(>(val)))\
     );\
