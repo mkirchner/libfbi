@@ -40,6 +40,8 @@
 #include <fbi/traits.h>
 //#include <fbi/tuplegenerator.h>
 #include <fbi/connectedcomponents.h>
+#include <boost/cstdint.hpp>
+
 using namespace vigra;
 
 
@@ -419,13 +421,13 @@ struct HybridSetATestSuite : vigra::test_suite {
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
       if ( i % doubleDimension != doubleDimension - 1)
-        correctResults[i].insert((uint32_t)i+1);
+        correctResults[i].insert((boost::uint_fast32_t)i+1);
       if (i % doubleDimension != 0)
-        correctResults[i].insert ((uint32_t)i-1);
+        correctResults[i].insert ((boost::uint_fast32_t)i-1);
       if (i >= doubleDimension)
-        correctResults[i].insert ((uint32_t)(i - doubleDimension));
+        correctResults[i].insert ((boost::uint_fast32_t)(i - doubleDimension));
       if (i < (intDimension - 1) * doubleDimension)
-        correctResults[i].insert ((uint32_t)(i + doubleDimension));
+        correctResults[i].insert ((boost::uint_fast32_t)(i + doubleDimension));
     }
 
 
@@ -473,9 +475,9 @@ struct HybridSetATestSuite : vigra::test_suite {
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
       if ( i % doubleDimension != doubleDimension - 1)
-        correctResults[i].insert((uint32_t)i+1);
+        correctResults[i].insert((boost::uint_fast32_t)i+1);
       if (i % doubleDimension != 0)
-        correctResults[i].insert ((uint32_t)i-1);
+        correctResults[i].insert ((boost::uint_fast32_t)i-1);
     }
 
     TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(0,4.1));
@@ -522,9 +524,9 @@ struct HybridSetATestSuite : vigra::test_suite {
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
       if ( i % doubleDimension != doubleDimension - 1)
-        correctResults[i].insert((uint32_t)i+1);
+        correctResults[i].insert((boost::uint_fast32_t)i+1);
       if (i % doubleDimension != 0)
-        correctResults[i].insert ((uint32_t)i-1);
+        correctResults[i].insert ((boost::uint_fast32_t)i-1);
     }
 
 
@@ -573,9 +575,9 @@ struct HybridSetATestSuite : vigra::test_suite {
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
       if (i >= doubleDimension)
-        correctResults[i].insert ((uint32_t)(i - doubleDimension));
+        correctResults[i].insert ((boost::uint_fast32_t)(i - doubleDimension));
       if (i < (intDimension - 1) * doubleDimension)
-        correctResults[i].insert ((uint32_t)(i + doubleDimension));
+        correctResults[i].insert ((boost::uint_fast32_t)(i + doubleDimension));
     }
 
 
@@ -623,9 +625,9 @@ struct HybridSetATestSuite : vigra::test_suite {
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
       if (i >= doubleDimension)
-        correctResults[i].insert ((uint32_t)(i - doubleDimension));
+        correctResults[i].insert ((boost::uint_fast32_t)(i - doubleDimension));
       if (i < (intDimension - 1) * doubleDimension)
-        correctResults[i].insert ((uint32_t)(i + doubleDimension));
+        correctResults[i].insert ((boost::uint_fast32_t)(i + doubleDimension));
     }
 
     TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(12,0.0));
@@ -672,9 +674,9 @@ struct HybridSetATestSuite : vigra::test_suite {
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
       if (i >= doubleDimension)
-        correctResults[i].insert ((uint32_t)(i - doubleDimension));
+        correctResults[i].insert ((boost::uint_fast32_t)(i - doubleDimension));
       if (i < (intDimension - 1) * doubleDimension)
-        correctResults[i].insert ((uint32_t)(i + doubleDimension));
+        correctResults[i].insert ((boost::uint_fast32_t)(i + doubleDimension));
     }
 
     TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(3,0.0));
@@ -721,9 +723,9 @@ struct HybridSetATestSuite : vigra::test_suite {
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
       if (i >= doubleDimension && i % doubleDimension != 0)
-        correctResults[i].insert ((uint32_t)(i - doubleDimension - 1));
+        correctResults[i].insert ((boost::uint_fast32_t)(i - doubleDimension - 1));
       if (i < (intDimension - 1) * doubleDimension && i % doubleDimension != doubleDimension-1)
-        correctResults[i].insert ((uint32_t)(i + doubleDimension + 1));
+        correctResults[i].insert ((boost::uint_fast32_t)(i + doubleDimension + 1));
     }
     TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(8,13.0));
 
@@ -768,9 +770,9 @@ struct HybridSetATestSuite : vigra::test_suite {
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
       if (i >= doubleDimension && i % doubleDimension != 0)
-        correctResults[i].insert ((uint32_t)(i - doubleDimension - 1));
+        correctResults[i].insert ((boost::uint_fast32_t)(i - doubleDimension - 1));
       if (i < (intDimension - 1) * doubleDimension && i % doubleDimension != doubleDimension-1)
-        correctResults[i].insert ((uint32_t)(i + doubleDimension + 1));
+        correctResults[i].insert ((boost::uint_fast32_t)(i + doubleDimension + 1));
     }
 
     TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(12,13));
@@ -819,9 +821,9 @@ struct HybridSetATestSuite : vigra::test_suite {
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
       if (i >= doubleDimension && i % doubleDimension != 0)
-        correctResults[i].insert ((uint32_t)(i - doubleDimension - 1));
+        correctResults[i].insert ((boost::uint_fast32_t)(i - doubleDimension - 1));
       if (i < (intDimension - 1) * doubleDimension && i % doubleDimension != doubleDimension-1)
-        correctResults[i].insert ((uint32_t)(i + doubleDimension + 1));
+        correctResults[i].insert ((boost::uint_fast32_t)(i + doubleDimension + 1));
     }
 
     TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(8, 17.0));
@@ -870,9 +872,9 @@ struct HybridSetATestSuite : vigra::test_suite {
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
         if (i >= doubleDimension && i % doubleDimension != 0)
-          correctResults[i].insert ((uint32_t)(i - doubleDimension - 1));
+          correctResults[i].insert ((boost::uint_fast32_t)(i - doubleDimension - 1));
         if (i < (intDimension - 1) * doubleDimension && i % doubleDimension != doubleDimension-1)
-          correctResults[i].insert ((uint32_t)(i + doubleDimension + 1));
+          correctResults[i].insert ((boost::uint_fast32_t)(i + doubleDimension + 1));
       }
 
 
@@ -926,9 +928,9 @@ struct HybridSetATestSuite : vigra::test_suite {
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
         if (i % floatDimension > 0)
-          correctResults[i].insert ((uint32_t)(i - 1));
+          correctResults[i].insert ((boost::uint_fast32_t)(i - 1));
         if (i % floatDimension != floatDimension - 1)
-          correctResults[i].insert ((uint32_t)(i + 1));
+          correctResults[i].insert ((boost::uint_fast32_t)(i + 1));
       }
 
       TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(-1,0.0,4.0f));
@@ -982,9 +984,9 @@ struct HybridSetATestSuite : vigra::test_suite {
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
         if (i % floatDimension > 0)
-          correctResults[i].insert ((uint32_t)(i - 1));
+          correctResults[i].insert ((boost::uint_fast32_t)(i - 1));
         if (i % floatDimension != floatDimension - 1)
-          correctResults[i].insert ((uint32_t)(i + 1));
+          correctResults[i].insert ((boost::uint_fast32_t)(i + 1));
       }
 
 
@@ -1038,9 +1040,9 @@ struct HybridSetATestSuite : vigra::test_suite {
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
         if (i % floatDimension > 0)
-          correctResults[i].insert ((uint32_t)(i - 1));
+          correctResults[i].insert ((boost::uint_fast32_t)(i - 1));
         if (i % floatDimension != floatDimension - 1)
-          correctResults[i].insert ((uint32_t)(i + 1));
+          correctResults[i].insert ((boost::uint_fast32_t)(i + 1));
       }
 
 
@@ -1094,9 +1096,9 @@ struct HybridSetATestSuite : vigra::test_suite {
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
         if (i % floatDimension > 0)
-          correctResults[i].insert ((uint32_t)(i - 1));
+          correctResults[i].insert ((boost::uint_fast32_t)(i - 1));
         if (i % floatDimension != floatDimension - 1)
-          correctResults[i].insert ((uint32_t)(i + 1));
+          correctResults[i].insert ((boost::uint_fast32_t)(i + 1));
       }
 
       TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(0,2.0,4.0f));
@@ -1149,9 +1151,9 @@ struct HybridSetATestSuite : vigra::test_suite {
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
         if (i % floatDimension > 0)
-          correctResults[i].insert ((uint32_t)(i - 1));
+          correctResults[i].insert ((boost::uint_fast32_t)(i - 1));
         if (i % floatDimension != floatDimension - 1)
-          correctResults[i].insert ((uint32_t)(i + 1));
+          correctResults[i].insert ((boost::uint_fast32_t)(i + 1));
       }
 
       TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(0,0.,7.f));
@@ -1204,9 +1206,9 @@ struct HybridSetATestSuite : vigra::test_suite {
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
         if (i % floatDimension > 0)
-          correctResults[i].insert ((uint32_t)(i - 1));
+          correctResults[i].insert ((boost::uint_fast32_t)(i - 1));
         if (i % floatDimension != floatDimension - 1)
-          correctResults[i].insert ((uint32_t)(i + 1));
+          correctResults[i].insert ((boost::uint_fast32_t)(i + 1));
       }
 
       TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(0,0.0,3.0f));
@@ -1387,14 +1389,14 @@ void testHybridScanFunctorVectors()
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
       if (i % doubleDimension > 0)
-        correctResults[i].insert ((uint32_t)(i - 1));
+        correctResults[i].insert ((boost::uint_fast32_t)(i - 1));
       if (i % doubleDimension < doubleDimension - 1)  
-        correctResults[i].insert ((uint32_t)(i + 1));
-      correctResults[i].insert((uint32_t)i);
+        correctResults[i].insert ((boost::uint_fast32_t)(i + 1));
+      correctResults[i].insert((boost::uint_fast32_t)i);
       if (i >= doubleDimension)
-        correctResults[i].insert ((uint32_t)(i - doubleDimension));
+        correctResults[i].insert ((boost::uint_fast32_t)(i - doubleDimension));
       if (i < (intDimension - 1) * doubleDimension)
-        correctResults[i].insert ((uint32_t)(i + doubleDimension));
+        correctResults[i].insert ((boost::uint_fast32_t)(i + doubleDimension));
     }
 
     std::vector<IntervalMover> movers;
@@ -1560,7 +1562,6 @@ int main() {
 
 
   return success || success1 || success2;
-return success;
 
   //return success || success1;
 }

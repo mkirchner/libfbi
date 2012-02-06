@@ -1,8 +1,6 @@
 
 #ifndef __LIBFBI_INCLUDE_FBI_WINDOWS_H__
 #define __LIBFBI_INCLUDE_FBI_WINDOWS_H__
-#include <stdlib.h>
-#include <time.h>
 //C++
 #include <algorithm>
 #include <cmath>
@@ -10,7 +8,6 @@
 #include <set>
 #include <utility>
 #include <vector>
-#include <iostream>
 
 //boost
 #include <boost/cstdint.hpp>
@@ -810,8 +807,7 @@ KeyCreator{
   //getVector(const Container & container, const Functors& ...functors){
   getVector(const Container & container, const Functors& functors){
     /** If there is no functor, we can't extract data from the boxes.*/
-    static_assert(boost::tuples::length<Functors>::value > 0, 
-      "You need at least one functor to access your objects"); 
+    BOOST_MPL_ASSERT_RELATION(boost::tuples::length<Functors>::value, >, 0);
     typename Container::const_iterator it = container.begin();
     std::vector<key_type> intervalVector(
         container.size()* mpl::FunctorChecker::count(functors)); 
@@ -1326,7 +1322,7 @@ OneWayScanner{
     typedef typename std::vector<const key_type * >::const_iterator CIT;
     typedef std::multiset<const key_type * , lessTail<Dim> > SortTailSet;
     SortTailSet intervalsPtrSet;
-    typedef typename SortTailSet::const_iterator SIT;
+    typedef typename SortTailSet::iterator SIT;
 
     
     if (intervalsPtrVector.empty())
