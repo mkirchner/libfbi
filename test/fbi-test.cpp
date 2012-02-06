@@ -33,7 +33,6 @@
 //c++0x includes
 //#include <tuple>
 #include "unittest.hxx"
-#include <boost/utility/enable_if.hpp>
 // hack for testing purposes
 #define private public
 #include <fbi/fbi.h>

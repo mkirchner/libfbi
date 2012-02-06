@@ -28,9 +28,9 @@
 #define __LIBFBI_INCLUDE_FBI_CONFIG_H__
 
 #if _MSC_VER && !__INTEL_COMPILER
-  #define MSWORKAROUND 1
+  #define __FBI_MSWORKAROUND__ 1
 #else
-  #define MSWORKAROUND 0
+  #define __FBI_MSWORKAROUND__ 0
 #endif
 #ifndef MAX_DIMENSIONS 
   #define MAX_DIMENSIONS 4
