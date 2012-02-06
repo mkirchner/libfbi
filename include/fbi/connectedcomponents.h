@@ -28,11 +28,20 @@
 #define __LIBFBI_INCLUDE_FBI_CONNECTEDCOMPONENTS_H__
 
 #include <vector>
+#include <boost/preprocessor.hpp>
+
+#if _MSC_VER && !__INTEL_COMPILER
+  #define MSWORKAROUND 1
+#else
+  #define MSWORKAROUND 0
+#endif
 
 template < class Container >
-typename Container::value_type::value_type
+BOOST_PP_IIF(MSWORKAROUND, typename Container::value_type::template value_type, typename Container::value_type::value_type)
 findConnectedComponents(const Container & adjacencyList,
-  std::vector<typename Container::value_type::value_type>& labels)
+  std::vector<
+BOOST_PP_IIF(MSWORKAROUND, typename Container::value_type::template value_type, typename Container::value_type::value_type)
+  >& labels)
 {
   typedef typename Container::value_type::const_iterator IT; 
   typedef typename Container::value_type::value_type T;
@@ -59,5 +68,6 @@ findConnectedComponents(const Container & adjacencyList,
   }
   return currentLabel-1;
 }
+#undef MSWORKAROUND
 
 #endif

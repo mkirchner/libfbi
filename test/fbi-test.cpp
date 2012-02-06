@@ -411,7 +411,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
     for(size_t i = 0; i < intDimension; ++i){
       for (size_t j = 0; j < doubleDimension; ++j){
-        testVector.push_back(Map(2 * i, 2 * i + 1, 5 * j, 5 * j+1));
+        testVector.push_back(Map(2 * i, 2 * i + 1, 5.0 * j, 5.0 * j+1));
       }
     }
 
@@ -430,7 +430,7 @@ struct HybridSetATestSuite : vigra::test_suite {
     }
 
 
-    auto hybridResults = TTT::intersect(testVector,StandardFunctor(), OffsetQueryAccessor<Map>(0,5.5),OffsetQueryAccessor<Map>(2,0));
+    TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), OffsetQueryAccessor<Map>(0,5.5),OffsetQueryAccessor<Map>(2,0.0));
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
@@ -463,7 +463,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
     for(size_t i = 0; i < intDimension; ++i){
       for (size_t j = 0; j < doubleDimension; ++j){
-        testVector.push_back(Map(3 * i, 3 * i + 1, 5 * j, 5 * j+1));
+        testVector.push_back(Map(3 * i, 3 * i + 1, 5.0 * j, 5.0 * j+1));
       }
     }
 
@@ -479,7 +479,7 @@ struct HybridSetATestSuite : vigra::test_suite {
         correctResults[i].insert ((uint32_t)i-1);
     }
 
-    auto hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(0,4.1));
+    TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(0,4.1));
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
@@ -514,7 +514,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
     for(size_t i = 0; i < intDimension; ++i){
       for (size_t j = 0; j < doubleDimension; ++j){
-        testVector.push_back(Map(3 * i, 3 * i + 1, 5 * j, 5 * j+1));
+        testVector.push_back(Map(3 * i, 3 * i + 1, 5.0 * j, 5.0 * j+1));
       }
     }
 
@@ -529,7 +529,7 @@ struct HybridSetATestSuite : vigra::test_suite {
     }
 
 
-    auto hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(0,5.9));
+    TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(0,5.9));
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
@@ -563,7 +563,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
     for(size_t i = 0; i < intDimension; ++i){
       for (size_t j = 0; j < doubleDimension; ++j){
-        testVector.push_back(Map(3 * i, 3 * i + 1, 5 * j, 5 * j+1));
+        testVector.push_back(Map(3.0 * i, 3.0 * i + 1, 5 * j, 5 * j+1));
       }
     }
 
@@ -580,7 +580,7 @@ struct HybridSetATestSuite : vigra::test_suite {
     }
 
 
-    auto hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(2.1,0));
+    TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(2.1,0));
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
@@ -612,7 +612,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
     for(size_t i = 0; i < intDimension; ++i){
       for (size_t j = 0; j < doubleDimension; ++j){
-        testVector.push_back(Map(10 * i, 10 * i + 3, 15 * j, 15 * j+3));
+        testVector.push_back(Map(10 * i, 10 * i + 3, 15.0 * j, 15.0 * j+3));
       }
     }
 
@@ -629,7 +629,7 @@ struct HybridSetATestSuite : vigra::test_suite {
         correctResults[i].insert ((uint32_t)(i + doubleDimension));
     }
 
-    auto hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(12,0));
+    TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(12,0.0));
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
@@ -661,7 +661,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
     for(size_t i = 0; i < intDimension; ++i){
       for (size_t j = 0; j < doubleDimension; ++j){
-        testVector.push_back(Map(3 * i, 3 * i + 1, 5 * j, 5 * j+1));
+        testVector.push_back(Map(3 * i, 3 * i + 1, 5.0 * j, 5.0 * j+1));
       }
     }
 
@@ -678,7 +678,7 @@ struct HybridSetATestSuite : vigra::test_suite {
         correctResults[i].insert ((uint32_t)(i + doubleDimension));
     }
 
-    auto hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(3,0));
+    TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(3,0.0));
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
@@ -710,7 +710,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
     for(size_t i = 0; i < intDimension; ++i){
       for (size_t j = 0; j < doubleDimension; ++j){
-        testVector.push_back(Map(10 * i, 10 * i + 3, 15 * j, 15 * j+3));
+        testVector.push_back(Map(10 * i, 10 * i + 3, 15.0 * j, 15.0 * j+3));
       }
     }
 
@@ -726,7 +726,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       if (i < (intDimension - 1) * doubleDimension && i % doubleDimension != doubleDimension-1)
         correctResults[i].insert ((uint32_t)(i + doubleDimension + 1));
     }
-    auto hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(8,13));
+    TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(8,13.0));
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
@@ -757,7 +757,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
     for(size_t i = 0; i < intDimension; ++i){
       for (size_t j = 0; j < doubleDimension; ++j){
-        testVector.push_back(Map(10 * i, 10 * i + 3, 15 * j, 15 * j+3));
+        testVector.push_back(Map(10 * i, 10 * i + 3, 15.0 * j, 15.0 * j+3));
       }
     }
 
@@ -774,7 +774,7 @@ struct HybridSetATestSuite : vigra::test_suite {
         correctResults[i].insert ((uint32_t)(i + doubleDimension + 1));
     }
 
-    auto hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(12,13));
+    TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(12,13));
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
@@ -808,7 +808,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
     for(size_t i = 0; i < intDimension; ++i){
       for (size_t j = 0; j < doubleDimension; ++j){
-        testVector.push_back(Map(10 * i, 10 * i + 3, 15 * j, 15 * j+3));
+        testVector.push_back(Map(10 * i, 10 * i + 3, 15.0 * j, 15.0 * j+3));
       }
     }
 
@@ -825,7 +825,7 @@ struct HybridSetATestSuite : vigra::test_suite {
         correctResults[i].insert ((uint32_t)(i + doubleDimension + 1));
     }
 
-    auto hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(8, 17));
+    TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(8, 17.0));
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
@@ -859,7 +859,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
       for(size_t i = 0; i < intDimension; ++i){
         for (size_t j = 0; j < doubleDimension; ++j){
-          testVector.push_back(Map(10 * i, 10 * i + 3, 15 * j, 15 * j+3));
+          testVector.push_back(Map(10 * i, 10 * i + 3, 15.0 * j, 15.0 * j+3));
         }
       }
 
@@ -877,7 +877,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       }
 
 
-      auto hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(12,17));
+      TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(12,17.0));
 
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
@@ -912,7 +912,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       for(size_t i = 0; i < intDimension; ++i) {
         for (size_t j = 0; j < doubleDimension; ++j) {
           for (size_t k = 0; k < floatDimension; ++k) {
-            testVector.push_back(Map(3 * i, 3 * i + 2, 5 * j, 5 * j+1,4 * k, 4 * k+1 ));
+            testVector.push_back(Map(3 * i, 3 * i + 2, 5.0 * j, 5.0 * j+1,4.0f * k, 4.0f * k+1 ));
           }
         }
       }
@@ -932,7 +932,7 @@ struct HybridSetATestSuite : vigra::test_suite {
           correctResults[i].insert ((uint32_t)(i + 1));
       }
 
-      auto hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(-1,0,4));
+      TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(-1,0.0,4.0f));
 
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
@@ -967,7 +967,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       for(size_t i = 0; i < intDimension; ++i) {
         for (size_t j = 0; j < doubleDimension; ++j) {
           for (size_t k = 0; k < floatDimension; ++k) {
-            testVector.push_back(Map(5* i,5*i + 3, 5 * j, 5 * j+1,4 * k, 4 * k+1 ));
+            testVector.push_back(Map(5* i,5*i + 3, 5.0 * j, 5.0 * j+1,4.0f * k, 4.0f * k+1 ));
 
           }
         }
@@ -989,7 +989,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       }
 
 
-      auto hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(2,0,4));
+      TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(2,0.0,4.0f));
 
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
@@ -1024,7 +1024,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       for(size_t i = 0; i < intDimension; ++i) {
         for (size_t j = 0; j < doubleDimension; ++j) {
           for (size_t k = 0; k < floatDimension; ++k) {
-            testVector.push_back(Map(3 * i, 3 * i + 1, 5 * j, 5 * j + 3,4 * k, 4 * k+1 ));
+            testVector.push_back(Map(3 * i, 3 * i + 1, 5.0 * j, 5.0 * j + 3,4.0f * k, 4.0f * k+1 ));
           }
         }
       }
@@ -1045,7 +1045,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       }
 
 
-      auto hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(0,-2,4));
+      TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(0,-2.0,4.0f));
 
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
@@ -1080,7 +1080,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       for(size_t i = 0; i < intDimension; ++i) {
         for (size_t j = 0; j < doubleDimension; ++j) {
           for (size_t k = 0; k < floatDimension; ++k) {
-            testVector.push_back(Map(3 * i, 3 * i + 1, 5 * j, 5 * j + 3,4 * k, 4 * k+1 ));
+            testVector.push_back(Map(3 * i, 3 * i + 1, 5.0 * j, 5.0 * j + 3,4.0f * k, 4.0f * k+1 ));
           }
         }
       }
@@ -1100,7 +1100,7 @@ struct HybridSetATestSuite : vigra::test_suite {
           correctResults[i].insert ((uint32_t)(i + 1));
       }
 
-      auto hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(0,2,4));
+      TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(0,2.0,4.0f));
 
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
@@ -1135,7 +1135,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       for(size_t i = 0; i < intDimension; ++i) {
         for (size_t j = 0; j < doubleDimension; ++j) {
           for (size_t k = 0; k < floatDimension; ++k) {
-            testVector.push_back(Map(3 * i, 3 * i + 1, 7 * j, 7 * j + 3, 5*k, 5*k+3 ));
+            testVector.push_back(Map(3 * i, 3 * i + 1, 7.0 * j, 7.0 * j + 3, 5.0f*k, 5.0f*k+3 ));
           }
         }
       }
@@ -1155,7 +1155,7 @@ struct HybridSetATestSuite : vigra::test_suite {
           correctResults[i].insert ((uint32_t)(i + 1));
       }
 
-      auto hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(0,0,7));
+      TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(0,0.,7.f));
 
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
@@ -1190,7 +1190,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       for(size_t i = 0; i < intDimension; ++i) {
         for (size_t j = 0; j < doubleDimension; ++j) {
           for (size_t k = 0; k < floatDimension; ++k) {
-            testVector.push_back(Map(3 * i, 3 * i + 1, 7 * j, 7 * j + 2,5 * k, 5 * k+3 ));
+            testVector.push_back(Map(3 * i, 3 * i + 1, 7.0 * j, 7.0 * j + 2,5.0f * k, 5.0f * k+3 ));
           }
         }
       }
@@ -1210,7 +1210,7 @@ struct HybridSetATestSuite : vigra::test_suite {
           correctResults[i].insert ((uint32_t)(i + 1));
       }
 
-      auto hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(0,0,3));
+      TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(0,0.0,3.0f));
 
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
@@ -1245,7 +1245,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       for(size_t i = 0; i < intDimension; ++i) {
         for (size_t j = 0; j < doubleDimension; ++j) {
           for (size_t k = 0; k < floatDimension; ++k) {
-            testVector.push_back(Map(4 * i, 4 * i + 1, 7 * j, 7 * j + 2,10 * k, 10 * k+3 ));
+            testVector.push_back(Map(4 * i, 4 * i + 1, 7.0 * j, 7.0 * j + 2,10.0f * k, 10.0f * k+3 ));
           }
         }
       }
@@ -1253,7 +1253,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
 
       ResultType correctResults(testVector.size());
-      auto hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(2,4,5));
+      TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(2,4.0,5.0f));
 
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
@@ -1289,7 +1289,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       for(size_t i = 0; i < intDimension; ++i) {
         for (size_t j = 0; j < doubleDimension; ++j) {
           for (size_t k = 0; k < floatDimension; ++k) {
-            testVector.push_back(Map(0,0,0,0,0,0));
+            testVector.push_back(Map(0,0,0.0,0.0,0.0f,0.0f));
           }
         }
       }
@@ -1297,7 +1297,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
 
       ResultType correctResults(testVector.size());
-      auto hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(0,0,0));
+      TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(0,0.0,0.0f));
 
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
@@ -1336,13 +1336,13 @@ struct HybridSetATestSuite : vigra::test_suite {
       for(size_t i = 0; i < intDimension; ++i) {
         for (size_t j = 0; j < doubleDimension; ++j) {
           for (size_t k = 0; k < floatDimension; ++k) {
-            testVector.push_back(Map(0,1,0,1,0,1));
+            testVector.push_back(Map(0,1,0.0,1.0,0.0f,1.0f));
           }
         }
       }
 
       ResultType correctResults(testVector.size());
-      auto hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(1,0,0));
+      TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(1,0.0,0.0f));
 
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
@@ -1377,7 +1377,7 @@ void testHybridScanFunctorVectors()
 
     for(size_t i = 0; i < intDimension; ++i){
       for (size_t j = 0; j < doubleDimension; ++j){
-        testVector.push_back(Map(3 * i, 3 * i + 1, 5 * j, 5 * j+2));
+        testVector.push_back(Map(3.0 * i, 3.0 * i + 1, 5 * j, 5 * j+2));
       }
     }
 
@@ -1399,11 +1399,11 @@ void testHybridScanFunctorVectors()
     }
 
     std::vector<IntervalMover> movers;
-    movers.push_back(IntervalMover(0,0));
+    movers.push_back(IntervalMover(0.0,0));
     movers.push_back(IntervalMover(2.1,0));
 
 
-    auto hybridResults = TTT::intersect(testVector,StandardFunctor(), 
+    TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), 
     movers, IntervalMover(0,4)
     );
 
@@ -1457,7 +1457,7 @@ struct HybridSetAProfileSuite : vigra::test_suite {
     for(size_t i = 0; i < intDimension; ++i) {
       for (size_t j = 0; j < doubleDimension; ++j) {
         for (size_t k = 0; k < floatDimension; ++k) {
-          testVector.push_back(Map(3 , 3+ 2, 7, 7 + 3,10 *l, 10* l + 1  ));
+          testVector.push_back(Map(3 , 3+ 2, 7.0, 7.0 + 3.0,10.0f *l, 10.0f* l + 1  ));
           ++l;
         }
       }
@@ -1475,7 +1475,7 @@ struct HybridSetAProfileSuite : vigra::test_suite {
       correctResults[i].insert ((ResultType::value_type::value_type) i);
     }
 
-    auto hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(0,0,0));
+    TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(0,0.0,0.0f));
     // std::cout << correctResults.size() << " " << hybridResults.size() << std::endl;
     // std::cout << "finished" << std::endl;
     for (size_t i = 0; i < correctResults.size(); ++i)
@@ -1502,7 +1502,7 @@ struct ConnectedComponentsTestSuite : vigra::test_suite {
   }
 
   void testConnectedComponents(){
-    typedef uint32_t IntType;
+    typedef int IntType;
     IntType nodes = 50;
     std::vector<std::vector<IntType> > adjacencyList(nodes);
     IntType clusterS = 5;
@@ -1520,11 +1520,11 @@ struct ConnectedComponentsTestSuite : vigra::test_suite {
     }
     std::vector<IntType> labels;
     
-    auto nComponents = findConnectedComponents(adjacencyList, labels);
+    IntType nComponents = findConnectedComponents(adjacencyList, labels);
     if (nComponents != 10) 
       failTest("wrong Number of labels"); 
     IntType label = 0;
-    for (size_t i = 0; i < nodes; ++i)
+    for (IntType i = 0; i < nodes; ++i)
     {
       if (i % clusterS == 0) ++label;
       if (labels[i] != label) 

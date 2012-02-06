@@ -1,7 +1,8 @@
 
 #ifndef __LIBFBI_INCLUDE_FBI_WINDOWS_H__
 #define __LIBFBI_INCLUDE_FBI_WINDOWS_H__
-
+#include <stdlib.h>
+#include <time.h>
 //C++
 #include <algorithm>
 #include <cmath>
@@ -27,6 +28,8 @@
 #include <boost/mpl/lambda.hpp>
 #include <boost/mpl/identity.hpp>
 #include <boost/mpl/quote.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int.hpp>
 
 //tree
 #include <fbi/config.h>
@@ -573,7 +576,7 @@ private:
 
 template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
 template <typename QBoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int QIndex) > 
-class SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
+struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
 SetB {
  private:
 
@@ -742,7 +745,8 @@ private:
         numQueryFunctors,
         &(queryIntervalVector[0]),
         &(dataIntervalVector[0]),
-        offset
+        offset,
+        cutoff
         );
 
     // Create a vector of pointers that reference the above query boxes. This
@@ -953,9 +957,9 @@ State
 
   //Randomizer section
   /** Random seed engine, has to be non-const as using the engine changes it. */
-  std::mt19937 rSeedEngine_;
+  boost::mt19937 rSeedEngine_;
   /** We need a uniform distribution*/
-  typedef std::uniform_int_distribution<size_type> Distribution;
+  typedef boost::uniform_int<> Distribution;
 /** As our second set of objects continues the
  * numbering scheme of the first, we have to add an offset
  * to the indices.
@@ -1004,7 +1008,7 @@ State
       const key_type * queryVectorPtr,
       const key_type * dataVectorPtr,
       const size_type offset,
-      const size_type cutoffSize = defaultCutoff,
+      const size_type cutoffSize,
       size_type (*heightCalculator) (const size_type) = 
         &(SETA::State::defaultHeightCalculator_)
       ):
@@ -1057,7 +1061,7 @@ State
  */
   inline size_type randInt(size_type lowerBound, size_type upperBound)
   {
-    return Distribution(lowerBound, upperBound)(rSeedEngine_);
+    return (size_type) Distribution(lowerBound, upperBound)(rSeedEngine_);
   }
 
   /** Getter */
@@ -1260,7 +1264,7 @@ HybridScanner<PointsContainQueries, 1> {
     LASTDIM = SETA::NUMDIMS - 1
   };
   /** Use key_type from parent struct*/
-  typedef SETA::key_type key_type;
+  typedef typename SETA::key_type key_type;
  /** \see \ref HybridScanner::scan()
   * This is the special case, when only the last dimension has to be considered,
   * switch to a brute-force approach, i.e. \ref OneWayScanner::scan()
@@ -1282,8 +1286,8 @@ HybridScanner<PointsContainQueries, 1> {
       std::vector<const key_type *> & intervalsPtrVector,
       const typename boost::tuples::element<LASTDIM, key_type>::type::first_type & lowerBound,
       const typename boost::tuples::element<LASTDIM, key_type>::type::first_type & upperBound,
-      SETA::State & state,
-      SETA::ResultType & resultVector
+      typename SETA::State & state,
+      typename SETA::ResultType & resultVector
       )
   {
     SETA::sortContainerHead<LASTDIM>(pointsPtrVector);

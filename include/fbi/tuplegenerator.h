@@ -54,12 +54,7 @@
 #include <boost/mpl/arithmetic.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/tuple/tuple.hpp> 
-#ifndef MAX_DIMENSIONS 
-#define MAX_DIMENSIONS 4
-#endif
-#ifndef MAX_QFUNCTORS
-#define MAX_QFUNCTORS 2
-#endif
+
 
 namespace fbi {
 
