@@ -38,12 +38,14 @@
 //c++0x
 
 #include <functional>
+#include <fbi/config.h>
 #include <fbi/traits.h>
 
 #include <boost/preprocessor.hpp>
 
 
 #include <boost/type_traits.hpp>
+#include <boost/mpl/vector_c.hpp>
 #include <boost/mpl/remove.hpp>
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/at.hpp>
