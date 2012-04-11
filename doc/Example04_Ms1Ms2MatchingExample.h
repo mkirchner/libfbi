@@ -70,7 +70,7 @@ and XIC measurement. For the \c Xic struct, this yields
 struct XicBoxGenerator
 {
   template <size_t N>
-  typename std::tuple_element<N, 
+  typename boost::tuples::element<N, 
     typename fbi::Traits<Xic>::key_type>::type 
   get(const Xic &) const;
 
@@ -105,7 +105,7 @@ And for the \c MS2Scan struct, we have
 struct MS2ScanBoxGenerator
 {
   template <size_t N>
-  typename std::tuple_element<N, 
+  typename boost::tuples::element<N, 
     typename fbi::Traits<MS2Scan>::key_type>::type 
   get(const MS2Scan &) const;
 
