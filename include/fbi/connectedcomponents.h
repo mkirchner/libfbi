@@ -28,6 +28,7 @@
 #define __LIBFBI_INCLUDE_FBI_CONNECTEDCOMPONENTS_H__
 
 #include <vector>
+#include <fbi/config.h>
 #include <boost/preprocessor.hpp>
 
 
