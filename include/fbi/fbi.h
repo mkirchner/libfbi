@@ -700,7 +700,6 @@ BOOST_MPL_ASSERT_MSG((boost::is_same<key_type, qkey_type>::value), KEY_TYPES_DON
 
 
 
-private:
   template <
   class BoxContainer,
         class QContainer,
