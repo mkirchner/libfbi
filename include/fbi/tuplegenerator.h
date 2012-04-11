@@ -480,6 +480,7 @@ template <typename value_type, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex)>
 template <int Dummy>\
 struct indexFilter<value_type, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::\
 TupleGetter<n, Dummy>{\
+typedef typename indexFilter<value_type, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::key_type key_type;\
   static key_type get() {\
     return boost::tuples::make_tuple(\
       BOOST_PP_ENUM(n, PREPOSTWRAPPER, (boost::tuples::get<)(TIndex)(>(Traits<value_type>::getLimits()))\
