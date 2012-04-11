@@ -586,7 +586,7 @@ SetB {
     QNUMDIMS = qTypeHelper::NUMDIMS
   };
   /** Ensure that the number of querydimensions for both sets are equal*/
-  BOOST_MPL_ASSERT_RELATION(NUMDIMS, ==, QNUMDIMS);
+  BOOST_MPL_ASSERT_RELATION((int)NUMDIMS, ==, (int)QNUMDIMS);
 
 
   /** A comfort typedef to refer to the type of the input boxes*/
@@ -1114,6 +1114,8 @@ HybridScanner{
    *   - Either set is small enough that a match in one dimension will probably 
    *      lead to a match in the others.
    */ 
+
+  typedef SetA<BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)> SETA;
   enum {
     Dim = SETA::NUMDIMS - DimsLeft
   };
@@ -1254,6 +1256,7 @@ template <bool PointsContainQueries>
 struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
 HybridScanner<PointsContainQueries, 1> {
 
+  typedef SetA<BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)> SETA;
   enum
   {
   /** last dimension to compare in*/
@@ -1439,6 +1442,8 @@ template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) >
 template <int Limit>
 struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
 IntersectionTester<Limit, Limit> {
+  typedef SetA<BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)> SETA;
+  typedef typename SETA::key_type key_type;
   static bool test(const key_type * x, const key_type * y){ return true; }
 };
 
@@ -1548,6 +1553,8 @@ template <int N>
 struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
 KeyPrinter<N,N>
 {
+  typedef SetA<BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)> SETA;
+  typedef typename SETA::key_type key_type;
   /** 
    * print key 
    * \param[in] key Print this key
