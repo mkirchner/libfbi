@@ -30,10 +30,10 @@
 #include <iostream>
 #include <string>
 #include <sys/time.h>
-#include <tuple>
 #include <utility>
 #include <vector>
 
+#include "fbi/tuple.h"
 #include "fbi/tuplegenerator.h"
 #include "fbi/fbi.h"
 #include "fbi/connectedcomponents.h"
@@ -75,8 +75,8 @@ template<> struct Traits<MS2Scan> : mpl::TraitsGenerator<double, double> {};
  */
 struct XicBoxGenerator
 {
-  template <size_t N>
-  typename std::tuple_element<N, 
+  template <std::size_t N>
+  typename fbi::tuple_element<N, 
     typename fbi::Traits<Xic>::key_type>::type 
   get(const Xic &) const;
 
@@ -109,8 +109,8 @@ XicBoxGenerator::get<1>(const Xic & xic) const
  */
 struct MS2ScanBoxGenerator
 {
-  template <size_t N>
-  typename std::tuple_element<N, 
+  template <std::size_t N>
+  typename fbi::tuple_element<N, 
     typename fbi::Traits<MS2Scan>::key_type>::type 
   get(const MS2Scan &) const;
 
@@ -297,7 +297,7 @@ int main(int argc, char* argv[])
 
     timeval start, end; 
     gettimeofday(&start, NULL);
-    auto adjList = SetA<Xic, 0, 1>::SetB<MS2Scan, 0, 1>::intersect(
+    SetA<Xic,0,1>::ResultType adjList = SetA<Xic, 0, 1>::SetB<MS2Scan, 0, 1>::intersect(
       xics, XicBoxGenerator(options.fullscanPpm_, options.rtWindow_),
       ms2scans, MS2ScanBoxGenerator(options.prescanPpm_, options.rtWindow_));
     gettimeofday(&end, NULL);
@@ -309,15 +309,16 @@ int main(int argc, char* argv[])
 
     std::ofstream ofs(options.outputFileName_.c_str());
     ofs.setf(std::ios::fixed, std::ios::floatfield);
-    size_t nXics = xics.size();
-    for (size_t i = 0; i < nXics; ++i) {
+    std::size_t nXics = xics.size();
+    for (std::size_t i = 0; i < nXics; ++i) {
         if (!adjList[i].empty()) {
-            typedef std::set<unsigned int>::const_iterator SI;
+            typedef SetA<Xic,0,1>::ResultType::value_type ListType;
+            typedef ListType::const_iterator SI;
             SI best = adjList[i].begin();
             double bestDist = std::numeric_limits<double>::max();
             // resolve conflict by choosing the closest m/z
             for (SI j = adjList[i].begin(); j != adjList[i].end(); ++j) {
-                size_t k = *j - nXics;
+                std::size_t k = *j - nXics;
                 double dist = std::abs(xics[i].mz_ - ms2scans[k].mz_);
                 // std::cerr << "d(" << xics[i].mz_ << "[" << i << "]," 
                 //   << ms2scans[k].mz_ << "[" << k << "]) = " << dist << std::endl;
@@ -327,7 +328,7 @@ int main(int argc, char* argv[])
                 }
             }
             // print the pair (current precursor -> new precursor)
-            size_t k = *best - nXics;
+            std::size_t k = *best - nXics;
             ofs << xics[i].mz_ << '\t' << xics[i].rt_
               << "\t->\t" << ms2scans[k].mz_ << '\t' << ms2scans[k].rt_ << '\n';
        }
