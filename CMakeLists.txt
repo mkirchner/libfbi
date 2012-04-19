@@ -166,8 +166,9 @@ ENDIF (ENABLE_EXAMPLES)
 FIND_PACKAGE(Doxygen)
 
 # target for doxygen
+IF(DOXYGEN_FOUND) 
 ADD_CUSTOM_TARGET(doc COMMAND ${DOXYGEN} ${LIBFBI_BINARY_DIR}/doc/Doxyfile)
-
+ENDIF(DOXYGEN_FOUND)
 #############################################################################
 # create a package config file
 #############################################################################
