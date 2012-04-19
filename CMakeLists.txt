@@ -11,7 +11,7 @@ SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 # versioning
 #############################################################################
 set(VERSION_MAJOR 1)
-set(VERSION_MINOR 0)
+set(VERSION_MINOR 2)
 SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}")
 
 #############################################################################
@@ -22,11 +22,13 @@ SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}")
 MACRO_REQUIRE_OUT_OF_SRC_BUILD("LIBFBI requires out-of-source builds.")
 
 # more warnings against everything
+IF(CMAKE_COMPILER_IS_GNUCXX OR CLANG)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wconversion -Wall -Wno-sign-conversion" )
 OPTION(USE_C++1X "Enable C++1x compilation (requires a compliant compiler)" ON)
 IF (USE_C++1X)
 SET(CMAKE_CXX0X_FLAGS "-std=c++0x" )
 ENDIF (USE_C++1X)
+ENDIF(CMAKE_COMPILER_IS_GNUCXX OR CLANG)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX0X_FLAGS}" )
 
 IF (NOT CMAKE_BUILD_TYPE)
