@@ -32,4 +32,14 @@
     #define uniform_int_distribution uniform_int
 #endif
 
+#cmakedefine HAS_VARIADIC_TEMPLATES
+#ifdef HAS_VARIADIC_TEMPLATES
+  #define __USE_VARIADIC_TEMPLATES__
+#endif
+
+#cmakedefine HAS_TEMPLATE_ALIASES
+#ifdef HAS_TEMPLATE_ALIASES
+  #define __USE_TEMPLATE_ALIASES__
+#endif
+
 #endif 
