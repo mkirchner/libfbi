@@ -1,35 +1,6 @@
-/* $Id: fbi.h 1 2010-10-30 01:14:03Z mkirchner $
- *
- * Copyright (c) 2010 Buote Xu <buote.xu@gmail.com>
- * Copyright (c) 2010 Marc Kirchner <marc.kirchner@childrens.harvard.edu>
- *
- * This file is part of libfbi.
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without  restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions: 
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR  OTHER DEALINGS IN
- * THE SOFTWARE.
- */
 
-#ifndef __LIBFBI_INCLUDE_FBI_HYBRID_H__
-#define __LIBFBI_INCLUDE_FBI_HYBRID_H__
-
-//C99
-#include <stdint.h>
-#include <stdlib.h>
+#ifndef __LIBFBI_INCLUDE_FBI_WINDOWS_H__
+#define __LIBFBI_INCLUDE_FBI_WINDOWS_H__
 //C++
 #include <algorithm>
 #include <cmath>
@@ -37,113 +8,74 @@
 #include <set>
 #include <utility>
 #include <vector>
-#include <iostream>
-//c++0x
-#include <random>
-#include <tuple>
+
+//boost
+#include <boost/cstdint.hpp>
+#include <boost/mpl/vector_c.hpp>
+#include <boost/mpl/count.hpp>
+#include <boost/mpl/remove.hpp>
+#include <boost/mpl/size.hpp>
+#include <boost/mpl/back.hpp>
+#include <boost/mpl/front.hpp>
+#include <boost/mpl/int.hpp>
+#include <boost/mpl/transform_view.hpp>
+#include <boost/mpl/transform.hpp>
+#include<boost/mpl/placeholders.hpp>
+#include <boost/mpl/apply.hpp>
+#include <boost/mpl/lambda.hpp>
+#include <boost/mpl/identity.hpp>
+#include <boost/mpl/quote.hpp>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int.hpp>
+
 //tree
 #include <fbi/config.h>
 #include <fbi/traits.h>
-
 #include <fbi/tuplegenerator.h>
 
-
-namespace fbi {
-
-  /**
-   * \class SetA
-   *
-   * \brief A class to find intersections between cartesian products of 
-   *   arbitrarily-typed intervals.
-   * 
-   * Based on "Fast Software for Box Intersections", 
-   *  by Afra Zomorodian, Herbert Edelsbrunner,
-   * 
-   * \tparam BoxType The objects we're looking at, 
-   *  Traits<BoxType> has to available. 
-   * \note To work correctly on the given types, 
-   *  the templated Traits class has to be specialized
-   *  for the given BoxType (and QBoxType, if needed).
-   *
-   * \see Traits 
-   * \tparam TIndices Two boxes shall intersect if they do in these 
-   *  dimensions, given as a parameter pack of std::size_t.
-   * \note The user has to specify at least one index to work on, 
-   *  empty TIndices won't return any results.
-   */
-
-
-
-template <typename BoxType, std::size_t ... TIndices>
-class SetA{
-
-
-
- private:
-  /** Keep ctor private to leave it as a class - 
-    *   we don't want a tree object.
-    */
-  SetA(); 
+namespace fbi { 
+  template <typename BoxType, BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(MAX_DIMENSIONS, int TIndex, -1) > 
+    class SetA {
+  private:
+  SetA();
     /** Small self-referencing typedef */
-  typedef SetA<BoxType, TIndices...> SETA;
-
-  /** A compile-time constant to mark recursion tails.*/
-  enum {NUMDIMS = sizeof...(TIndices)}; 
+    typedef SetA<BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)> SETA;
+    /** Helper-struct, encapsulating most typedefs to extract necessary types */
+    typedef fbi::mpl::indexFilter<BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)> typeHelper;
   
-  /** Short typedef to offer the STL value_type identifier for this tree.*/
+  /** A compile-time constant to mark recursion tails.*/
+  enum {
+    NUMDIMS = typeHelper::NUMDIMS
+  };
+  
+  BOOST_MPL_ASSERT_RELATION(NUMDIMS, >, 0);
+
   typedef BoxType value_type;
   
-  /** enum to do compile-time indices checks and better error output*/
-  enum {
-  /** TINDICESCORRECT is 1 when all TIndices can be used to access a dimension the 
-    * key_type, otherwise it's 0
-    */ 
-    TINDICESCORRECT =
-    mpl::IndexChecker<std::tuple_size<typename Traits<BoxType>::key_type>::
-      value, TIndices...>::value 
-  };
-
-  /** Empty TIndices shouldn't work */
-  static_assert(
-    sizeof...(TIndices) > 0, 
-    "Please specify at least one index for the dimensions");
-
-  /** Throw a compile error when the indices aren't correct. */
-  static_assert(TINDICESCORRECT, 
-                "Please check your SetA-Indices again, the \
-                Traits<BoxType>::key_type \
-                does not have enough dimensions to use your indices");
-
-
-  /**
+   /**
    *  The key is represented by a pair of values for each dimension that 
    *  should be considered for intersection tests, 
-   * these pairs are wrapped in a std::tuple for easy access via std::get.
+   * these pairs are wrapped in a std::tuple for easy access via boost::tuples::get.
    * \see \ref fbi::Traits
    * \note This key_type is a subset of the original key_type, 
    * depending on the indices we're using.
    */
-  typedef typename std::tuple < 
-      typename std::tuple_element<
-      TIndices, typename Traits<value_type>::key_type 
-      >::type ...
-    > key_type;
+  typedef typename typeHelper::key_type key_type;
 
-
-  /**
+ /**
    * As every dimension can have a different type, 
    * the appropriate comparison-operator
    * has to be known during compile-time. 
    * \see \ref fbi::Traits
    */
-  typedef typename std::tuple <
-      typename std::tuple_element<
-        TIndices, typename Traits<value_type>::dim_type 
-        >
-      ::type::second_type ...
-      > comp_type;      
+  typedef typename typeHelper::comp_type comp_type;
+  
 
- public:
+
+
+public:
+
+
   /** 
    * Every intersection between two elements will be represented by their 
    * corresponding index in the container holding BoxType, 
@@ -152,7 +84,12 @@ class SetA{
    * to use 32Bit integers instead of 64Bit.
    *
    */
-  typedef uint32_t IntType; 
+  
+  typedef boost::uint_fast32_t IntType;
+
+  typedef std::vector<int>::size_type size_type;
+  typedef std::vector<int>::difference_type diff_type;
+
 
   /**
    * The intersections will be returned as a adjacency list, 
@@ -162,26 +99,25 @@ class SetA{
   typedef std::vector<std::set<IntType> > ResultType; 
 
 
-  /** 
+ /** 
     * \class SetB
    * \brief Subclass, when the type of the query objects differs from the 
    * type of the data objects, we need an 
    * additional layer of template specialization.
    */
 
-  template <typename QueryType, std::size_t ... QIndices>
+  template <typename QueryType, BOOST_PP_ENUM_BINARY_PARAMS(MAX_DIMENSIONS, int QIndex, =-1 BOOST_PP_INTERCEPT) > 
   struct SetB;
 
- private:
-
-  /** 
+  private:
+/** 
     * \class KeyCreator
    * \brief Handle the creation of keys by using given functors. 
    * As we have to handle variable indices, both from SetA and SetB, we have to add 
-   * another template class to use different std::size_t parameter packs.
+   * another template class to use different int parameter packs.
    *
    */
-  template <std::size_t ...KeyCreatorIndices>
+  template <BOOST_PP_ENUM_BINARY_PARAMS(MAX_DIMENSIONS, int KeyCreatorIndex, =-1 BOOST_PP_INTERCEPT) > 
   struct KeyCreator;
 
 
@@ -218,16 +154,9 @@ class SetA{
    * \see ref getApproxMedian
    * \see ref OneWayScanner
    */
-  template <bool PointsContainQueries, std::size_t Dim>
+  template <bool PointsContainQueries, int Dim>
   struct HybridScanner;
-
-#ifdef __INTEL_COMPILER
-  /* Extra Declaration for ICC */
-  template <bool PointsContainQueries>
-  struct HybridScanner<PointsContainQueries, 1>;
-#endif
-
-  /**
+ /**
     * \class OneWayScanner
    * \brief A scanner to find one type of intersection between 
    * two sets of intervals by looking at one of them as a set of points. 
@@ -256,7 +185,7 @@ class SetA{
    * all following dimensions will be 
    * evaluated via comparisons between two objects.
    */
-  template <bool PointsContainQueries, std::size_t Dim>
+  template <bool PointsContainQueries, int Dim>
   struct OneWayScanner;
 
   /** 
@@ -266,7 +195,7 @@ class SetA{
    * \see std::pair<T>::operator<() 
    * \tparam Dim dimension to compare in.
    */ 
-  template <std::size_t Dim>
+  template <int Dim>
   struct lessHead;
 
   /** 
@@ -277,7 +206,7 @@ class SetA{
    * \tparam Dim dimension to compare in.
    */
 
-  template <std::size_t Dim>
+  template <int Dim>
   struct lessTail;
 
   /** 
@@ -292,32 +221,20 @@ class SetA{
    *
    */
 
-  template <std::size_t Dim, std::size_t Limit>
+  template <int Dim, int Limit>
   struct IntersectionTester;
-
-#ifdef __INTEL_COMPILER
-  /* Extra Declaration for ICC */
-  template <std::size_t Limit>
-  struct IntersectionTester<Limit, Limit>;
-#endif
-
-  /** 
+ /** 
    * \class KeyPrinter 
    * \brief For Debug reasons, print all dimensions of a given key via cout.
    */
-  template <std::size_t Dim, std::size_t Limit>
+  template <int Dim, int Limit>
   struct KeyPrinter;
-#ifdef __INTEL_COMPILER
-  /* Extra Declaration for ICC */
-  template <std::size_t Limit>
-  struct KeyPrinter<Limit, Limit>;
-#endif
-
- public:
+ 
+public: 
 
 
 
-  /**
+ /**
    * \brief Create two sets of keys by intersecting two sets of functors on a 
    * given dataContainer, and check if there are intersections 
    * between these keys in the dimensions the tree was initialized with.
@@ -356,25 +273,27 @@ class SetA{
    * \see \ref SetB::intersect
    * \callgraph
    */
-  template <
-  class BoxContainer,
-        typename = 
-          typename std::enable_if<
-            std::is_same<typename BoxContainer::value_type, value_type>::value>
-          ::type,
-        typename IntervalFunctor,
-        typename ... QueryFunctors
-          >
-          static
-          ResultType intersect(
-            const BoxContainer & dataContainer,
-            const IntervalFunctor & ifunctor,
-            const QueryFunctors & ... qfunctors
-            )
-          {
-            return SetB<BoxType, TIndices...>::
-                intersect(dataContainer, ifunctor, dataContainer, qfunctors...);
-          }
+ 
+#define BOOST_PP_LOCAL_MACRO(n) \
+ template < \
+ class BoxContainer,\
+ typename IntervalFunctor,\
+ BOOST_PP_ENUM_PARAMS(n, typename QueryFunctor)\
+ >\
+  static ResultType intersect(\
+    const BoxContainer & dataContainer,\
+    const IntervalFunctor & ifunctor,\
+    BOOST_PP_ENUM_BINARY_PARAMS(n, const QueryFunctor, & qfunctor)\
+    ) {\
+      boost::tuples::tuple<BOOST_PP_ENUM_PARAMS(n,QueryFunctor)> qfunctors = boost::tuples::make_tuple(BOOST_PP_ENUM_PARAMS(n, qfunctor));\
+      return SetB<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::\
+      wrappedIntersect(State::defaultCutoff, dataContainer, boost::tuples::make_tuple(ifunctor), dataContainer, qfunctors);\
+  }
+
+#define BOOST_PP_LOCAL_LIMITS (1, MAX_QFUNCTORS)
+#include BOOST_PP_LOCAL_ITERATE()
+
+
 /**
    * \brief Create two sets of keys by intersecting two sets of functors on a 
    * given dataContainer, and check if there are intersections 
@@ -416,33 +335,32 @@ class SetA{
    * \see \ref SetB::intersect
    * \callgraph
    */
-  template <
-  class BoxContainer,
-        typename = 
-          typename std::enable_if<
-            std::is_same<typename BoxContainer::value_type, value_type>::value>
-          ::type,
-        typename IntervalFunctor,
-        typename ... QueryFunctors
-          >
-          static
-          ResultType thetaIntersect(
-            const std::size_t cutoff,
-            const BoxContainer & dataContainer,
-            const IntervalFunctor & ifunctor,
-            const QueryFunctors & ... qfunctors
-            )
-          {
-            return SetB<BoxType, TIndices...>::
-                thetaIntersect(cutoff, dataContainer, ifunctor, dataContainer, qfunctors...);
-          }
+
+#define BOOST_PP_LOCAL_MACRO(n) \
+ template < \
+ class BoxContainer,\
+ typename IntervalFunctor,\
+ BOOST_PP_ENUM_PARAMS(n, typename QueryFunctor)\
+ >\
+  static ResultType thetaIntersect(\
+    const size_type cutoff,\
+    const BoxContainer & dataContainer,\
+    const IntervalFunctor & ifunctor,\
+    BOOST_PP_ENUM_BINARY_PARAMS(n, const QueryFunctor, & qfunctor)\
+    ) {\
+      boost::tuples::tuple<BOOST_PP_ENUM_PARAMS(n,QueryFunctor)> qfunctors = boost::tuples::make_tuple(BOOST_PP_ENUM_PARAMS(n, qfunctor));\
+      return SetB<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::\
+      wrappedIntersect(cutoff, dataContainer, boost::tuples::make_tuple(ifunctor), dataContainer, qfunctors);\
+  }
+
+#define BOOST_PP_LOCAL_LIMITS (1, MAX_QFUNCTORS)
+#include BOOST_PP_LOCAL_ITERATE()
 
 
 
 
- private:
-
-  /**
+private:
+ /**
    * Calculate an approximate median by using the median-of-three method
    * on a ternary tree of given height.
    *
@@ -456,21 +374,21 @@ class SetA{
    * compare in a specific dimension
    *
    */
-  template <std::size_t Dim>
+  template <int Dim>
   const 
   static 
-  typename std::tuple_element<Dim, key_type>::type::first_type
+  typename boost::tuples::element<Dim, key_type>::type::first_type
   getApproxMedian(
     const std::vector<const key_type *> & container,
-    const std::size_t height, State & state, 
-    const typename std::tuple_element<Dim, comp_type>::type & less)
+    const int height, State & state, 
+    const typename boost::tuples::element<Dim, comp_type>::type & less)
   {
-    typedef typename std::tuple_element<Dim, key_type>::type::first_type 
+    typedef typename boost::tuples::element<Dim, key_type>::type::first_type 
       ValType;
     
     if (height == 0) {
-      std::size_t random = state.randInt(0, container.size()-1);
-      std::size_t rand1 = state.randInt(0,1);
+      size_type random = (size_type) state.randInt(0, container.size()-1);
+      size_type rand1 = (size_type) state.randInt(0,1);
       if (rand1 == 0)
       {
         return getHead<Dim>(container[random]);
@@ -485,9 +403,7 @@ class SetA{
     ValType t3 = getApproxMedian<Dim>(container, height-1, state, less);
     return medianOfThree(t1, t2, t3, less);
   }
-
-
-  /** 
+ /** 
    * Create a vector with pointers to our interval data to save memory.
    *
    * \param container A STL container holding key_type objects, 
@@ -505,7 +421,7 @@ class SetA{
   createPtrVector (const std::vector<key_type> & container) {
     std::vector<const key_type *> ptrVector(container.size());
     typename std::vector<key_type>::const_iterator it = container.begin();
-    std::size_t i = 0;
+    size_type i = 0;
     while (it != container.end()){
       ptrVector[i] = &(*it);
       ++it;
@@ -524,27 +440,27 @@ class SetA{
   /** Comfort function to get the interval in the correct dimension 
     \param[in] key The box object
   */
-  template <std::size_t Dim>
-  static inline typename std::tuple_element<Dim,key_type>::type 
+  template <int Dim>
+  static inline typename boost::tuples::element<Dim,key_type>::type 
   getKey(const key_type & key) {
-    return std::get<Dim>(key);
+    return boost::tuples::get<Dim>(key);
   }
 
   /** Comfort function to get the interval in the correct dimension 
     \param[in] key The box object
   */
-  template <std::size_t Dim>
-  static inline typename std::tuple_element<Dim,key_type>::type 
+  template <int Dim>
+  static inline typename boost::tuples::element<Dim,key_type>::type 
   getKey(const key_type * key) {
-    return std::get<Dim>(*key);
+    return boost::tuples::get<Dim>(*key);
   }
 
   /** Comfort function to get the lower endpoint in the correct dimension 
     \param[in] key The box object
   */
 
-  template <std::size_t Dim>
-  static inline typename std::tuple_element<Dim,key_type>::type::first_type 
+  template <int Dim>
+  static inline typename boost::tuples::element<Dim,key_type>::type::first_type 
   getHead(const key_type & key) {
     return getKey<Dim>(key).first;
   }
@@ -552,8 +468,8 @@ class SetA{
   /** Comfort function to get the lower endpoint in the correct dimension 
     \param[in] key The box object
   */
-  template <std::size_t Dim>
-  static inline typename std::tuple_element<Dim,key_type>::type::first_type
+  template <int Dim>
+  static inline typename boost::tuples::element<Dim,key_type>::type::first_type
   getHead(const key_type * key) {
     return getKey<Dim>(key).first;
   }
@@ -561,8 +477,8 @@ class SetA{
   /** Comfort function to get the upper endpoint in the correct dimension 
     \param[in] key The box object
   */
-  template <std::size_t Dim>
-  static inline typename std::tuple_element<Dim,key_type>::type::first_type
+  template <int Dim>
+  static inline typename boost::tuples::element<Dim,key_type>::type::first_type
   getTail(const key_type & key) {
     return getKey<Dim>(key).second;
   }
@@ -572,18 +488,18 @@ class SetA{
   /** Comfort function to get the upper endpoint in the correct dimension 
     \param[in] key The box object
   */
-  template <std::size_t Dim>
-  static inline typename std::tuple_element<Dim,key_type>::type::first_type
+  template <int Dim>
+  static inline typename boost::tuples::element<Dim,key_type>::type::first_type
   getTail(const key_type * key){
     return getKey<Dim>(key).second;
   }
 
 
   /** Comfort function to get the comparison functor in the correct dimension */
-  template <std::size_t Dim>
-  static inline const typename std::tuple_element<Dim, comp_type >::type
+  template <int Dim>
+  static inline const typename boost::tuples::element<Dim, comp_type >::type
   getCompareFunctor(){
-    return typename std::tuple_element<Dim,comp_type>::type();
+    return typename boost::tuples::element<Dim,comp_type>::type();
   }
 
 
@@ -591,7 +507,7 @@ class SetA{
     * lower endpoints in the specified dimension 
     \param[in] container The container to sort.
   */ 
-  template <std::size_t Dim>
+  template <int Dim>
   static inline void
   sortContainerHead(std::vector<const key_type * > & container){
     std::sort(container.begin(), container.end(), lessHead<Dim>());
@@ -602,7 +518,7 @@ class SetA{
     * \param[in] container The container to sort
     * 
     */ 
-  template <std::size_t Dim>
+  template <int Dim>
   static inline void
   sortContainerTail( std::vector<const key_type * > & container){
     std::sort(container.begin(), container.end(), lessTail<Dim>());
@@ -648,43 +564,45 @@ class SetA{
    * on the number of elements
    * \see \ref getApproxMedian() 
    */
-  static std::size_t inline heuristicHeight(std::size_t numElements)
+  static size_type inline heuristicHeight(size_type numElements)
   {
-    return (size_t)(log((double)numElements));
+    return (size_type)(log((double)numElements));
   }
 
-}; //end class tree
+}; //end class SetA 
 
-
-
-
-
-template <typename BoxType, std::size_t ... TIndices>
-template <typename QBoxType, std::size_t ... QIndices>
-struct SetA<BoxType, TIndices...>::
+template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
+template <typename QBoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int QIndex) > 
+struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
 SetB {
  private:
-/** Ensure that the number of querydimensions for both sets are equal*/
-  static_assert(sizeof...(QIndices) == sizeof...(TIndices), 
-    "Your number of query-dimensions doesn't match your initial indices");
+
+
+  /** Helper-struct, encapsulating most typedefs to extract necessary types */
+  typedef fbi::mpl::indexFilter<QBoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, QIndex)> qTypeHelper;
+
+  /** A compile-time constant to mark recursion tails.*/
+  enum {
+    QNUMDIMS = qTypeHelper::NUMDIMS
+  };
+  /** Ensure that the number of querydimensions for both sets are equal*/
+  BOOST_MPL_ASSERT_RELATION((int)NUMDIMS, ==, (int)QNUMDIMS);
+
+
   /** A comfort typedef to refer to the type of the input boxes*/
   typedef QBoxType qvalue_type;
   /**
    *  The key is represented by a pair of values for each dimension that 
    *  should be considered for intersection tests, 
-   * these pairs are wrapped in a std::tuple for easy access via std::get.
+   * these pairs are wrapped in a std::tuple for easy access via boost::tuples::get.
    * \see \ref fbi::Traits
    * \note This key_type is a subset of the original key_type, 
    * depending on the indices we're using.
    */
-  typedef typename std::tuple <
-      typename std::tuple_element<
-      QIndices, typename Traits<qvalue_type>::key_type
-      >::type ...
-      > qkey_type;
-  /**Ensure that the key_types are equal */
-  static_assert(std::is_same<key_type, qkey_type>::value, 
-    "Keytypes don't match");
+
+typedef typename qTypeHelper::key_type qkey_type;
+BOOST_MPL_ASSERT_MSG((boost::is_same<key_type, qkey_type>::value), KEY_TYPES_DONT_MATCH, (key_type, qkey_type));
+
 
  /**
    * As every dimension can have a different type, 
@@ -692,14 +610,9 @@ SetB {
    * has to be known during compile-time. 
    * \see \ref fbi::Traits
    */
-
-  typedef typename std::tuple <
-        typename std::tuple_element<QIndices, typename Traits<qvalue_type>::dim_type
-      >::type::second_type ...
-    > qcomp_type;      
+  typedef typename qTypeHelper::comp_type qcomp_type;      
     /** Ensure that the comparison operators are equal*/
-  static_assert(std::is_same<comp_type, qcomp_type>::value, 
-    "CompTypes don't match");
+  BOOST_MPL_ASSERT_MSG((boost::is_same<comp_type, qcomp_type>::value), KEY_TYPES_DONT_MATCH, (comp_type, qcomp_type));
 
  public:
   /**
@@ -742,163 +655,87 @@ SetB {
    * the result an undirected graph.
    * 
    */
+#define BOOST_PP_LOCAL_MACRO(n) \
+ template < \
+ class BoxContainer,\
+ class QContainer,\
+ typename IntervalFunctor,\
+ BOOST_PP_ENUM_PARAMS(n, typename QueryFunctor)\
+ >\
+  static ResultType intersect(\
+    const BoxContainer & dataContainer,\
+    const IntervalFunctor & ifunctor,\
+    const QContainer & qdataContainer,\
+    BOOST_PP_ENUM_BINARY_PARAMS(n, const QueryFunctor, & qfunctor)\
+    ) {\
+      boost::tuples::tuple<BOOST_PP_ENUM_PARAMS(n,QueryFunctor)> qfunctors = boost::tuples::make_tuple(BOOST_PP_ENUM_PARAMS(n, qfunctor));\
+      return SetB<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::\
+      wrappedIntersect(State::defaultCutoff, dataContainer, boost::tuples::make_tuple(ifunctor), qdataContainer, qfunctors);\
+  }
+
+#define BOOST_PP_LOCAL_LIMITS (1, MAX_QFUNCTORS)
+#include BOOST_PP_LOCAL_ITERATE()
+
+#define BOOST_PP_LOCAL_MACRO(n) \
+ template < \
+ class BoxContainer,\
+ class QContainer,\
+ typename IntervalFunctor,\
+ BOOST_PP_ENUM_PARAMS(n, typename QueryFunctor)\
+ >\
+  static ResultType thetaIntersect(\
+    const size_type cutoff,\
+    const BoxContainer & dataContainer,\
+    const IntervalFunctor & ifunctor,\
+    const QContainer & qdataContainer,\
+    BOOST_PP_ENUM_BINARY_PARAMS(n, const QueryFunctor, & qfunctor)\
+    ) {\
+      boost::tuples::tuple<BOOST_PP_ENUM_PARAMS(n,QueryFunctor)> qfunctors = boost::tuples::make_tuple(BOOST_PP_ENUM_PARAMS(n, qfunctor));\
+      return SetB<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::\
+      wrappedIntersect(cutoff, dataContainer, boost::tuples::make_tuple(ifunctor), qdataContainer, qfunctors);\
+  }
+
+#define BOOST_PP_LOCAL_LIMITS (1, MAX_QFUNCTORS)
+#include BOOST_PP_LOCAL_ITERATE()
+
+
 
   template <
   class BoxContainer,
-        typename = typename std::enable_if<std::is_same<typename BoxContainer::value_type, value_type>::value>::type,
         class QContainer,
-        typename = typename std::enable_if<std::is_same<typename QContainer::value_type, qvalue_type>::value>::type,
         typename IntervalFunctor, 
-        typename ... QueryFunctors
+        typename QueryFunctors
   > static
-  ResultType intersect(
+  ResultType wrappedIntersect(
+      const size_type & cutoff,
       const BoxContainer & dataContainer, 
       const IntervalFunctor & ifunctor, 
       const QContainer & qdataContainer,
-      const QueryFunctors& ... qfunctors
+      const QueryFunctors& qfunctors
       ) {
-    static_assert( (sizeof...(QueryFunctors) > 0), 
-      "Need at least one query functor.");
+        BOOST_MPL_ASSERT_RELATION(boost::tuples::length<QueryFunctors>::value, >, 0);
     if (dataContainer.empty()) { return ResultType();}
+    // Generate the set of data boxes. See above, just for the QueryBoxType.
+    const std::vector<key_type> dataIntervalVector = KeyCreator<BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
+      getVector(dataContainer, ifunctor);
+    
     // Generate the set of query boxes. The BoxType is an arbitrary,
     // user-specified type, that does not necessarily have any notion of
     // dimensionality. This call converts the BoxType data into the 
     // K-dimenstional boxes for fast box intersection.
-    const auto queryIntervalVector = KeyCreator<QIndices...>::
-      getVector(qdataContainer, qfunctors...);
-    // Generate the set of data boxes. See above, just for the QueryBoxType.
-    const auto dataIntervalVector = KeyCreator<TIndices...>::
-      getVector(dataContainer, ifunctor);
+    const std::vector<key_type> queryIntervalVector = KeyCreator<BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, QIndex)>::
+      getVector(qdataContainer, qfunctors);
 
-    key_type limits = 
-      make_tuple(
-        std::get<TIndices>(Traits<value_type>::getLimits())
-      ... );
+    key_type limits = typeHelper::template TupleGetter<NUMDIMS, NUMDIMS>::get();
 
     //const std::size_t numQueryFunctors = sizeof...(QueryFunctors); 
-    const std::size_t numQueryFunctors = 
-        mpl::FunctorChecker::count(qfunctors...); 
+    
+    const size_type numQueryFunctors = 
+        mpl::FunctorChecker::count(qfunctors); 
     //if we're looking at two different sets, use different indices for the elements!
     const std::size_t offset = 
         (reinterpret_cast<const char* >(&(dataContainer)) == 
         reinterpret_cast<const char* >(&(qdataContainer))) ? 0 : dataContainer.size();
-    State state(
-        limits,
-        numQueryFunctors,
-        &(queryIntervalVector[0]),
-        &(dataIntervalVector[0]),
-        offset
-        );
-
-    // Create a vector of pointers that reference the above query boxes. This
-    // allows us to work on pointers and save a bit of memory.
-    std::vector<const key_type *> pointsPtrVector = 
-      createPtrVector(queryIntervalVector);
-    std::vector<const key_type *> intervalsPtrVector = 
-      createPtrVector(dataIntervalVector);
-
-    ResultType resultVector(offset + qdataContainer.size());
-
-    auto dimLimits = std::get<0>(state.getLimits()); 
-
-    // Call the hybrid algorithm for stabbing queries in the interval vector.
-    HybridScanner<true, NUMDIMS>::
-      scan(
-        pointsPtrVector, 
-        intervalsPtrVector, 
-        dimLimits.first, 
-        dimLimits.second,state, 
-        resultVector 
-      );
-    // Reverse the previous call: queries in the "point" vector.
-    HybridScanner<false, NUMDIMS>::
-      scan(
-        intervalsPtrVector, 
-        pointsPtrVector, 
-        dimLimits.first, 
-        dimLimits.second,state, 
-        resultVector
-      );
-    return resultVector;
-  }
-   /**
-   * \callgraph
-   * \brief The public interface for the user to start the algorithm. 
-   *
-   * This function initializes the keys (consisting of intervals in 
-   * several dimensions) of the intervalSet and the querySet, along with 
-   * pointers to pass them to separation algorithms.
-   * \ref State::calculate has to be used to 
-   * recalculate the original indices from the pointers.
-   *
-   * \param[in] cutoff The theta cutoff value for switching into OneWayScan
-   * \param[in] dataContainer STL Container providing a 
-   *  forward iterator and holding a value_type.
-   * \param[in] ifunctor This has to be either a class with a public 
-   * \verbatim get<Dim>(const BoxType & ) const; \endverbatim method or
-   * a std::vector holding that kind of class, if multiple interval objects
-   * per box should be made. 
-   * The tree will create the keys by using the functor to extract 
-   * the indexed dimensions from the BoxType. They will work on every object in
-   * dataContainer.
-   * \param[in] qdataContainer STL Container providing a 
-   *  forward iterator and holding a qvalue_type.
-   * \param[in] qfunctors Like ifunctor, 
-   * these functors will each create a different key, they can also be of type
-   * std::vector<functor>, for every object in each vector
-   * one query will be created per object in qdataContainer.
-   * (|qfunctors.size()| * |qdataContainer| for every qfunctors type)
-   * as parallel edges are possible but not desired for the end result.
-   * Note that in the bipartite case, the boxes in dataContainer will be indexed
-   * from 0 upto |dataContainer|-1, whereas the ones in qdataContainer are 
-   * identified by |dataContainer|..|dataContainer + qdataContainer|-1.
-   * An edge (pair of two boxes), consisting of 2 IntType values a and b,
-   * is represented by b being in the set of tails belonging to the head a
-   * (and vice versa) as there are |dataContainer + qdataContainer|-1 sets in the 
-   * result.
-   * Note that every edge is inserted twice as intersection is reflective and 
-   * the result an undirected graph.
-   */
-  template <
-  class BoxContainer,
-        typename = typename std::enable_if<std::is_same<typename BoxContainer::value_type, value_type>::value>::type,
-        class QContainer,
-        typename = typename std::enable_if<std::is_same<typename QContainer::value_type, qvalue_type>::value>::type,
-        typename IntervalFunctor, 
-        typename ... QueryFunctors
-  > static
-  ResultType thetaIntersect(
-      const size_t cutoff,
-      const BoxContainer & dataContainer, 
-      const IntervalFunctor & ifunctor, 
-      const QContainer & qdataContainer,
-      const QueryFunctors& ... qfunctors
-      ) {
-    static_assert( (sizeof...(QueryFunctors) > 0), 
-      "Need at least one query functor.");
-    if (dataContainer.empty()) { return ResultType();}
-    // Generate the set of query boxes. The BoxType is an arbitrary,
-    // user-specified type, that does not necessarily have any notion of
-    // dimensionality. This call converts the BoxType data into the 
-    // K-dimenstional boxes for fast box intersection.
-    const auto queryIntervalVector = KeyCreator<QIndices...>::
-      getVector(qdataContainer, qfunctors...);
-    // Generate the set of data boxes. See above, just for the QueryBoxType.
-    const auto dataIntervalVector = KeyCreator<TIndices...>::
-      getVector(dataContainer, ifunctor);
-
-    key_type limits = 
-      make_tuple(
-        std::get<TIndices>(Traits<value_type>::getLimits())
-      ... );
-
-    //const std::size_t numQueryFunctors = sizeof...(QueryFunctors); 
-    const std::size_t numQueryFunctors = 
-        mpl::FunctorChecker::count(qfunctors...); 
-    //if we're looking at two different sets, use different indices for the elements!
-    const std::size_t offset = 
-        (reinterpret_cast<const char* const>(&(dataContainer)) == 
-        reinterpret_cast<const char* const>(&(qdataContainer))) ? 0 : dataContainer.size();
     State state(
         limits,
         numQueryFunctors,
@@ -917,7 +754,7 @@ SetB {
 
     ResultType resultVector(offset + qdataContainer.size());
 
-    auto dimLimits = std::get<0>(state.getLimits()); 
+    typename boost::tuples::element<0,key_type>::type dimLimits = boost::tuples::get<0>(state.getLimits()); 
 
     // Call the hybrid algorithm for stabbing queries in the interval vector.
     HybridScanner<true, NUMDIMS>::
@@ -939,11 +776,14 @@ SetB {
       );
     return resultVector;
   }
+
 }; //end class SetB
 
-template <typename BoxType, std::size_t ... TIndices>
-template <std::size_t ... KeyCreatorIndices>
-struct SetA<BoxType, TIndices...>::
+
+
+template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
+template <BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int KeyCreatorIndex) > 
+struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
 KeyCreator{
 
   /**
@@ -960,20 +800,21 @@ KeyCreator{
    * \see \ref createKey()
    */
 
-  template <class Container, class ... Functors>
+  //template <class Container, class ... Functors>
+  template <class Container, class Functors>
   static std::vector<key_type>
-  getVector(const Container & container, const Functors& ...functors){
+  //getVector(const Container & container, const Functors& ...functors){
+  getVector(const Container & container, const Functors& functors){
     /** If there is no functor, we can't extract data from the boxes.*/
-    static_assert(sizeof...(Functors) > 0, 
-      "You need at least one functor to access your objects"); 
+    BOOST_MPL_ASSERT_RELATION(boost::tuples::length<Functors>::value, >, 0);
     typename Container::const_iterator it = container.begin();
     std::vector<key_type> intervalVector(
-        container.size()* mpl::FunctorChecker::count(functors...)); 
+        container.size()* mpl::FunctorChecker::count(functors)); 
 
     typename std::vector<key_type>::iterator intervalIt= intervalVector.begin();
     while (it != container.end())
     {
-      createKeys(intervalIt, *it, functors...);
+      createKeys(intervalIt, *it, functors);
       ++it;
     }
     return intervalVector;
@@ -994,7 +835,7 @@ KeyCreator{
   template <typename T>
   static void
   createKeys(typename std::vector<key_type>::iterator & intervalIt,
-             const T & dataValue 
+             const T & dataValue, boost::tuples::null_type
              ) {}
 
   /**
@@ -1009,16 +850,15 @@ KeyCreator{
    * \param functors Other functors which will be used recursively.
    * \see \ref createKey()
    */
-  template <typename T, typename Functor, typename ...Functors>
+  template <typename T, typename Functor, typename Functors>
   static void 
   createKeys(
       typename std::vector<key_type>::iterator & intervalIt,
       const T & dataValue, 
-      const Functor & functor, 
-      const Functors & ...functors) {
-    *intervalIt = createKey(dataValue, functor); 
+      const boost::tuples::cons<Functor, Functors> & functorTuple) {
+    *intervalIt = createKey(dataValue, functorTuple.get_head()); 
     ++intervalIt;
-    createKeys(intervalIt, dataValue, functors...);
+    createKeys(intervalIt, dataValue, functorTuple.get_tail());
   }
 
   /**
@@ -1033,19 +873,19 @@ KeyCreator{
    * \param functors Other functors which will be used recursively.
    * \see \ref createKey()
    */
-  template <typename T, typename Functor, typename ...Functors>
+  template <typename T, typename Functor, typename Functors>
   static void 
   createKeys(
       typename std::vector<key_type>::iterator & intervalIt,
       const T & dataValue, 
-      const std::vector<Functor> & functor, 
-      const Functors & ...functors) 
+      const boost::tuples::cons<std::vector<Functor>, Functors> & functorTuple) 
   {
+    const std::vector<Functor> & functor = functorTuple.get_head();
     for (std::size_t i = 0; i < functor.size(); ++i) {
       *intervalIt = createKey(dataValue, functor[i]);
       ++intervalIt; //we have to increment it so that the while loop is ok.
     }
-    createKeys(intervalIt, dataValue, functors...);
+    createKeys(intervalIt, dataValue, functorTuple.get_tail());
   }
 
   /**
@@ -1059,16 +899,15 @@ KeyCreator{
   static inline const
   key_type 
   createKey(const T& val, const Functor & functor) {
-    return std::make_tuple(functor.template get<KeyCreatorIndices>(val)...);
+    return typeHelper::template TupleGetter<NUMDIMS, NUMDIMS>::createKey(val, functor);
   }
 
 }; //end struct KeyCreator
 
 
 
-
-template <typename BoxType, std::size_t ... TIndices>
-class SetA<BoxType, TIndices...>::
+template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
+class SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
 State
 {
  private: 
@@ -1077,13 +916,13 @@ State
   * median ternary tree
   * \param[in] n Number of elements to get the median from
   */
-  static std::size_t defaultHeightCalculator_(const std::size_t n) {
+  static size_type defaultHeightCalculator_(const size_type n) {
     return 
-      static_cast<std::size_t> (
+      static_cast<size_type> (
         std::max( 0., -3.0 + 1.8 * log10( static_cast<double>( n ) ) )
       ); 
   }
-    
+  
   /** 
   * For every dimension, upper and lower bounds have to be
   * known, which will be larger or smaller than all
@@ -1096,7 +935,7 @@ State
   * we have to remember the number so index-calculations
   * can be done
   */
-  const std::size_t numModifications_;
+  const size_type numModifications_;
   /** 
    * \brief Pointer to the first element in the points-(query-)Vector, 
    *  created for the scan,
@@ -1113,24 +952,28 @@ State
 
   //Randomizer section
   /** Random seed engine, has to be non-const as using the engine changes it. */
-  std::mt19937 rSeedEngine_;
+  boost::mt19937 rSeedEngine_;
   /** We need a uniform distribution*/
-  typedef std::uniform_int_distribution<std::size_t> Distribution;
+  typedef boost::uniform_int<> Distribution;
 /** As our second set of objects continues the
  * numbering scheme of the first, we have to add an offset
  * to the indices.
  */
-  const std::size_t offset_;
+  const size_type offset_;
  /** Also known as theta, the margin to switch to
   * brute-force 
   */
-  const std::size_t cutoffSize_;
+  const size_type cutoffSize_;
   /** Function pointer to a height calculator*/
-  std::size_t (* const heightCalculator_)(const std::size_t);
+  size_type (* const heightCalculator_)(const size_type);
 
 
  public:
- 
+ enum {
+  defaultCutoff = 250
+ };
+
+
   /** 
    * Constructor of the state we'll pass through most of the algorithm.
    *
@@ -1156,12 +999,12 @@ State
 
   State(
       const key_type & limits, 
-      const std::size_t numMod, 
+      const size_type numMod, 
       const key_type * queryVectorPtr,
       const key_type * dataVectorPtr,
-      const std::size_t offset,
-      const std::size_t cutoffSize = 250,
-      std::size_t (*heightCalculator) (const std::size_t) = 
+      const size_type offset,
+      const size_type cutoffSize,
+      size_type (*heightCalculator) (const size_type) = 
         &(SETA::State::defaultHeightCalculator_)
       ):
       limits_(limits), 
@@ -1190,7 +1033,7 @@ State
   * generated from the first or second type of boxes.
   */
   inline 
-  std::size_t calculate(bool isQueryVectorPtr, const key_type * objectPtr) const
+  size_type calculate(bool isQueryVectorPtr, const key_type * objectPtr) const
   {
     if (isQueryVectorPtr)
     {
@@ -1211,9 +1054,9 @@ State
  *
  *
  */
-  inline std::size_t randInt(std::size_t lowerBound, std::size_t upperBound)
+  inline size_type randInt(size_type lowerBound, size_type upperBound)
   {
-    return Distribution(lowerBound, upperBound)(rSeedEngine_);
+    return (size_type) Distribution(lowerBound, upperBound)(rSeedEngine_);
   }
 
   /** Getter */
@@ -1221,20 +1064,19 @@ State
  /** Return a good height for the ternary median tree
  * \param n Number of elements
  */
-  std::size_t heuristicHeight(const std::size_t n) const
+  size_type heuristicHeight(const size_type n) const
   {
     return (*(this->heightCalculator_))(n);
   }
   /** Getter*/
-  std::size_t getCutoff() const{ return cutoffSize_; }
-};
+  size_type getCutoff() const{ return cutoffSize_; }
+}; //end class State
 
 
 
-
-template <typename BoxType, std::size_t ...TIndices>
-template <bool PointsContainQueries, std::size_t DimsLeft>
-struct SetA<BoxType, TIndices...>::
+template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
+template <bool PointsContainQueries, int DimsLeft>
+struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
 HybridScanner{
 
   /** 
@@ -1271,6 +1113,8 @@ HybridScanner{
    *   - Either set is small enough that a match in one dimension will probably 
    *      lead to a match in the others.
    */ 
+
+  typedef SetA<BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)> SETA;
   enum {
     Dim = SETA::NUMDIMS - DimsLeft
   };
@@ -1280,14 +1124,14 @@ HybridScanner{
   static void scan(
     std::vector<const key_type *> & pointsPtrVector, //Points
     std::vector<const key_type *> & intervalsPtrVector,  //Intervals
-    const typename std::tuple_element<Dim, key_type>::type::first_type & lowerBound,
-    const typename std::tuple_element<Dim, key_type>::type::first_type & upperBound,
+    const typename boost::tuples::element<Dim, key_type>::type::first_type & lowerBound,
+    const typename boost::tuples::element<Dim, key_type>::type::first_type & upperBound,
     State & state,
     ResultType & resultVector
     ) {
 
-    typedef typename std::tuple_element<Dim, key_type>::type Key;
-    typedef typename std::tuple_element<Dim, comp_type>::type Comp;
+    typedef typename boost::tuples::element<Dim, key_type>::type Key;
+    typedef typename boost::tuples::element<Dim, comp_type>::type Comp;
     Comp less;
 
     if (
@@ -1349,7 +1193,7 @@ HybridScanner{
       }
     }
 
-    auto dimLimits = std::get<Dim+1>(state.getLimits());
+    typename boost::tuples::element<Dim+1,key_type>::type dimLimits = boost::tuples::get<Dim+1>(state.getLimits());
     
     HybridScanner<PointsContainQueries, DimsLeft-1>::
       scan(
@@ -1406,20 +1250,19 @@ HybridScanner{
  * This is a specialization of the HybridScanner when there's only 
  * one dimension left to compare in: just pass the sets to the OneWayScanner
  */
-template <typename BoxType, std::size_t ...TIndices>
+template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
 template <bool PointsContainQueries>
-struct SetA<BoxType, TIndices...>::
+struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
 HybridScanner<PointsContainQueries, 1> {
 
-  /** saves typing, referencing to parent struct type*/
-  typedef SetA<BoxType, TIndices...> SETA;
+  typedef SetA<BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)> SETA;
   enum
   {
   /** last dimension to compare in*/
     LASTDIM = SETA::NUMDIMS - 1
   };
   /** Use key_type from parent struct*/
-  typedef SETA::key_type key_type;
+  typedef typename SETA::key_type key_type;
  /** \see \ref HybridScanner::scan()
   * This is the special case, when only the last dimension has to be considered,
   * switch to a brute-force approach, i.e. \ref OneWayScanner::scan()
@@ -1439,10 +1282,10 @@ HybridScanner<PointsContainQueries, 1> {
   inline static void scan(
       std::vector<const key_type *> & pointsPtrVector,
       std::vector<const key_type *> & intervalsPtrVector,
-      const typename std::tuple_element<LASTDIM, key_type>::type::first_type & lowerBound,
-      const typename std::tuple_element<LASTDIM, key_type>::type::first_type & upperBound,
-      SETA::State & state,
-      SETA::ResultType & resultVector
+      const typename boost::tuples::element<LASTDIM, key_type>::type::first_type & lowerBound,
+      const typename boost::tuples::element<LASTDIM, key_type>::type::first_type & upperBound,
+      typename SETA::State & state,
+      typename SETA::ResultType & resultVector
       )
   {
     SETA::sortContainerHead<LASTDIM>(pointsPtrVector);
@@ -1454,9 +1297,9 @@ HybridScanner<PointsContainQueries, 1> {
 
 
 
-template <typename BoxType, std::size_t ...TIndices>
-template <bool PointsContainQueries, std::size_t Dim>
-struct SetA<BoxType, TIndices...>::
+template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
+template <bool PointsContainQueries, int Dim>
+struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
 OneWayScanner{
   /**
    * \brief Pass through two sorted vectors and look for matches accordingly.
@@ -1476,12 +1319,12 @@ OneWayScanner{
       State & state,
       ResultType & resultVector 
       ) {
-    typedef typename std::tuple_element<Dim, key_type>::type::first_type Key;
-    typedef typename std::tuple_element<Dim, comp_type>::type Comp; 
+    typedef typename boost::tuples::element<Dim, key_type>::type::first_type Key;
+    typedef typename boost::tuples::element<Dim, comp_type>::type Comp; 
     typedef typename std::vector<const key_type * >::const_iterator CIT;
     typedef std::multiset<const key_type * , lessTail<Dim> > SortTailSet;
     SortTailSet intervalsPtrSet;
-    typedef typename SortTailSet::const_iterator SIT;
+    typedef typename SortTailSet::iterator SIT;
 
     
     if (intervalsPtrVector.empty())
@@ -1498,8 +1341,8 @@ OneWayScanner{
       ++pntVectorIt; //don't look at the same point again!
       //const Key point = getHead<Dim>(pntPtr);
       key_type point = *pntPtr;
-      Key lowerBound = std::get<Dim>(point).first; 
-      std::get<Dim>(point).second = lowerBound;
+      Key lowerBound = boost::tuples::get<Dim>(point).first; 
+      boost::tuples::get<Dim>(point).second = lowerBound;
 
 
       CIT oldIntVectorIt = intVectorIt; 
@@ -1562,9 +1405,9 @@ OneWayScanner{
  * 
  */
 
-template <typename BoxType, std::size_t ...TIndices>
-template <std::size_t Dim, std::size_t Limit>
-struct SetA<BoxType, TIndices...>::
+template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
+template <int Dim, int Limit>
+struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
 IntersectionTester {
 /**
  * Check for intersection between its two inputs
@@ -1574,8 +1417,8 @@ IntersectionTester {
   static bool test(const key_type * x, const key_type * y)
   {
     bool result;
-    typedef typename std::tuple_element<Dim, key_type>::type Key;
-    typedef typename std::tuple_element<Dim, comp_type>::type Comp;
+    typedef typename boost::tuples::element<Dim, key_type>::type Key;
+    typedef typename boost::tuples::element<Dim, comp_type>::type Comp;
     Key firstKey = getKey<Dim>(x);
     Key secondKey = getKey<Dim>(y);
     Comp less;
@@ -1594,19 +1437,20 @@ IntersectionTester {
   }
 };
 
-template <typename BoxType, std::size_t ...TIndices>
-template <std::size_t Limit>
-struct SetA<BoxType, TIndices...>::
+template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
+template <int Limit>
+struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
 IntersectionTester<Limit, Limit> {
-  typedef SetA<BoxType, TIndices...>::key_type key_type;
+  typedef SetA<BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)> SETA;
+  typedef typename SETA::key_type key_type;
   static bool test(const key_type * x, const key_type * y){ return true; }
 };
 
 
 
-template <typename BoxType, std::size_t ... TIndices>
-template <std::size_t Dim>
-struct SetA<BoxType, TIndices...>::
+template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
+template <int Dim>
+struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
 lessHead {
    /** 
     * To sort a vector/set of keys by their lower end in a given dimension,
@@ -1639,9 +1483,9 @@ lessHead {
 };
 
 
-template <typename BoxType, std::size_t ... TIndices>
-template <std::size_t Dim>
-struct SetA<BoxType, TIndices...>::
+template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
+template <int Dim>
+struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
 lessTail{
    /** 
     * To sort a vector/set of keys by their upper end in a given dimension,
@@ -1680,9 +1524,9 @@ lessTail{
  * \tparam I Dimension the print should start with.
  * \tparam Number of dimensions the key_type possesses.
  */
-template <typename BoxType, std::size_t ... TIndices>
-template <std::size_t I, std::size_t N>
-struct SetA<BoxType, TIndices...>::
+template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
+template <int I, int N>
+struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
 KeyPrinter
 {
   /** 
@@ -1703,13 +1547,13 @@ KeyPrinter
  * Sometimes we would like to see if the key we're looking at has the
  * correct values, template specialization to terminate the recursion.
  */
-template <typename BoxType, std::size_t ... TIndices>
-template <std::size_t N>
-struct SetA<BoxType, TIndices...>::
+template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
+template <int N>
+struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
 KeyPrinter<N,N>
 {
-  /** Use the key_type of its parent struct*/
-  typedef SetA<BoxType, TIndices...>::key_type key_type;
+  typedef SetA<BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)> SETA;
+  typedef typename SETA::key_type key_type;
   /** 
    * print key 
    * \param[in] key Print this key
@@ -1720,8 +1564,8 @@ KeyPrinter<N,N>
       }
 };
 
-} //end namespace hybridtree;
 
+} //end namespace fbi
 
 
 #endif

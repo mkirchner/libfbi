@@ -76,7 +76,7 @@ template<> struct Traits<MS2Scan> : mpl::TraitsGenerator<double, double> {};
 struct XicBoxGenerator
 {
   template <size_t N>
-  typename std::tuple_element<N, 
+  typename boost::tuples::element<N, 
     typename fbi::Traits<Xic>::key_type>::type 
   get(const Xic &) const;
 
@@ -110,7 +110,7 @@ XicBoxGenerator::get<1>(const Xic & xic) const
 struct MS2ScanBoxGenerator
 {
   template <size_t N>
-  typename std::tuple_element<N, 
+  typename boost::tuples::element<N, 
     typename fbi::Traits<MS2Scan>::key_type>::type 
   get(const MS2Scan &) const;
 
@@ -312,11 +312,10 @@ int main(int argc, char* argv[])
     size_t nXics = xics.size();
     for (size_t i = 0; i < nXics; ++i) {
         if (!adjList[i].empty()) {
-            typedef std::set<unsigned int>::const_iterator SI;
-            SI best = adjList[i].begin();
+            auto best = adjList[i].begin();
             double bestDist = std::numeric_limits<double>::max();
             // resolve conflict by choosing the closest m/z
-            for (SI j = adjList[i].begin(); j != adjList[i].end(); ++j) {
+            for (auto j = adjList[i].begin(); j != adjList[i].end(); ++j) {
                 size_t k = *j - nXics;
                 double dist = std::abs(xics[i].mz_ - ms2scans[k].mz_);
                 // std::cerr << "d(" << xics[i].mz_ << "[" << i << "]," 

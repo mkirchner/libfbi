@@ -27,10 +27,18 @@
 #ifndef __LIBFBI_INCLUDE_FBI_CONFIG_H__
 #define __LIBFBI_INCLUDE_FBI_CONFIG_H__
 
-#cmakedefine HAS_UNIFORM_INT_DISTRIBUTION
-#ifndef HAS_UNIFORM_INT_DISTRIBUTION
-    #define uniform_int_distribution uniform_int
+#if _MSC_VER && !__INTEL_COMPILER
+  #define __FBI_MSWORKAROUND__ 1
+#else
+  #define __FBI_MSWORKAROUND__ 0
 #endif
+#ifndef MAX_DIMENSIONS 
+  #define MAX_DIMENSIONS 4
+#endif
+#ifndef MAX_QFUNCTORS
+  #define MAX_QFUNCTORS 2
+#endif
+
 
 #cmakedefine HAS_VARIADIC_TEMPLATES
 #ifdef HAS_VARIADIC_TEMPLATES
