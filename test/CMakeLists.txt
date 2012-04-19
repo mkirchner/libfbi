@@ -46,9 +46,9 @@ INCLUDE_DIRECTORIES(
 
 #### Sources
 IF (HAS_VARIADIC_TEMPLATES)
-SET(SRCS_FBI fbi-test.v.cpp)
+SET(SRCS_FBI fbi-test_v.cpp)
 ELSE (HAS_VARIADIC_TEMPLATES)
-SET(SRCS_FBI fbi-test.b.cpp)
+SET(SRCS_FBI fbi-test_b.cpp)
 ENDIF (HAS_VARIADIC_TEMPLATES)
 
 #### Tests
