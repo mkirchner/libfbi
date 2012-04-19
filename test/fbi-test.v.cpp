@@ -30,10 +30,9 @@
 #include <list>
 #include <functional>
 
-//c++0x includes
-#include <tuple>
 
 #include "unittest.hxx"
+#include <fbi/tuple.h>
 // hack for testing purposes
 #define private public
 #include <fbi/fbi.h>

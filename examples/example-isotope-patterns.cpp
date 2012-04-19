@@ -25,7 +25,6 @@
  */
 #include <iostream>
 #include <fstream>
-#include <tuple>
 #include <sys/time.h>
 #include <vector>
 
@@ -50,7 +49,7 @@ int main(int argc, char* argv[])
   timeval start, end; 
 
   gettimeofday(&start, NULL);
-  auto centroidResults = SetA<Centroid, 1, 2>::
+  SetA<Centroid,1,2>::ResultType centroidResults = SetA<Centroid, 1, 2>::
       intersect(centroids, BoxGenerator(2, 2.1), BoxGenerator(2, 2.1));
   gettimeofday(&end, NULL);
   std::cout << "elapsed time in seconds: " 
@@ -61,7 +60,7 @@ int main(int argc, char* argv[])
   std::cout << "finding connected components... ";
   typedef SetA<Centroid, 1, 2>::IntType LabelType;
   std::vector<LabelType> labels;
-  auto nComponents = findConnectedComponents(centroidResults, labels); 
+  LabelType nComponents = findConnectedComponents(centroidResults, labels); 
   std::cout << nComponents << " components found." << std::endl;
 
   typedef std::vector<std::vector<LabelType> > VecVec;
@@ -97,7 +96,7 @@ int main(int argc, char* argv[])
   typedef SetA<Xic, 0, 1> XicSet;
   gettimeofday(&start, NULL);
   
-  auto xicResults = XicSet::
+  XicSet::ResultType xicResults = XicSet::
     intersect(xics, XicBoxGenerator(0.0,2,0.0,12.0), boxGenerators);
   gettimeofday(&end, NULL);
   std::cout << "elapsed time in seconds: "
@@ -107,12 +106,12 @@ int main(int argc, char* argv[])
   std::cout << "finding connected components...";
   typedef XicSet::IntType IsotopeLabelType;
   std::vector<IsotopeLabelType> isotopeLabels;
-  auto nIsotopePatterns = findConnectedComponents(xicResults, isotopeLabels); 
+  IsotopeLabelType nIsotopePatterns = findConnectedComponents(xicResults, isotopeLabels); 
   std::cout << nIsotopePatterns << " components found." << std::endl;
 
   std::ofstream ofs(options.outputfileName_.c_str());
   ofs.setf(std::ios::fixed, std::ios::floatfield);
-  for (size_t i = 0;i < xics.size();++i) {
+  for (std::size_t i = 0;i < xics.size();++i) {
     Xic& c = xics[i];
     ofs << c.mz_ <<"\t" << c.mz_ * (1 - 2 * 1E-6) <<"\t" <<c.mz_ * (1 + 2* 1E-6) <<c.rt_ <<  "\t" 
       << c.abundance_ << "\t" << isotopeLabels[i] << "\n";

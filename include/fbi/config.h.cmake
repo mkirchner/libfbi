@@ -42,4 +42,16 @@
   #define __USE_TEMPLATE_ALIASES__
 #endif
 
+#if _MSC_VER && !__INTEL_COMPILER
+  #define __FBI_MSWORKAROUND__ 1
+#else
+  #define __FBI_MSWORKAROUND__ 0
+#endif
+#ifndef MAX_DIMENSIONS 
+  #define MAX_DIMENSIONS 4
+#endif
+#ifndef MAX_QFUNCTORS
+  #define MAX_QFUNCTORS 2
+#endif
+
 #endif 

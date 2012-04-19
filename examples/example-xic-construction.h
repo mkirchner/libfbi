@@ -28,7 +28,7 @@
 #define __LIBFBI_EXAMPLES_EXAMPLEXICCONSTRUCTION_H__
 
 #include <utility>
-#include <tuple>
+#include "fbi/tuple.h"
 #include "fbi/fbi.h"
 #include "fbi/tuplegenerator.h"
 
@@ -64,8 +64,8 @@ struct Traits<Centroid> : mpl::TraitsGenerator<
 
 struct BoxGenerator
 {
-  template <size_t N>
-  typename std::tuple_element<N, 
+  template <std::size_t N>
+  typename fbi::tuple_element<N, 
     typename fbi::Traits<Centroid>::key_type>::type 
   get(const Centroid &) const;
 

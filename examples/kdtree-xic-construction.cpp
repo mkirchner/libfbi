@@ -27,7 +27,6 @@
 #include <array>
 #include <iostream>
 #include <fstream>
-#include <tuple>
 #include <sys/time.h>
 #include <vector>
 
@@ -66,7 +65,7 @@ int main(int argc, char* argv[])
   }
   kdtree.optimize();
   typedef KdTree::const_iterator KCI;
-  std::vector<std::set<size_t> > adjList(centroids.size());
+  std::vector<std::set<std::size_t> > adjList(centroids.size());
 
   for (KCI && i = kdtree.begin(); !i.end_of_range(); ++i) {
     // construct the range query
@@ -76,8 +75,8 @@ int main(int argc, char* argv[])
       i->first[1] + snWindow + 0.3}};
     // run range query
     const KCI & b = kdtree.begin(llh, urh);
-    const size_t k = std::distance(b, i);
-    size_t l = 0;
+    const std::size_t k = std::distance(b, i);
+    std::size_t l = 0;
     // store connectivity
     for (KCI j = b; !j.end_of_range(); ++j, ++l) {
         adjList[k].insert(l);
@@ -89,12 +88,12 @@ int main(int argc, char* argv[])
   std::cout << centroids.size() << "\t" << static_cast<double>(end.tv_sec - start.tv_sec) +
     static_cast<double>(end.tv_usec - start.tv_usec)* 1E-6 << std::endl;
 
-  std::vector<size_t> labels;
+  std::vector<std::size_t> labels;
   findConnectedComponents(adjList, labels); 
 
   std::ofstream ofs(options.outputfileName_.c_str());
   ofs.setf(std::ios::fixed, std::ios::floatfield);
-  for (size_t i = 0;i < centroids.size();++i) {
+  for (std::size_t i = 0;i < centroids.size();++i) {
     Centroid& c = centroids[i];
     ofs << c.rt_ << "\t" << c.mz_ << "\t" << c.sn_ << "\t" 
       << c.abundance_ << "\t" << labels[i] << "\n";
