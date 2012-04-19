@@ -22,16 +22,8 @@ MACRO_REQUIRE_OUT_OF_SRC_BUILD("LIBFBI requires out-of-source builds.")
 
 SET(CMAKE_CXX0X_FLAGS "-std=c++0x" )
 # more warnings against everything
-#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wconversion -Wall -Wno-sign-conversion" )
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wconversion -Wall -Wno-sign-conversion" )
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX0X_FLAGS}" )
-INCLUDE(FindBoost)
-SET(Boost_DEBUG ON)
-SET(Boost_DETAILED_FAILURE_MSG ON)
-
-
-
-
-
 
 IF (NOT CMAKE_BUILD_TYPE)
     SET(CMAKE_BUILD_TYPE Release CACHE STRING
@@ -60,13 +52,13 @@ CONFIGURE_FILE(
 # add subdirs
 OPTION(ENABLE_TESTING "Compile tests" ON)
 OPTION(ENABLE_COVERAGE "Enable GCov coverage analysis (defines a 'coverage' target and enforces static build of ms++)" OFF)
-OPTION(ENABLE_BENCHMARK "Do benchmarking and plotting" OFF)
-OPTION(ENABLE_EXAMPLES "Compile examples" OFF)
+OPTION(ENABLE_BENCHMARK "Do benchmarking and plotting" ON)
+OPTION(ENABLE_EXAMPLES "Compile examples" ON)
 
 IF (ENABLE_BENCHMARK OR ENABLE_EXAMPLES)
     # require boost
-    SET(Boost_USE_STATIC_LIBS ON)
-    SET(Boost_USE_MULTITHREAD ON)
+    SET(Boost_USE_STATIC_LIBS OFF)
+    SET(Boost_USE_MULTITHREAD OFF)
     FIND_PACKAGE(Boost COMPONENTS program_options system REQUIRED)
     INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
     LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})

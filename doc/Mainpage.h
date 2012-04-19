@@ -112,10 +112,5 @@ And, optionally:
 \verbatim
  make package
 \endverbatim
-
-\section sec_changes Notes for the Windows version
-As std::tuple didn't offer enough options in the pre-C++0x version, we decided on the boost::tuple instead.
-This brings a slight API change when defining BoxGenerators, please replace std::tuple_element with boost::tuples::element.
-The examples in the windows version reflect this.
-
 */
+

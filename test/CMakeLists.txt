@@ -43,7 +43,6 @@ INCLUDE_DIRECTORIES(
     ${LIBFBI_BINARY_DIR}/include
     ${LIBFBI_BINARY_DIR}/test/include
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${Boost_INCLUDE_DIRS}
 )
 
 #### Sources

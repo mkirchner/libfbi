@@ -55,7 +55,7 @@ struct Traits<Club> : mpl::TraitsGenerator<double, unsigned int, double> {};
 struct PlayerBoxGenerator
 {
   template <size_t N>
-  typename boost::tuples::element<N, 
+  typename std::tuple_element<N, 
     typename fbi::Traits<Player>::key_type>::type 
   get(const Player&) const;
 };
@@ -94,7 +94,7 @@ class ClubBoxGenerator
   }
 
   template <size_t N>
-  typename boost::tuples::element<N,
+  typename std::tuple_element<N,
     typename fbi::Traits<Club>::key_type>::type
   get(const Club&) const;
 

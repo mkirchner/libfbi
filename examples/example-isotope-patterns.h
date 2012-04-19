@@ -50,7 +50,7 @@ struct Traits<Xic> : mpl::TraitsGenerator<double, double> {};
 struct XicBoxGenerator
 {
   template <size_t N>
-  typename boost::tuples::element<N, 
+  typename std::tuple_element<N, 
     typename fbi::Traits<Xic>::key_type>::type 
   get(const Xic&) const;
 
