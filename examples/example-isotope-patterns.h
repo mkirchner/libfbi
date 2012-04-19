@@ -28,7 +28,7 @@
 #define __LIBFBI_EXAMPLES_EXAMPLEISOTOPEPATTERNS_H__
 
 #include <utility>
-#include <tuple>
+#include "fbi/tuple.h"
 #include "fbi/tuplegenerator.h"
 #include "example-xic-construction.h"
 
@@ -50,7 +50,7 @@ struct Traits<Xic> : mpl::TraitsGenerator<double, double> {};
 struct XicBoxGenerator
 {
   template <size_t N>
-  typename std::tuple_element<N, 
+  typename fbi::tuple_element<N, 
     typename fbi::Traits<Xic>::key_type>::type 
   get(const Xic&) const;
 
