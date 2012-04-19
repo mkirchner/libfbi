@@ -26,6 +26,7 @@
 
 #include <string>
 #include "fbi/tuplegenerator.h" //TraitsGenerator
+#include "fbi/tuple.h"
 #include "fbi/fbi.h" //SetA::intersect
 
 struct Location {
@@ -47,7 +48,7 @@ struct Traits<Location> : mpl::TraitsGenerator<double, double> {};
 struct LocationBoxGenerator
 {
   template <size_t N>
-  typename std::tuple_element<N, 
+  typename fbi::tuple_element<N, 
     typename fbi::Traits<Location>::key_type>::type 
   get(const Location&) const;
 
@@ -75,6 +76,6 @@ LocationBoxGenerator::get<1>(const Location& loc) const
 }
 
 int main() {
-  auto adjList = fbi::SetA<Location, 0, 1>::intersect(
+  fbi::SetA<Location, 0, 1>::ResultType adjList = fbi::SetA<Location, 0, 1>::intersect(
     locations, LocationBoxGenerator(0.5, 0.5), LocationBoxGenerator(0.5, 0.5));
 }

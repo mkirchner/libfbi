@@ -39,14 +39,17 @@ ENDMACRO(ADD_LIBFBI_TEST name exe src)
 # include directories
 INCLUDE_DIRECTORIES(
     ${LIBFBI_SOURCE_DIR}/test/include
-    ${LIBFBI_SOURCE_DIR}/include
     ${LIBFBI_BINARY_DIR}/include
     ${LIBFBI_BINARY_DIR}/test/include
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 #### Sources
-SET(SRCS_FBI fbi-test.cpp)
+IF (HAS_VARIADIC_TEMPLATES)
+SET(SRCS_FBI fbi-test.v.cpp)
+ELSE (HAS_VARIADIC_TEMPLATES)
+SET(SRCS_FBI fbi-test.b.cpp)
+ENDIF (HAS_VARIADIC_TEMPLATES)
 
 #### Tests
 ADD_LIBFBI_TEST("fbi" test_fbi ${SRCS_FBI})

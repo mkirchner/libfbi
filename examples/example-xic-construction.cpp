@@ -26,10 +26,10 @@
 
 #include <iostream>
 #include <fstream>
-#include <tuple>
 #include <sys/time.h>
 #include <vector>
 
+#include "fbi/tuple.h"
 #include "fbi/tuplegenerator.h"
 #include "fbi/fbi.h"
 #include "fbi/connectedcomponents.h"
@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
   timeval start, end; 
 
   gettimeofday(&start, NULL);
-  auto results = SetA<Centroid, 1, 2>::
+  SetA<Centroid, 1, 2>::ResultType results = SetA<Centroid, 1, 2>::
       intersect(centroids, BoxGenerator(2, 2.1), BoxGenerator(2, 2.1));
   gettimeofday(&end, NULL);
   std::cout << centroids.size() << "\t" << static_cast<double>(end.tv_sec - start.tv_sec) +

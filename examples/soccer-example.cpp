@@ -26,6 +26,7 @@
 
 #include <string>
 #include <vector>
+#include "fbi/tuple.h"
 #include "fbi/tuplegenerator.h" //TraitsGenerator
 #include "fbi/fbi.h" //SetA::intersect
 
@@ -54,8 +55,8 @@ struct Traits<Club> : mpl::TraitsGenerator<double, unsigned int, double> {};
 
 struct PlayerBoxGenerator
 {
-  template <size_t N>
-  typename std::tuple_element<N, 
+  template <std::size_t N>
+  typename fbi::tuple_element<N, 
     typename fbi::Traits<Player>::key_type>::type 
   get(const Player&) const;
 };
@@ -93,8 +94,8 @@ class ClubBoxGenerator
     age_.second++;
   }
 
-  template <size_t N>
-  typename std::tuple_element<N,
+  template <std::size_t N>
+  typename fbi::tuple_element<N,
     typename fbi::Traits<Club>::key_type>::type
   get(const Club&) const;
 
@@ -132,7 +133,7 @@ int main() {
   std::vector<ClubBoxGenerator> cbg;
   cbg.push_back(ClubBoxGenerator(7, std::make_pair(19, 24)));
   cbg.push_back(ClubBoxGenerator(11, std::make_pair(19, 24)));
-  auto adjList = fbi::SetA<Player, 0, 1, 2>::SetB<Club, 0, 2, 1>::intersect(
+  fbi::SetA<Player, 0, 1, 2>::ResultType adjList = fbi::SetA<Player, 0, 1, 2>::SetB<Club, 0, 2, 1>::intersect(
     players, PlayerBoxGenerator(), clubs, cbg);
   return 0;
 }
