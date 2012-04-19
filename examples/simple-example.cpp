@@ -47,7 +47,7 @@ struct Traits<Location> : mpl::TraitsGenerator<double, double> {};
 struct LocationBoxGenerator
 {
   template <size_t N>
-  typename boost::tuples::element<N, 
+  typename std::tuple_element<N, 
     typename fbi::Traits<Location>::key_type>::type 
   get(const Location&) const;
 

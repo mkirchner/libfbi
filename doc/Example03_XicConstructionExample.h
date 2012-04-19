@@ -82,7 +82,7 @@ like this:
 struct BoxGenerator
 {
   template <size_t N>
-  typename boost::tuples::element<N, 
+  typename std::tuple_element<N, 
     typename fbi::Traits<Centroid>::key_type>::type 
   get(const Centroid &) const;
 
