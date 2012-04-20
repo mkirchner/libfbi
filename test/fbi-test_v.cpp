@@ -261,10 +261,10 @@ struct HybridSetATestSuite : vigra::test_suite {
   }
 
  void testHybridScanDual() {
-    typedef ValueType<int, std::vector<int> > Map;
-    typedef ValueType<std::vector<int>, int> QMap;
-    typedef fbi::SetA<Map, 1> TTT;
-    typedef TTT::SetB<QMap, 0> QQQ;
+    typedef ValueType<double, int, std::vector<double> > Map;
+    typedef ValueType<double, std::vector<double>, int> QMap;
+    typedef fbi::SetA<Map, 1,2> TTT;
+    typedef TTT::SetB<QMap, 2,1> QQQ;
     typedef TTT::ResultType ResultType;
     typedef ValueTypeStandardAccessor<Map> StandardFunctor;
     typedef ValueTypeStandardAccessor<QMap> StandardFunctor2;
