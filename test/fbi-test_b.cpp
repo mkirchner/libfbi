@@ -328,7 +328,7 @@ struct HybridSetATestSuite : vigra::test_suite {
     testVector.push_back(Map(13,14,15.0,16.0,std::string("g"), std::string("h")));
 
     std::vector<TTT::key_type> intervalVector = 
-        TTT::KeyCreator<Map,2,0,1>::getVector(testVector, boost::tuples::make_tuple(ValueTypeStandardAccessor<Map>()) );
+        TTT::KeyCreator<2,0,1>::getVector(testVector, boost::tuples::make_tuple(ValueTypeStandardAccessor<Map>()) );
 
 
     if(TTT::getKey<0>(intervalVector[0]) != std::make_pair(std::string("a"), std::string("b") ))
@@ -364,7 +364,7 @@ struct HybridSetATestSuite : vigra::test_suite {
     testVector.push_back(Map( 3.0, 7.0, 3.0, 4.0  ,11.0,13.0));
     testVector.push_back(Map(-5.0, 0.1, 2.0, 5.0  ,7.0,10.0));
 
-    std::vector<TTT::key_type> testIntervalVector = TTT::KeyCreator<Map, 0,1>::getVector(testVector, boost::tuples::make_tuple(ValueTypeStandardAccessor<Map>()));
+    std::vector<TTT::key_type> testIntervalVector = TTT::KeyCreator<0,1>::getVector(testVector, boost::tuples::make_tuple(ValueTypeStandardAccessor<Map>()));
     std::vector<const TTT::key_type * > testPtrVector= TTT::createPtrVector(testIntervalVector); 
 
     std::vector<bool> correctBoolVector;
@@ -403,10 +403,10 @@ struct HybridSetATestSuite : vigra::test_suite {
   }
 
   void testHybridScanDual() {
-    typedef ValueType<int, std::vector<int> > Map;
-    typedef ValueType<std::vector<int>, int> QMap;
-    typedef fbi::SetA<Map, 1> TTT;
-    typedef TTT::SetB<QMap, 0> QQQ;
+    typedef ValueType<double, int, std::vector<double> > Map;
+    typedef ValueType<double, std::vector<double>, int> QMap;
+    typedef fbi::SetA<Map, 1,2> TTT;
+    typedef TTT::SetB<QMap, 2,1> QQQ;
     typedef TTT::ResultType ResultType;
     typedef ValueTypeStandardAccessor<Map> StandardFunctor;
     typedef ValueTypeStandardAccessor<QMap> StandardFunctor2;
