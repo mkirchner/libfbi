@@ -117,7 +117,7 @@ public:
    * another template class to use different int parameter packs.
    *
    */
-  template <BOOST_PP_ENUM_BINARY_PARAMS(MAX_DIMENSIONS, int KeyCreatorIndex, =-1 BOOST_PP_INTERCEPT) > 
+  template <typename KeyBoxType, BOOST_PP_ENUM_BINARY_PARAMS(MAX_DIMENSIONS, int KeyCreatorIndex, =-1 BOOST_PP_INTERCEPT) > 
   struct KeyCreator;
 
 
@@ -669,7 +669,7 @@ BOOST_MPL_ASSERT_MSG((boost::is_same<key_type, qkey_type>::value), KEY_TYPES_DON
     BOOST_PP_ENUM_BINARY_PARAMS(n, const QueryFunctor, & qfunctor)\
     ) {\
       boost::tuples::tuple<BOOST_PP_ENUM_PARAMS(n,QueryFunctor)> qfunctors = boost::tuples::make_tuple(BOOST_PP_ENUM_PARAMS(n, qfunctor));\
-      return SetB<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::\
+      return SetB<QBoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, QIndex)>::\
       wrappedIntersect(State::defaultCutoff, dataContainer, boost::tuples::make_tuple(ifunctor), qdataContainer, qfunctors);\
   }
 
@@ -691,7 +691,7 @@ BOOST_MPL_ASSERT_MSG((boost::is_same<key_type, qkey_type>::value), KEY_TYPES_DON
     BOOST_PP_ENUM_BINARY_PARAMS(n, const QueryFunctor, & qfunctor)\
     ) {\
       boost::tuples::tuple<BOOST_PP_ENUM_PARAMS(n,QueryFunctor)> qfunctors = boost::tuples::make_tuple(BOOST_PP_ENUM_PARAMS(n, qfunctor));\
-      return SetB<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::\
+      return SetB<QBoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, QIndex)>::\
       wrappedIntersect(cutoff, dataContainer, boost::tuples::make_tuple(ifunctor), qdataContainer, qfunctors);\
   }
 
@@ -716,14 +716,14 @@ BOOST_MPL_ASSERT_MSG((boost::is_same<key_type, qkey_type>::value), KEY_TYPES_DON
         BOOST_MPL_ASSERT_RELATION(boost::tuples::length<QueryFunctors>::value, >, 0);
     if (dataContainer.empty()) { return ResultType();}
     // Generate the set of data boxes. See above, just for the QueryBoxType.
-    const std::vector<key_type> dataIntervalVector = KeyCreator<BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
+    const std::vector<key_type> dataIntervalVector = KeyCreator<BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
       getVector(dataContainer, ifunctor);
     
     // Generate the set of query boxes. The BoxType is an arbitrary,
     // user-specified type, that does not necessarily have any notion of
     // dimensionality. This call converts the BoxType data into the 
     // K-dimenstional boxes for fast box intersection.
-    const std::vector<key_type> queryIntervalVector = KeyCreator<BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, QIndex)>::
+    const std::vector<key_type> queryIntervalVector = KeyCreator<QBoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, QIndex)>::
       getVector(qdataContainer, qfunctors);
 
     key_type limits = typeHelper::template TupleGetter<NUMDIMS, NUMDIMS>::get();
@@ -782,10 +782,13 @@ BOOST_MPL_ASSERT_MSG((boost::is_same<key_type, qkey_type>::value), KEY_TYPES_DON
 
 
 template <typename BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex) > 
-template <BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int KeyCreatorIndex) > 
+template <typename KeyBoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int KeyCreatorIndex) > 
 struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
 KeyCreator{
 
+    /** Helper-struct, encapsulating most typedefs to extract necessary types */
+    typedef fbi::mpl::indexFilter<KeyBoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, KeyCreatorIndex)> keyTypeHelper;
+  
   /**
    * Calculate the intervals every value_type object is representing and save it
    * as a key_type object to work with.
@@ -899,7 +902,7 @@ KeyCreator{
   static inline const
   key_type 
   createKey(const T& val, const Functor & functor) {
-    return typeHelper::template TupleGetter<NUMDIMS, NUMDIMS>::createKey(val, functor);
+    return keyTypeHelper::template TupleGetter<NUMDIMS, NUMDIMS>::createKey(val, functor);
   }
 
 }; //end struct KeyCreator

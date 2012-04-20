@@ -23,7 +23,7 @@ MACRO_REQUIRE_OUT_OF_SRC_BUILD("LIBFBI requires out-of-source builds.")
 
 # more warnings against everything
 IF(CMAKE_COMPILER_IS_GNUCXX OR CLANG)
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wconversion -Wall -Wno-sign-conversion" )
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wconversion -Wall -Wextra -Wno-unused-parameter" )
 OPTION(USE_C++1X "Enable C++1x compilation (requires a compliant compiler)" ON)
 IF (USE_C++1X)
 SET(CMAKE_CXX0X_FLAGS "-std=c++0x" )
