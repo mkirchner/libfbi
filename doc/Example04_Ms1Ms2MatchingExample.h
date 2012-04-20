@@ -53,7 +53,7 @@ Then we need to provide some type information to \c libfbi:
 namespace fbi {
 template<> struct Traits<Xic> : mpl::TraitsGenerator<double, double> {};
 template<> struct Traits<MS2Scan> : mpl::TraitsGenerator<double, double> {};
-} 
+}
 \endcode
 This tells \t libfbi that both, the XIC and the ms2scan, can be queried in two
 dimensions, each of which is of type double (i.e. a floating point number).

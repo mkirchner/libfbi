@@ -159,7 +159,7 @@ int main(int argn, char* argv[]) {
 XIC calculation is a self-intersection problem: within one set of boxes (each
 with an (m/z, spectrum number) measurement pair at its center), we would like to
 find all boxes that intersect with each other. For this kind of problem 
-\c libfbi provides the \c SetA<T,Dim..>::intersect<T,F..>(...) function:
+\c libfbi provides the \verbatim SetA<T,Dim..>::intersect<T,F..>(...) function:
 
 \code
     auto adjList = SetA<Centroid, 0, 1>::
