@@ -27,11 +27,11 @@
 #include <array>
 #include <iostream>
 #include <fstream>
-#include <sys/time.h>
 #include <vector>
 
 #include "spatial/kd_tree.h"
 
+#include "boost/date_time/posix_time/posix_time.hpp"
 #include "fbi/connectedcomponents.h"
 
 #include "example-xic-construction.h"
@@ -40,6 +40,7 @@
 int main(int argc, char* argv[])
 {
   using namespace fbi;
+  using namespace boost::posix_time;
 
   ProgramOptions options;
   if (!parseProgramOptions(argc, argv, options)) {
@@ -48,11 +49,11 @@ int main(int argc, char* argv[])
 
   std::vector<Centroid> centroids = parseFile(options);
 
-  timeval start, end;
   double mzWindowPpm = 2.0;
   double snWindow = 2.1;
 
-  gettimeofday(&start, NULL);
+
+  ptime start = microsec_clock::universal_time();
   // construct kd-tree
   typedef std::array<double, 2> KeyType;
   typedef double MappedType;
@@ -84,9 +85,11 @@ int main(int argc, char* argv[])
     }
   }
   kdtree.clear();
-  gettimeofday(&end, NULL);
-  std::cout << centroids.size() << "\t" << static_cast<double>(end.tv_sec - start.tv_sec) +
-    static_cast<double>(end.tv_usec - start.tv_usec)* 1E-6 << std::endl;
+  
+  ptime end = microsec_clock::universal_time();
+  time_duration td = end - start;
+  std::cout << centroids.size() << "\t" << 
+    td.total_seconds() << std::endl;
 
   std::vector<std::size_t> labels;
   findConnectedComponents(adjList, labels); 

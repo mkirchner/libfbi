@@ -12,6 +12,7 @@ macro(MACRO_COPY_FILES GLOBPAT DESTINATION)
     )
 
     add_custom_command(
+      DEPENDS ${SRC}
       TARGET copy
       COMMAND ${CMAKE_COMMAND} -E copy ${SRC} ${DST}
       )
