@@ -208,6 +208,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
     add(testCase(&HybridSetATestSuite::testTwoWayScanIntersect));
     //add(testCase(&HybridSetATestSuite::testTwoWayScan));
+    add(testCase(&HybridSetATestSuite::testHybridScanDual)); 
 
     add(testCase(&HybridSetATestSuite::testHybridScanBig));
 
@@ -262,6 +263,8 @@ struct HybridSetATestSuite : vigra::test_suite {
     typedef boost::tuples::tuple<std::less<double>, std::less<int> > corr_comp_type;
     BOOST_MPL_ASSERT_MSG((boost::is_same<QQQ::qcomp_type, corr_comp_type>::value), QQQ_HAS_THE_WRONG_COMPTYPE, (QQQ::qcomp_type));
   }
+  
+
   void testCountFunctor() {
     std::vector<int> a(2),b(3),c(4),d(5),e(6);
     
@@ -398,6 +401,21 @@ struct HybridSetATestSuite : vigra::test_suite {
       }
     }
   }
+
+  void testHybridScanDual() {
+    typedef ValueType<int, std::vector<int> > Map;
+    typedef ValueType<std::vector<int>, int> QMap;
+    typedef fbi::SetA<Map, 1> TTT;
+    typedef TTT::SetB<QMap, 0> QQQ;
+    typedef TTT::ResultType ResultType;
+    typedef ValueTypeStandardAccessor<Map> StandardFunctor;
+    typedef ValueTypeStandardAccessor<QMap> StandardFunctor2;
+    std::vector<Map> testVector;
+    std::vector<QMap> queryVector;
+
+    ResultType hybridResults = QQQ::intersect(testVector, StandardFunctor(), queryVector, StandardFunctor2());
+
+}
 
   void testHybridScanBig(){
     typedef ValueType<int, double> Map;

@@ -127,6 +127,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
     add(testCase(&HybridSetATestSuite::testTwoWayScanIntersect));
     //add(testCase(&HybridSetATestSuite::testTwoWayScan));
+    add(testCase(&HybridSetATestSuite::testHybridScanDual)); 
 
     add(testCase(&HybridSetATestSuite::testHybridScanBig));
 
@@ -259,6 +260,19 @@ struct HybridSetATestSuite : vigra::test_suite {
     }
   }
 
+ void testHybridScanDual() {
+    typedef ValueType<int, std::vector<int> > Map;
+    typedef ValueType<std::vector<int>, int> QMap;
+    typedef fbi::SetA<Map, 1> TTT;
+    typedef TTT::SetB<QMap, 0> QQQ;
+    typedef TTT::ResultType ResultType;
+    typedef ValueTypeStandardAccessor<Map> StandardFunctor;
+    typedef ValueTypeStandardAccessor<QMap> StandardFunctor2;
+    std::vector<Map> testVector;
+    std::vector<QMap> queryVector;
+
+    ResultType hybridResults = QQQ::intersect(testVector, StandardFunctor(), queryVector, StandardFunctor2());
+}
 
 
   void testHybridScanBig(){
