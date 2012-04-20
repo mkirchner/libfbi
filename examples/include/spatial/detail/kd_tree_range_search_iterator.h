@@ -46,8 +46,8 @@ namespace detail {
     typedef Region region_type;
 
   private:
-    friend class traits::const_iterator;
-    friend class traits::tree_type;
+    friend class TreeTraits::const_iterator;
+    friend class TreeTraits::tree_type;
     typedef std::stack<node_type *> stack_type;
 
     node_type *_node;
