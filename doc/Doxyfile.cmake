@@ -795,7 +795,7 @@ HTML_FOOTER            =
 # the style sheet file to the HTML output directory, so don't put your own
 # stylesheet in the HTML output directory as well, or it will be erased!
 
-HTML_STYLESHEET        = @LIBFBI_SOURCE_DIR@/doc/doxygen.css
+HTML_STYLESHEET        = doc/doxygen.css
 
 # If the HTML_ALIGN_MEMBERS tag is set to YES, the members of classes,
 # files or namespaces will be aligned in HTML using tables. If set to
