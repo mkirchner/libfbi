@@ -239,8 +239,8 @@ int parseProgramOptions(int argc, char* argv[], ProgramOptions& options)
         options.outputFileName_ << '\n';
   }
 
-  options.prescanPpm_ = 1e6 / (pres * (2*std::sqrt(2*std::log(2))));
-  options.fullscanPpm_ = 1e6 / (fres * (2*std::sqrt(2*std::log(2))));
+  options.prescanPpm_ = 1e6 / (pres * (2*std::sqrt(2*std::log(2.0))));
+  options.fullscanPpm_ = 1e6 / (fres * (2*std::sqrt(2*std::log(2.0))));
 
   return 0;
 }

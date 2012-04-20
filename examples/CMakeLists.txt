@@ -19,26 +19,30 @@ ADD_EXECUTABLE(example-isotope-patterns example-isotope-patterns.cpp)
 ADD_EXECUTABLE(example-ms2-ms1-matching example-ms2-ms1-matching.cpp)
 ADD_EXECUTABLE(simple-example simple-example.cpp)
 ADD_EXECUTABLE(soccer-example soccer-example.cpp)
-IF (HAS_ARRAY)
+IF (HAS_KDTREE)
 ADD_EXECUTABLE(kdtree-xic-construction kdtree-xic-construction.cpp)
 
 TARGET_LINK_LIBRARIES(kdtree-xic-construction
     ${Boost_PROGRAM_OPTIONS_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
+    ${Boost_DATE_TIME_LIBRARY}
 )
-ENDIF (HAS_ARRAY)
+ENDIF (HAS_KDTREE)
 TARGET_LINK_LIBRARIES(example-ms2-ms1-matching
     ${Boost_PROGRAM_OPTIONS_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
+    ${Boost_DATE_TIME_LIBRARY}
 )
 
 TARGET_LINK_LIBRARIES(example-xic-construction
     ${Boost_PROGRAM_OPTIONS_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
+    ${Boost_DATE_TIME_LIBRARY}
 )
 
 TARGET_LINK_LIBRARIES(example-isotope-patterns
     ${Boost_PROGRAM_OPTIONS_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
+    ${Boost_DATE_TIME_LIBRARY}
 )
 
