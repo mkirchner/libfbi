@@ -70,7 +70,7 @@ and XIC measurement. For the \c Xic struct, this yields
 struct XicBoxGenerator
 {
   template <size_t N>
-  typename std::tuple_element<N, 
+  typename fbi::tuple_element<N, 
     typename fbi::Traits<Xic>::key_type>::type 
   get(const Xic &) const;
 

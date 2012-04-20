@@ -36,7 +36,7 @@ class BoxGeneratorX
     BoxGeneratorX(...) : ... {}
 
     template <size_t N>
-      typename std::tuple_element<N,
+      typename fbi::tuple_element<N,
       typename fbi::Traits<X>::key_type>::type
     get(const X&) const;
 };
@@ -73,7 +73,7 @@ class BoxGeneratorY
     BoxGeneratorY(...) : ... {}
 
     template <size_t N>
-      typename std::tuple_element<N,
+      typename fbi::tuple_element<N,
       typename fbi::Traits<Y>::key_type>::type
     get(const Y&) const;
 };
