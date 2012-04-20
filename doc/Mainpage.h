@@ -51,7 +51,7 @@ will only be available starting from Visual Studio 11.
 
 \subsection Update
 \c libfbi is now available for compilers without C++1x support via \c BOOST. CMake will, according to the capabilities of your compiler, provide the correct headers to use.
-Note that there was a slight API change, include \c <fbi/tuple.h> instead of <tuple>, along with \c fbi::tuple_element instead of \c std::tuple::element
+Note that there was a slight API change, include \verbatim <fbi/tuple.h> instead of \verbatim <tuple>, along with \verbatim fbi::tuple_element instead of \verbatim std::tuple::element
 
 \c libfbi itself is free of any third-party dependencies; the tests and
 examples make use of the VIGRA \c unittest header file and depend on the BOOST
