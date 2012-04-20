@@ -46,10 +46,10 @@ struct Club {
 namespace fbi {
   
 template<>
-struct Traits<Player> : mpl::TraitsGenerator<double, double, unsigned int> {};
+struct Traits<Player> : mpl::TraitsGenerator<double, double, unsigned int, std::string> {};
 
 template<>
-struct Traits<Club> : mpl::TraitsGenerator<double, unsigned int, double> {};
+struct Traits<Club> : mpl::TraitsGenerator<double, unsigned int, std::string, double> {};
 
 } // end namespace
 
@@ -83,7 +83,12 @@ PlayerBoxGenerator::get<2>(const Player& p) const
 {
   return std::make_pair(p.age, p.age);
 }
-
+template <>
+std::pair<std::string, std::string>  
+PlayerBoxGenerator::get<3>(const Player& p) const 
+{
+  return std::make_pair(p.name, p.name);
+}
 class ClubBoxGenerator
 {
   public:
@@ -121,19 +126,25 @@ ClubBoxGenerator::get<1>(const Club& c) const
 }
 
 template <>
-std::pair<double, double>
+std::pair<std::string, std::string>
 ClubBoxGenerator::get<2>(const Club& c) const
+{
+    return std::make_pair(c.name, c.name);
+}
+
+template <>
+std::pair<double, double>
+ClubBoxGenerator::get<3>(const Club& c) const
 {
     return std::make_pair(c.minBudget, c.maxBudget);
 }
-
 int main() {
   std::vector<Player> players;
   std::vector<Club> clubs;
   std::vector<ClubBoxGenerator> cbg;
   cbg.push_back(ClubBoxGenerator(7, std::make_pair(19, 24)));
-  cbg.push_back(ClubBoxGenerator(11, std::make_pair(19, 24)));
-  fbi::SetA<Player, 0, 1, 2>::ResultType adjList = fbi::SetA<Player, 0, 1, 2>::SetB<Club, 0, 2, 1>::intersect(
+  cbg.push_back(ClubBoxGenerator(11, std::make_pair(28, 32)));
+  fbi::SetA<Player, 3>::ResultType adjList = fbi::SetA<Player, 3>::SetB<Club, 2>::intersect(
     players, PlayerBoxGenerator(), clubs, cbg);
   return 0;
 }
