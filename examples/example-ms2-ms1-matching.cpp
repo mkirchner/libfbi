@@ -29,9 +29,10 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <sys/time.h>
 #include <utility>
 #include <vector>
+
+#include "boost/date_time/posix_time/posix_time.hpp"
 
 #include "fbi/tuple.h"
 #include "fbi/tuplegenerator.h"
@@ -283,6 +284,7 @@ std::vector<MS2Scan> parseMS2ScanFile(ProgramOptions & options)
 int main(int argc, char* argv[])
 {
     using namespace fbi;
+    using namespace boost::posix_time;
 
     ProgramOptions options;
     if (parseProgramOptions(argc, argv, options) != 0) {
@@ -294,16 +296,16 @@ int main(int argc, char* argv[])
 
     // std::cerr << "# xics: " << xics.size() << std::endl;
     // std::cerr << "# ms2scans: " << ms2scans.size() << std::endl;
-
-    timeval start, end; 
-    gettimeofday(&start, NULL);
+    
+  ptime start = microsec_clock::universal_time();
     SetA<Xic,0,1>::ResultType adjList = SetA<Xic, 0, 1>::SetB<MS2Scan, 0, 1>::intersect(
       xics, XicBoxGenerator(options.fullscanPpm_, options.rtWindow_),
       ms2scans, MS2ScanBoxGenerator(options.prescanPpm_, options.rtWindow_));
-    gettimeofday(&end, NULL);
+
+  ptime end = microsec_clock::universal_time();
+  time_duration td = end - start;
     std::cout << "fbi elapsed run time: "
-      << static_cast<double>(end.tv_sec - start.tv_sec) +
-         static_cast<double>(end.tv_usec - start.tv_usec)* 1E-6 << '\n';
+      << td.total_seconds() << '\n';
 
     // std::cerr << "size of adjecency list: " << adjList.size() << std::endl;
 

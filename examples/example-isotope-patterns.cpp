@@ -25,8 +25,9 @@
  */
 #include <iostream>
 #include <fstream>
-#include <sys/time.h>
 #include <vector>
+
+#include "boost/date_time/posix_time/posix_time.hpp"
 
 #include "fbi/tuplegenerator.h"
 #include "fbi/fbi.h"
@@ -38,6 +39,7 @@
 int main(int argc, char* argv[])
 {
   using namespace fbi;
+  using namespace boost::posix_time;
 
   ProgramOptions options;
   if (!parseProgramOptions(argc, argv, options)) {
@@ -46,15 +48,15 @@ int main(int argc, char* argv[])
 
   std::vector<Centroid> centroids = parseFile(options);
 
-  timeval start, end; 
 
-  gettimeofday(&start, NULL);
+  ptime start = microsec_clock::universal_time();
   SetA<Centroid,1,2>::ResultType centroidResults = SetA<Centroid, 1, 2>::
       intersect(centroids, BoxGenerator(2, 2.1), BoxGenerator(2, 2.1));
-  gettimeofday(&end, NULL);
+  ptime end = microsec_clock::universal_time();
+  time_duration td = end - start;
+
   std::cout << "elapsed time in seconds: " 
-    << static_cast<double>(end.tv_sec - start.tv_sec) +
-    static_cast<double>(end.tv_usec - start.tv_usec)* 1E-6
+    << td.total_seconds()
     << std::endl;
 
   std::cout << "finding connected components... ";
@@ -94,14 +96,17 @@ int main(int argc, char* argv[])
 
   // search for isotope pattern candidates
   typedef SetA<Xic, 0, 1> XicSet;
-  gettimeofday(&start, NULL);
+  
+  start = microsec_clock::universal_time();
   
   XicSet::ResultType xicResults = XicSet::
     intersect(xics, XicBoxGenerator(0.0,2,0.0,12.0), boxGenerators);
-  gettimeofday(&end, NULL);
+
+  end = microsec_clock::universal_time();
+  td = end - start;
+
   std::cout << "elapsed time in seconds: "
-    << static_cast<double>(end.tv_sec - start.tv_sec) +
-    static_cast<double>(end.tv_usec - start.tv_usec)* 1E-6 << std::endl;
+    << td.total_seconds()<< std::endl;
 
   std::cout << "finding connected components...";
   typedef XicSet::IntType IsotopeLabelType;

@@ -26,7 +26,7 @@
 
 #include <iostream>
 #include <fstream>
-#include <sys/time.h>
+#include "boost/date_time/posix_time/posix_time.hpp"
 #include <vector>
 
 #include "fbi/tuple.h"
@@ -40,6 +40,7 @@
 int main(int argc, char* argv[])
 {
   using namespace fbi;
+  using namespace boost::posix_time;
 
   ProgramOptions options;
   if (!parseProgramOptions(argc, argv, options)) {
@@ -48,14 +49,14 @@ int main(int argc, char* argv[])
 
   std::vector<Centroid> centroids = parseFile(options);
 
-  timeval start, end; 
-
-  gettimeofday(&start, NULL);
+  ptime start = microsec_clock::universal_time();
   SetA<Centroid, 1, 2>::ResultType results = SetA<Centroid, 1, 2>::
       intersect(centroids, BoxGenerator(2, 2.1), BoxGenerator(2, 2.1));
-  gettimeofday(&end, NULL);
-  std::cout << centroids.size() << "\t" << static_cast<double>(end.tv_sec - start.tv_sec) +
-    static_cast<double>(end.tv_usec - start.tv_usec)* 1E-6 << std::endl;
+  ptime end = microsec_clock::universal_time();
+
+  time_duration td = end - start;
+  std::cout << centroids.size() << "\t" << td.total_seconds()
+    << std::endl;
 
   typedef SetA<Centroid, 1, 2>::IntType LabelType;
   std::vector<LabelType> labels;
