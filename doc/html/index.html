@@ -96,8 +96,8 @@ Requirements</h2>
 <p>Please note that <code>libfbi</code> makes heavy use of TR1 and C++0x features, in particular tuples and variadic templates. Development was carried out under GNU GCC 4.4, on an Ubuntu Linux system. Windows users currently need to make use of the MinGW compiler as variadic template support under Microsoft Visual Studio will only be available starting from Visual Studio 11.</p>
 <h3><a class="anchor" id="Update"></a>
 Update</h3>
-<p><code>libfbi</code> is now available for compilers without C++1x support via <code>BOOST</code>. CMake will, according to the capabilities of your compiler, provide the correct headers to use. Note that there was a slight API change, include </p>
-<div class="fragment"><pre class="fragment">&lt;fbi/tuple.h&gt; instead of \verbatim &lt;tuple&gt;, along with \verbatim fbi::tuple_element instead of \verbatim std::tuple::element
+<p><code>libfbi</code> is now available for compilers without C++1x support via <code>BOOST</code>. CMake will, according to the capabilities of your compiler, provide the correct headers to use. Note that there was a slight API change, include <code>&lt;fbi/tuple.h&gt;</code> instead of </p>
+<div class="fragment"><pre class="fragment">&lt;tuple&gt;, along with \c fbi::tuple_element instead of \c std::tuple::element
 
 \c libfbi itself is free of any third-party dependencies; the tests and
 examples make use of the VIGRA \c unittest header file and depend on the BOOST
@@ -169,7 +169,7 @@ Building from Source</h3>
 
 
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Apr 20 2012 13:38:43 for libfbi by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Apr 20 2012 13:41:33 for libfbi by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.7.6.1
 </small></address>
