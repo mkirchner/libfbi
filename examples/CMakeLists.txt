@@ -14,6 +14,7 @@ LINK_DIRECTORIES(
     ${BOOST_LIBRARY_DIRS}
 )
 
+ADD_EXECUTABLE(example-bruker example-bruker.cpp)
 ADD_EXECUTABLE(example-xic-construction example-xic-construction.cpp)
 ADD_EXECUTABLE(example-isotope-patterns example-isotope-patterns.cpp)
 ADD_EXECUTABLE(example-ms2-ms1-matching example-ms2-ms1-matching.cpp)
@@ -22,6 +23,11 @@ ADD_EXECUTABLE(soccer-example soccer-example.cpp)
 IF (HAS_KDTREE)
 ADD_EXECUTABLE(kdtree-xic-construction kdtree-xic-construction.cpp)
 
+TARGET_LINK_LIBRARIES(example-bruker
+    ${Boost_PROGRAM_OPTIONS_LIBRARY}
+    ${Boost_SYSTEM_LIBRARY}
+    ${Boost_DATE_TIME_LIBRARY}
+)
 TARGET_LINK_LIBRARIES(kdtree-xic-construction
     ${Boost_PROGRAM_OPTIONS_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
