@@ -568,7 +568,8 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories
 # with spaces.
 
-INPUT                  = @LIBFBI_SOURCE_DIR@/doc @LIBFBI_SOURCE_DIR@/include/fbi
+INPUT                  = @LIBFBI_SOURCE_DIR@/doc @LIBFBI_SOURCE_DIR@/include/fbi/variadic
+@LIBFBI_SOURCE_DIR@/include/fbi/boost
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is
