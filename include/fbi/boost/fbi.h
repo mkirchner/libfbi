@@ -85,7 +85,7 @@ public:
    *
    */
   
-  typedef boost::uint_fast32_t IntType;
+  typedef boost::uint32_t IntType;
 
   typedef std::vector<int>::size_type size_type;
   typedef std::vector<int>::difference_type diff_type;
@@ -757,7 +757,6 @@ BOOST_MPL_ASSERT_MSG((boost::is_same<key_type, qkey_type>::value), KEY_TYPES_DON
       createPtrVector(dataIntervalVector);
 
     ResultType resultVector(offset + qdataContainer.size());
-
     typename boost::tuples::element<0,key_type>::type dimLimits = boost::tuples::get<0>(state.getLimits()); 
     // Call the hybrid algorithm for stabbing queries in the interval vector.
     HybridScanner<true, NUMDIMS>::
