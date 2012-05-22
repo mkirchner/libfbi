@@ -857,7 +857,6 @@ SetB {
       createPtrVector(dataIntervalVector);
 
     ResultType resultVector(offset + qdataContainer.size());
-
     auto dimLimits = std::get<0>(state.getLimits()); 
 
     // Call the hybrid algorithm for stabbing queries in the interval vector.

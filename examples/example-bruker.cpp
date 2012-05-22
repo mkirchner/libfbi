@@ -35,7 +35,7 @@ struct Centroid
 namespace fbi {
 
 template<>
-struct Traits<Centroid> : mpl::TraitsGenerator<double, double> {};
+struct Traits<Centroid> : mpl::TraitsGenerator<float, float> {};
 
 } //end namespace fbi
 
@@ -71,7 +71,7 @@ struct CentroidBoxGenerator
 
 
 template <>
-std::pair<double, double>  
+std::pair<float, float>  
 CentroidBoxGenerator::get<0>(const Centroid & centroid) const 
 {
   return std::make_pair(
@@ -81,7 +81,7 @@ CentroidBoxGenerator::get<0>(const Centroid & centroid) const
 
 
 template <>
-std::pair<double, double>  
+std::pair<float, float>  
 CentroidBoxGenerator::get<1>(const Centroid & centroid) const 
 {
   return std::make_pair(
@@ -250,7 +250,7 @@ int main(int argc, char * argv[]) {
   std::cout << centroids.size() << std::endl;
 
   ptime start = microsec_clock::universal_time();
-  SetA<Centroid,0,1>::ResultType centroidResults = SetA<Centroid, 0,1>::intersect(centroids, CentroidBoxGenerator(20,1.01), CentroidBoxGenerator(20,1.01));
+  SetA<Centroid,1,0>::ResultType centroidResults = SetA<Centroid, 1,0>::intersect(centroids, CentroidBoxGenerator(10,0.51), CentroidBoxGenerator(10,0.51));
   ptime end = microsec_clock::universal_time();
   time_duration td = end - start;
 
@@ -259,7 +259,7 @@ int main(int argc, char * argv[]) {
     << std::endl;
 
   std::cout << "finding connected components... ";
-  typedef SetA<Centroid, 0,1>::IntType LabelType;
+  typedef SetA<Centroid, 1,0>::IntType LabelType;
   std::vector<LabelType> labels;
   //LabelType nComponents = findConnectedComponents(centroidResults, labels); 
   //std::cout << nComponents << " components found." << std::endl;
