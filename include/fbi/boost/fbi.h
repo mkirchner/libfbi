@@ -96,7 +96,11 @@ public:
    * to prevent parallel edges we're using a set for the inner dimension.
    */
 
-  typedef std::vector<std::set<IntType> > ResultType; 
+#ifdef __LIBFBI_USE_SET_FOR_RESULT__
+  typedef std::vector<std::set<IntType> > ResultType;
+#else
+  typedef std::vector<std::vector<IntType> > ResultType; 
+#endif
 
 
  /** 
@@ -755,7 +759,7 @@ BOOST_MPL_ASSERT_MSG((boost::is_same<key_type, qkey_type>::value), KEY_TYPES_DON
     ResultType resultVector(offset + qdataContainer.size());
 
     typename boost::tuples::element<0,key_type>::type dimLimits = boost::tuples::get<0>(state.getLimits()); 
-
+	std::cin.get();
     // Call the hybrid algorithm for stabbing queries in the interval vector.
     HybridScanner<true, NUMDIMS>::
       scan(
@@ -774,6 +778,14 @@ BOOST_MPL_ASSERT_MSG((boost::is_same<key_type, qkey_type>::value), KEY_TYPES_DON
         dimLimits.second,state, 
         resultVector
       );
+
+#ifndef __LIBFBI_USE_SET_FOR_RESULT__
+	for (ResultType::size_type i = 0; i < resultVector.size(); ++i) {
+		ResultType::value_type & vec = resultVector[i];
+		std::sort(vec.begin(), vec.end());
+		vec.resize(std::unique(vec.begin(), vec.end()) - vec.begin());
+	}
+#endif
     return resultVector;
   }
 

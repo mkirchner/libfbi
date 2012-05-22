@@ -34,9 +34,11 @@
 #include "unittest.hxx"
 #include <fbi/tuple.h>
 // hack for testing purposes
+#define __LIBFBI_USE_SET_FOR_RESULT__
 #define private public
 #include <fbi/fbi.h>
 #undef private
+#undef __LIBFBI_USE_SET_FOR_RESULT__
 #include <fbi/tuplegenerator.h>
 #include <fbi/connectedcomponents.h>
 using namespace vigra;

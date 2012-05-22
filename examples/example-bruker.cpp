@@ -250,7 +250,7 @@ int main(int argc, char * argv[]) {
   std::cout << centroids.size() << std::endl;
 
   ptime start = microsec_clock::universal_time();
-  SetA<Centroid,0,1>::ResultType centroidResults = SetA<Centroid, 0,1>::thetaIntersect(1000000, centroids, CentroidBoxGenerator(5,0.51), CentroidBoxGenerator(5,0.51));
+  SetA<Centroid,0,1>::ResultType centroidResults = SetA<Centroid, 0,1>::intersect(centroids, CentroidBoxGenerator(20,1.01), CentroidBoxGenerator(20,1.01));
   ptime end = microsec_clock::universal_time();
   time_duration td = end - start;
 
