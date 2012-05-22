@@ -1,3 +1,5 @@
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/device/mapped_file.hpp>
 #include <boost/program_options.hpp>
 #include <boost/tokenizer.hpp>
 #include <vector>
@@ -173,7 +175,8 @@ int parseProgramOptions(int argc, char* argv[], ProgramOptions& options)
 std::vector<Centroid>
 parseFile(ProgramOptions & options) {
   std::vector<Centroid> centroids;
-  std::ifstream ifs(options.inputfileName_.c_str());
+  boost::iostreams::stream<boost::iostreams::mapped_file_source> ifs(options.inputfileName_);
+
   std::string str;
   double mz, rt, abundance, intensity;
   std::string pol, mode, mslevel, line, massrange;

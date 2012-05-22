@@ -33,6 +33,7 @@ TARGET_LINK_LIBRARIES(example-bruker
     ${Boost_PROGRAM_OPTIONS_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
     ${Boost_DATE_TIME_LIBRARY}
+    ${Boost_IOSTREAMS_LIBRARY}
 )
 TARGET_LINK_LIBRARIES(example-ms2-ms1-matching
     ${Boost_PROGRAM_OPTIONS_LIBRARY}
