@@ -158,8 +158,11 @@ class SetA{
    * The intersections will be returned as a adjacency list, 
    * to prevent parallel edges we're using a set for the inner dimension.
    */
-
-  typedef std::vector<std::set<IntType> > ResultType; 
+#ifdef __LIBFBI_USE_SET_FOR_RESULT__
+  typedef std::vector<std::set<IntType> > ResultType;
+#else
+  typedef std::vector<std::vector<IntType> > ResultType; 
+#endif
 
 
   /** 
@@ -373,7 +376,7 @@ class SetA{
             )
           {
             return SetB<BoxType, TIndices...>::
-                intersect(dataContainer, ifunctor, dataContainer, qfunctors...);
+                thetaIntersect(State::defaultCutoff, dataContainer, ifunctor, dataContainer, qfunctors...);
           }
 /**
    * \brief Create two sets of keys by intersecting two sets of functors on a 
@@ -757,69 +760,7 @@ SetB {
       const QContainer & qdataContainer,
       const QueryFunctors& ... qfunctors
       ) {
-    static_assert( (sizeof...(QueryFunctors) > 0), 
-      "Need at least one query functor.");
-    if (dataContainer.empty()) { return ResultType();}
-    // Generate the set of query boxes. The BoxType is an arbitrary,
-    // user-specified type, that does not necessarily have any notion of
-    // dimensionality. This call converts the BoxType data into the 
-    // K-dimenstional boxes for fast box intersection.
-    const auto queryIntervalVector = KeyCreator<QIndices...>::
-      getVector(qdataContainer, qfunctors...);
-    // Generate the set of data boxes. See above, just for the QueryBoxType.
-    const auto dataIntervalVector = KeyCreator<TIndices...>::
-      getVector(dataContainer, ifunctor);
-
-    key_type limits = 
-      make_tuple(
-        std::get<TIndices>(Traits<value_type>::getLimits())
-      ... );
-
-    //const std::size_t numQueryFunctors = sizeof...(QueryFunctors); 
-    const std::size_t numQueryFunctors = 
-        mpl::FunctorChecker::count(qfunctors...); 
-    //if we're looking at two different sets, use different indices for the elements!
-    const std::size_t offset = 
-        (reinterpret_cast<const char* >(&(dataContainer)) == 
-        reinterpret_cast<const char* >(&(qdataContainer))) ? 0 : dataContainer.size();
-    State state(
-        limits,
-        numQueryFunctors,
-        &(queryIntervalVector[0]),
-        &(dataIntervalVector[0]),
-        offset
-        );
-
-    // Create a vector of pointers that reference the above query boxes. This
-    // allows us to work on pointers and save a bit of memory.
-    std::vector<const key_type *> pointsPtrVector = 
-      createPtrVector(queryIntervalVector);
-    std::vector<const key_type *> intervalsPtrVector = 
-      createPtrVector(dataIntervalVector);
-
-    ResultType resultVector(offset + qdataContainer.size());
-
-    auto dimLimits = std::get<0>(state.getLimits()); 
-
-    // Call the hybrid algorithm for stabbing queries in the interval vector.
-    HybridScanner<true, NUMDIMS>::
-      scan(
-        pointsPtrVector, 
-        intervalsPtrVector, 
-        dimLimits.first, 
-        dimLimits.second,state, 
-        resultVector 
-      );
-    // Reverse the previous call: queries in the "point" vector.
-    HybridScanner<false, NUMDIMS>::
-      scan(
-        intervalsPtrVector, 
-        pointsPtrVector, 
-        dimLimits.first, 
-        dimLimits.second,state, 
-        resultVector
-      );
-    return resultVector;
+    return thetaIntersect(State::defaultCutoff, dataContainer, ifunctor, qdataConainer, qfunctors...);
   }
    /**
    * \callgraph
@@ -937,6 +878,13 @@ SetB {
         dimLimits.second,state, 
         resultVector
       );
+
+#ifndef __LIBFBI_USE_SET_FOR_RESULT__
+	for (auto vec : resultVector) {
+		std::sort(vec.begin(), vec.end());
+		vec.resize(std::unique(vec.begin(), vec.end()) - vec.begin());
+	}
+#endif
     return resultVector;
   }
 }; //end class SetB
@@ -1130,7 +1078,9 @@ State
 
 
  public:
- 
+   enum {
+	defaultCutoff = 250
+  };
   /** 
    * Constructor of the state we'll pass through most of the algorithm.
    *
@@ -1160,7 +1110,7 @@ State
       const key_type * queryVectorPtr,
       const key_type * dataVectorPtr,
       const std::size_t offset,
-      const std::size_t cutoffSize = 250,
+      const std::size_t cutoffSize,
       std::size_t (*heightCalculator) (const std::size_t) = 
         &(SETA::State::defaultHeightCalculator_)
       ):
