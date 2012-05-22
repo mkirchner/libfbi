@@ -760,7 +760,7 @@ SetB {
       const QContainer & qdataContainer,
       const QueryFunctors& ... qfunctors
       ) {
-    return thetaIntersect(State::defaultCutoff, dataContainer, ifunctor, qdataConainer, qfunctors...);
+    return thetaIntersect(State::defaultCutoff, dataContainer, ifunctor, qdataContainer, qfunctors...);
   }
    /**
    * \callgraph
@@ -1395,6 +1395,12 @@ HybridScanner<PointsContainQueries, 1> {
       SETA::ResultType & resultVector
       )
   {
+     if (
+      pointsPtrVector.size() == 0 || 
+      intervalsPtrVector.size() == 0
+    ) {
+      return;
+    }
     SETA::sortContainerHead<LASTDIM>(pointsPtrVector);
     SETA::sortContainerHead<LASTDIM>(intervalsPtrVector);
     SETA::OneWayScanner<PointsContainQueries, LASTDIM>::
