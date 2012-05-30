@@ -264,6 +264,6 @@ int main(int argc, char * argv[]) {
   std::cout << "finding connected components... ";
   typedef SetA<Centroid, 1,0>::IntType LabelType;
   std::vector<LabelType> labels;
-  //LabelType nComponents = findConnectedComponents(centroidResults, labels); 
-  //std::cout << nComponents << " components found." << std::endl;
+  LabelType nComponents = findConnectedComponents(centroidResults, labels); 
+  std::cout << nComponents << " components found." << std::endl;
 }
