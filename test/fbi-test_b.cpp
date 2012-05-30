@@ -34,11 +34,9 @@
 //#include <tuple>
 #include "unittest.hxx"
 // hack for testing purposes
-#define __LIBFBI_USE_SET_FOR_RESULT__
 #define private public
 #include <fbi/fbi.h>
 #undef private
-#undef __LIBFBI_USE_SET_FOR_RESULT__
 #include <fbi/traits.h>
 //#include <fbi/tuplegenerator.h>
 #include <fbi/connectedcomponents.h>
@@ -410,6 +408,7 @@ struct HybridSetATestSuite : vigra::test_suite {
     typedef fbi::SetA<Map, 1,2> TTT;
     typedef TTT::SetB<QMap, 2,1> QQQ;
     typedef TTT::ResultType ResultType;
+    typedef TTT::IntType IntType;
     typedef ValueTypeStandardAccessor<Map> StandardFunctor;
     typedef ValueTypeStandardAccessor<QMap> StandardFunctor2;
     std::vector<Map> testVector;
@@ -423,6 +422,7 @@ struct HybridSetATestSuite : vigra::test_suite {
     typedef ValueType<int, double> Map;
     typedef fbi::SetA<Map, 0,1> TTT;
     typedef TTT::ResultType ResultType;
+    typedef TTT::IntType IntType;
     typedef ValueTypeStandardAccessor<Map> StandardFunctor;
 
     std::vector<Map> testVector;
@@ -436,7 +436,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       }
     }
 
-    ResultType correctResults(testVector.size());
+    std::vector<std::set<IntType> > correctResults(testVector.size());
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
@@ -455,7 +455,8 @@ struct HybridSetATestSuite : vigra::test_suite {
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
-      ResultType::value_type::const_iterator it1, it3;
+      ResultType::value_type::const_iterator it1;
+        std::set<IntType>::const_iterator it3;
       for (it1 = hybridResults[i].begin(), it3 = correctResults[i].begin(); 
            it1 != hybridResults[i].end() || it3 != correctResults[i].end();
            ++it1, ++it3) {
@@ -474,6 +475,7 @@ struct HybridSetATestSuite : vigra::test_suite {
     typedef ValueType<int, double> Map;
     typedef fbi::SetA<Map, 0,1> TTT;
     typedef TTT::ResultType ResultType;
+    typedef TTT::IntType IntType;
     typedef ValueTypeStandardAccessor<Map> StandardFunctor;
     typedef OffsetQueryAccessor<Map> IntervalMover;
 
@@ -490,7 +492,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
 
 
-    ResultType correctResults(testVector.size());
+    std::vector<std::set<IntType> > correctResults(testVector.size());
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
@@ -504,7 +506,8 @@ struct HybridSetATestSuite : vigra::test_suite {
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
-      ResultType::value_type::const_iterator it1, it3;
+      ResultType::value_type::const_iterator it1;
+        std::set<IntType>::const_iterator it3;
       for (it1 = hybridResults[i].begin(), it3 = correctResults[i].begin(); 
            it1 != hybridResults[i].end() || it3 != correctResults[i].end();
            ++it1, ++it3) {
@@ -524,6 +527,7 @@ struct HybridSetATestSuite : vigra::test_suite {
     typedef ValueType<int, double> Map;
     typedef fbi::SetA<Map, 0,1> TTT;
     typedef TTT::ResultType ResultType;
+    typedef TTT::IntType IntType;
     typedef ValueTypeStandardAccessor<Map> StandardFunctor;
     typedef OffsetQueryAccessor<Map> IntervalMover;
 
@@ -539,7 +543,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       }
     }
 
-    ResultType correctResults(testVector.size());
+    std::vector<std::set<IntType> > correctResults(testVector.size());
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
@@ -554,7 +558,8 @@ struct HybridSetATestSuite : vigra::test_suite {
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
-      ResultType::value_type::const_iterator it1, it3;
+      ResultType::value_type::const_iterator it1;
+        std::set<IntType>::const_iterator it3;
       for (it1 = hybridResults[i].begin(), it3 = correctResults[i].begin(); 
            it1 != hybridResults[i].end() || it3 != correctResults[i].end();
            ++it1, ++it3) {
@@ -574,6 +579,7 @@ struct HybridSetATestSuite : vigra::test_suite {
     typedef ValueType<double,int> Map;
     typedef fbi::SetA<Map, 0,1> TTT;
     typedef TTT::ResultType ResultType;
+    typedef TTT::IntType IntType;
       typedef ValueTypeStandardAccessor<Map> StandardFunctor;
       typedef OffsetQueryAccessor<Map> IntervalMover;
 
@@ -590,7 +596,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
 
 
-    ResultType correctResults(testVector.size());
+    std::vector<std::set<IntType> > correctResults(testVector.size());
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
@@ -605,7 +611,8 @@ struct HybridSetATestSuite : vigra::test_suite {
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
-      ResultType::value_type::const_iterator it1, it3;
+      ResultType::value_type::const_iterator it1;
+        std::set<IntType>::const_iterator it3;
       for (it1 = hybridResults[i].begin(), it3 = correctResults[i].begin(); 
            it1 != hybridResults[i].end() || it3 != correctResults[i].end();
            ++it1, ++it3) {
@@ -623,6 +630,7 @@ struct HybridSetATestSuite : vigra::test_suite {
     typedef ValueType<int, double> Map;
     typedef fbi::SetA<Map, 0,1> TTT;
     typedef TTT::ResultType ResultType;
+    typedef TTT::IntType IntType;
     typedef ValueTypeStandardAccessor<Map> StandardFunctor;
     typedef OffsetQueryAccessor<Map> IntervalMover;
 
@@ -640,7 +648,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
 
 
-    ResultType correctResults(testVector.size());
+    std::vector<std::set<IntType> > correctResults(testVector.size());
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
@@ -654,7 +662,8 @@ struct HybridSetATestSuite : vigra::test_suite {
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
-      ResultType::value_type::const_iterator it1, it3;
+      ResultType::value_type::const_iterator it1;
+        std::set<IntType>::const_iterator it3;
       for (it1 = hybridResults[i].begin(), it3 = correctResults[i].begin(); 
            it1 != hybridResults[i].end() || it3 != correctResults[i].end();
            ++it1, ++it3) {
@@ -672,6 +681,7 @@ struct HybridSetATestSuite : vigra::test_suite {
     typedef ValueType<int, double> Map;
     typedef fbi::SetA<Map, 0,1> TTT;
     typedef TTT::ResultType ResultType;
+    typedef TTT::IntType IntType;
     typedef ValueTypeStandardAccessor<Map> StandardFunctor;
     typedef OffsetQueryAccessor<Map> IntervalMover;
 
@@ -689,7 +699,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
 
 
-    ResultType correctResults(testVector.size());
+    std::vector<std::set<IntType> > correctResults(testVector.size());
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
@@ -703,7 +713,8 @@ struct HybridSetATestSuite : vigra::test_suite {
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
-      ResultType::value_type::const_iterator it1, it3;
+      ResultType::value_type::const_iterator it1;
+        std::set<IntType>::const_iterator it3;
       for (it1 = hybridResults[i].begin(), it3 = correctResults[i].begin(); 
            it1 != hybridResults[i].end() || it3 != correctResults[i].end();
            ++it1, ++it3) {
@@ -721,6 +732,7 @@ struct HybridSetATestSuite : vigra::test_suite {
     typedef ValueType<int, double> Map;
     typedef fbi::SetA<Map, 0,1> TTT;
     typedef TTT::ResultType ResultType;
+    typedef TTT::IntType IntType;
     typedef ValueTypeStandardAccessor<Map> StandardFunctor;
     typedef OffsetQueryAccessor<Map> IntervalMover;
 
@@ -738,7 +750,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
 
 
-    ResultType correctResults(testVector.size());
+    std::vector<std::set<IntType> > correctResults(testVector.size());
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
@@ -751,7 +763,8 @@ struct HybridSetATestSuite : vigra::test_suite {
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
-      ResultType::value_type::const_iterator it1, it3;
+      ResultType::value_type::const_iterator it1;
+        std::set<IntType>::const_iterator it3;
       for (it1 = hybridResults[i].begin(), it3 = correctResults[i].begin(); 
            it1 != hybridResults[i].end() || it3 != correctResults[i].end();
            ++it1, ++it3) {
@@ -768,6 +781,7 @@ struct HybridSetATestSuite : vigra::test_suite {
     typedef ValueType<int, double> Map;
     typedef fbi::SetA<Map, 0,1> TTT;
     typedef TTT::ResultType ResultType;
+    typedef TTT::IntType IntType;
     typedef ValueTypeStandardAccessor<Map> StandardFunctor;
     typedef OffsetQueryAccessor<Map> IntervalMover;
 
@@ -785,7 +799,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
 
 
-    ResultType correctResults(testVector.size());
+    std::vector<std::set<IntType> > correctResults(testVector.size());
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
@@ -799,7 +813,8 @@ struct HybridSetATestSuite : vigra::test_suite {
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
-      ResultType::value_type::const_iterator it1, it3;
+      ResultType::value_type::const_iterator it1;
+        std::set<IntType>::const_iterator it3;
       for (it1 = hybridResults[i].begin(), it3 = correctResults[i].begin(); 
            it1 != hybridResults[i].end() || it3 != correctResults[i].end();
            ++it1, ++it3) {
@@ -819,6 +834,7 @@ struct HybridSetATestSuite : vigra::test_suite {
     typedef ValueType<int, double> Map;
     typedef fbi::SetA<Map, 0,1> TTT;
     typedef TTT::ResultType ResultType;
+    typedef TTT::IntType IntType;
     typedef ValueTypeStandardAccessor<Map> StandardFunctor;
     typedef OffsetQueryAccessor<Map> IntervalMover;
 
@@ -836,7 +852,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
 
 
-    ResultType correctResults(testVector.size());
+    std::vector<std::set<IntType> > correctResults(testVector.size());
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
@@ -850,7 +866,8 @@ struct HybridSetATestSuite : vigra::test_suite {
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
-      ResultType::value_type::const_iterator it1, it3;
+      ResultType::value_type::const_iterator it1;
+        std::set<IntType>::const_iterator it3;
       for (it1 = hybridResults[i].begin(), it3 = correctResults[i].begin(); 
            it1 != hybridResults[i].end() || it3 != correctResults[i].end();
            ++it1, ++it3) {
@@ -870,6 +887,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       typedef ValueType<int, double> Map;
       typedef fbi::SetA<Map, 0,1> TTT;
       typedef TTT::ResultType ResultType;
+    typedef TTT::IntType IntType;
       typedef ValueTypeStandardAccessor<Map> StandardFunctor;
       typedef OffsetQueryAccessor<Map> IntervalMover;
 
@@ -887,7 +905,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
 
 
-      ResultType correctResults(testVector.size());
+      std::vector<std::set<IntType> > correctResults(testVector.size());
 
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
@@ -902,7 +920,8 @@ struct HybridSetATestSuite : vigra::test_suite {
 
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
-        ResultType::value_type::const_iterator it1, it3;
+        ResultType::value_type::const_iterator it1;
+        std::set<IntType>::const_iterator it3;
         for (it1 = hybridResults[i].begin(), it3 = correctResults[i].begin(); 
              it1 != hybridResults[i].end() || it3 != correctResults[i].end();
              ++it1, ++it3) {
@@ -921,6 +940,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       typedef ValueType<int, double,float> Map;
       typedef fbi::SetA<Map, 0,1,2> TTT;
       typedef TTT::ResultType ResultType;
+    typedef TTT::IntType IntType;
       typedef ValueTypeStandardAccessor<Map> StandardFunctor;
       typedef OffsetQueryAccessor<Map> IntervalMover;
 
@@ -940,7 +960,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
 
 
-      ResultType correctResults(testVector.size());
+      std::vector<std::set<IntType> > correctResults(testVector.size());
 
 
       //for our test, we'll move the querybox by 1 in the x and y dimensions, we'll try to 
@@ -957,7 +977,8 @@ struct HybridSetATestSuite : vigra::test_suite {
 
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
-        ResultType::value_type::const_iterator it1, it3;
+        ResultType::value_type::const_iterator it1;
+        std::set<IntType>::const_iterator it3;
         for (it1 = hybridResults[i].begin(), it3 = correctResults[i].begin(); 
              it1 != hybridResults[i].end() || it3 != correctResults[i].end();
              ++it1, ++it3) {
@@ -976,6 +997,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       typedef ValueType<int, double,float> Map;
       typedef fbi::SetA<Map, 0,1,2> TTT;
       typedef TTT::ResultType ResultType;
+    typedef TTT::IntType IntType;
       typedef ValueTypeStandardAccessor<Map> StandardFunctor;
       typedef OffsetQueryAccessor<Map> IntervalMover;
 
@@ -996,7 +1018,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
 
 
-      ResultType correctResults(testVector.size());
+      std::vector<std::set<IntType> > correctResults(testVector.size());
 
 
       //for our test, we'll move the querybox by 1 in the x and y dimensions, we'll try to 
@@ -1014,7 +1036,8 @@ struct HybridSetATestSuite : vigra::test_suite {
 
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
-        ResultType::value_type::const_iterator it1, it3;
+        ResultType::value_type::const_iterator it1;
+        std::set<IntType>::const_iterator it3;
         for (it1 = hybridResults[i].begin(), it3 = correctResults[i].begin(); 
              it1 != hybridResults[i].end() || it3 != correctResults[i].end();
              ++it1, ++it3) {
@@ -1033,6 +1056,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       typedef ValueType<int, double,float> Map;
       typedef fbi::SetA<Map, 0,1,2> TTT;
       typedef TTT::ResultType ResultType;
+    typedef TTT::IntType IntType;
       typedef ValueTypeStandardAccessor<Map> StandardFunctor;
       typedef OffsetQueryAccessor<Map> IntervalMover;
 
@@ -1052,7 +1076,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
 
 
-      ResultType correctResults(testVector.size());
+      std::vector<std::set<IntType> > correctResults(testVector.size());
 
 
       //for our test, we'll move the querybox by 1 in the x and y dimensions, we'll try to 
@@ -1070,7 +1094,8 @@ struct HybridSetATestSuite : vigra::test_suite {
 
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
-        ResultType::value_type::const_iterator it1, it3;
+        ResultType::value_type::const_iterator it1;
+        std::set<IntType>::const_iterator it3;
         for (it1 = hybridResults[i].begin(), it3 = correctResults[i].begin(); 
              it1 != hybridResults[i].end() || it3 != correctResults[i].end();
              ++it1, ++it3) {
@@ -1089,6 +1114,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       typedef ValueType<int, double,float> Map;
       typedef fbi::SetA<Map, 0,1,2> TTT;
       typedef TTT::ResultType ResultType;
+    typedef TTT::IntType IntType;
       typedef ValueTypeStandardAccessor<Map> StandardFunctor;
       typedef OffsetQueryAccessor<Map> IntervalMover;
 
@@ -1108,7 +1134,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
 
 
-      ResultType correctResults(testVector.size());
+      std::vector<std::set<IntType> > correctResults(testVector.size());
 
 
       //for our test, we'll move the querybox by 1 in the x and y dimensions, we'll try to 
@@ -1125,7 +1151,8 @@ struct HybridSetATestSuite : vigra::test_suite {
 
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
-        ResultType::value_type::const_iterator it1, it3;
+        ResultType::value_type::const_iterator it1;
+        std::set<IntType>::const_iterator it3;
         for (it1 = hybridResults[i].begin(), it3 = correctResults[i].begin(); 
              it1 != hybridResults[i].end() || it3 != correctResults[i].end();
              ++it1, ++it3) {
@@ -1144,6 +1171,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       typedef ValueType<int, double,float> Map;
       typedef fbi::SetA<Map, 0,1,2> TTT;
       typedef TTT::ResultType ResultType;
+    typedef TTT::IntType IntType;
       typedef ValueTypeStandardAccessor<Map> StandardFunctor;
       typedef OffsetQueryAccessor<Map> IntervalMover;
 
@@ -1163,7 +1191,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
 
 
-      ResultType correctResults(testVector.size());
+      std::vector<std::set<IntType> > correctResults(testVector.size());
 
 
       //for our test, we'll move the querybox by 1 in the x and y dimensions, we'll try to 
@@ -1180,7 +1208,8 @@ struct HybridSetATestSuite : vigra::test_suite {
 
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
-        ResultType::value_type::const_iterator it1, it3;
+        ResultType::value_type::const_iterator it1;
+        std::set<IntType>::const_iterator it3;
         for (it1 = hybridResults[i].begin(), it3 = correctResults[i].begin(); 
              it1 != hybridResults[i].end() || it3 != correctResults[i].end();
              ++it1, ++it3) {
@@ -1199,6 +1228,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       typedef ValueType<int, double,float> Map;
       typedef fbi::SetA<Map, 0,1,2> TTT;
       typedef TTT::ResultType ResultType;
+    typedef TTT::IntType IntType;
       typedef ValueTypeStandardAccessor<Map> StandardFunctor;
       typedef OffsetQueryAccessor<Map> IntervalMover;
 
@@ -1218,7 +1248,7 @@ struct HybridSetATestSuite : vigra::test_suite {
 
 
 
-      ResultType correctResults(testVector.size());
+      std::vector<std::set<IntType> > correctResults(testVector.size());
 
 
       //for our test, we'll move the querybox by 1 in the x and y dimensions, we'll try to 
@@ -1235,7 +1265,8 @@ struct HybridSetATestSuite : vigra::test_suite {
 
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
-        ResultType::value_type::const_iterator it1, it3;
+        ResultType::value_type::const_iterator it1;
+        std::set<IntType>::const_iterator it3;
         for (it1 = hybridResults[i].begin(), it3 = correctResults[i].begin(); 
              it1 != hybridResults[i].end() || it3 != correctResults[i].end();
              ++it1, ++it3) {
@@ -1254,6 +1285,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       typedef ValueType<int, double,float> Map;
       typedef fbi::SetA<Map, 0,1,2> TTT;
       typedef TTT::ResultType ResultType;
+    typedef TTT::IntType IntType;
       typedef ValueTypeStandardAccessor<Map> StandardFunctor;
       typedef OffsetQueryAccessor<Map> IntervalMover;
 
@@ -1273,12 +1305,13 @@ struct HybridSetATestSuite : vigra::test_suite {
 
 
 
-      ResultType correctResults(testVector.size());
+      std::vector<std::set<IntType> > correctResults(testVector.size());
       TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(2,4.0,5.0f));
 
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
-        ResultType::value_type::const_iterator it1, it3;
+        ResultType::value_type::const_iterator it1;
+        std::set<IntType>::const_iterator it3;
         for (it1 = hybridResults[i].begin(), it3 = correctResults[i].begin(); 
              it1 != hybridResults[i].end() || it3 != correctResults[i].end();
              ++it1, ++it3) {
@@ -1298,6 +1331,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       typedef ValueType<int, double,float> Map;
       typedef fbi::SetA<Map, 0,1,2> TTT;
       typedef TTT::ResultType ResultType;
+    typedef TTT::IntType IntType;
       typedef ValueTypeStandardAccessor<Map> StandardFunctor;
       typedef OffsetQueryAccessor<Map> IntervalMover;
 
@@ -1317,12 +1351,13 @@ struct HybridSetATestSuite : vigra::test_suite {
 
 
 
-      ResultType correctResults(testVector.size());
+      std::vector<std::set<IntType> > correctResults(testVector.size());
       TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(0,0.0,0.0f));
 
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
-        ResultType::value_type::const_iterator it1, it3;
+        ResultType::value_type::const_iterator it1;
+        std::set<IntType>::const_iterator it3;
         for (it1 = hybridResults[i].begin(), it3 = correctResults[i].begin(); 
              it1 != hybridResults[i].end() || it3 != correctResults[i].end();
              ++it1, ++it3) {
@@ -1345,6 +1380,7 @@ struct HybridSetATestSuite : vigra::test_suite {
       typedef fbi::SetA<Map, 0,1,2> TTT;
       typedef TTT::SetB<Map, 0,1,2> QQQ;
       typedef TTT::ResultType ResultType;
+    typedef TTT::IntType IntType;
       typedef ValueTypeStandardAccessor<Map> StandardFunctor;
       typedef OffsetQueryAccessor<Map> IntervalMover;
 
@@ -1362,12 +1398,13 @@ struct HybridSetATestSuite : vigra::test_suite {
         }
       }
 
-      ResultType correctResults(testVector.size());
+      std::vector<std::set<IntType> > correctResults(testVector.size());
       TTT::ResultType hybridResults = TTT::intersect(testVector,StandardFunctor(), IntervalMover(1,0.0,0.0f));
 
       for (size_t i = 0; i < correctResults.size(); ++i)
       {
-        ResultType::value_type::const_iterator it1, it3;
+        ResultType::value_type::const_iterator it1;
+        std::set<IntType>::const_iterator it3;
         for (it1 = hybridResults[i].begin(), it3 = correctResults[i].begin(); 
              it1 != hybridResults[i].end() || it3 != correctResults[i].end();
              ++it1, ++it3) {
@@ -1388,6 +1425,7 @@ void testHybridScanFunctorVectors()
     typedef ValueType<double, int> Map;
     typedef fbi::SetA<Map, 0,1> TTT;
     typedef TTT::ResultType ResultType;
+    typedef TTT::IntType IntType;
       typedef ValueTypeStandardAccessor<Map> StandardFunctor;
       typedef OffsetQueryAccessor<Map> IntervalMover;
 
@@ -1404,7 +1442,7 @@ void testHybridScanFunctorVectors()
 
 
 
-    ResultType correctResults(testVector.size());
+    std::vector<std::set<IntType> > correctResults(testVector.size());
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
@@ -1430,7 +1468,8 @@ void testHybridScanFunctorVectors()
 
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
-      ResultType::value_type::const_iterator it1, it3;
+      ResultType::value_type::const_iterator it1;
+        std::set<IntType>::const_iterator it3;
       for (it1 = hybridResults[i].begin(), it3 = correctResults[i].begin(); 
            it1 != hybridResults[i].end() || it3 != correctResults[i].end();
            ++it1, ++it3) {
@@ -1465,6 +1504,7 @@ struct HybridSetAProfileSuite : vigra::test_suite {
     typedef ValueType<int, double,float> Map;
     typedef fbi::SetA<Map, 0,1,2> TTT;
     typedef TTT::ResultType ResultType;
+    typedef TTT::IntType IntType;
     typedef ValueTypeStandardAccessor<Map> StandardFunctor;
     typedef OffsetQueryAccessor<Map> IntervalMover;
 
@@ -1486,7 +1526,7 @@ struct HybridSetAProfileSuite : vigra::test_suite {
 
 
 
-    ResultType correctResults(testVector.size());
+    std::vector<std::set<IntType> > correctResults(testVector.size());
 
 
     //for our test, we'll move the querybox by 1 in the x and y dimensions, we'll try to 
@@ -1501,7 +1541,8 @@ struct HybridSetAProfileSuite : vigra::test_suite {
     // std::cout << "finished" << std::endl;
     for (size_t i = 0; i < correctResults.size(); ++i)
     {
-      ResultType::value_type::const_iterator it1, it3;
+      ResultType::value_type::const_iterator it1;
+        std::set<IntType>::const_iterator it3;
       for (it1 = hybridResults[i].begin(), it3 = correctResults[i].begin(); 
            it1 != hybridResults[i].end() || it3 != correctResults[i].end();
            ++it1, ++it3) {
