@@ -28,12 +28,47 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int.hpp>
 
+
+
 //tree
 #include <fbi/config.h>
 #include <fbi/traits.h>
 #include <fbi/tuplegenerator.h>
+#ifdef __LIBFBI_USE_MULTITHREADING__
+#include <boost/ref.hpp>
+#include <boost/thread.hpp>
+#endif
 
-namespace fbi { 
+namespace fbi {
+
+  /**
+   * \class SetA
+   *
+   * \brief A class to find intersections between cartesian products of 
+   *   arbitrarily-typed intervals.
+   * 
+   * Based on "Fast Software for Box Intersections", 
+   *  by Afra Zomorodian, Herbert Edelsbrunner,
+   * 
+   * \tparam BoxType The objects we're looking at, 
+   *  Traits<BoxType> has to available. 
+   * \note To work correctly on the given types, 
+   *  the templated Traits class has to be specialized
+   *  for the given BoxType (and QBoxType, if needed).
+   *
+   * \see Traits 
+   * \tparam TIndices Two boxes shall intersect if they do in these 
+   *  dimensions, given as a parameter pack of std::size_t.
+   * \note The user has to specify at least one index to work on, 
+   *  empty TIndices won't return any results.
+   */
+  
+#ifdef __LIBFBI_USE_MULTITHREADING__
+//If we want to use multithreading, we need a global mutex.
+  namespace mutex {
+  boost::mutex __libfbi_mut_;
+}
+#endif
   template <typename BoxType, BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(MAX_DIMENSIONS, int TIndex, -1) > 
     class SetA {
   private:
@@ -758,6 +793,39 @@ BOOST_MPL_ASSERT_MSG((boost::is_same<key_type, qkey_type>::value), KEY_TYPES_DON
 
     ResultType resultVector(offset + qdataContainer.size());
     typename boost::tuples::element<0,key_type>::type dimLimits = boost::tuples::get<0>(state.getLimits()); 
+    
+#ifdef __LIBFBI_USE_MULTITHREADING__
+
+
+    boost::thread t(boost::bind(
+    HybridScanner<true, NUMDIMS>::
+      scan,
+        boost::cref(pointsPtrVector), 
+        boost::cref(intervalsPtrVector), 
+        dimLimits.first, 
+        dimLimits.second,
+        boost::ref(state), 
+        boost::ref(resultVector))
+      );
+    // Reverse the previous call: queries in the "point" vector.
+    boost::thread u(boost::bind(
+    HybridScanner<false, NUMDIMS>::
+      scan,
+        boost::cref(intervalsPtrVector), 
+        boost::cref(pointsPtrVector), 
+        dimLimits.first, 
+        dimLimits.second,
+        boost::ref(state), 
+        boost::ref(resultVector))
+      );
+
+  t.join();
+  u.join();
+
+
+#endif
+
+#ifndef __LIBFBI_USE_MULTITHREADING__
     // Call the hybrid algorithm for stabbing queries in the interval vector.
     HybridScanner<true, NUMDIMS>::
       scan(
@@ -776,7 +844,7 @@ BOOST_MPL_ASSERT_MSG((boost::is_same<key_type, qkey_type>::value), KEY_TYPES_DON
         dimLimits.second,state, 
         resultVector
       );
-
+#endif
 #ifndef __LIBFBI_USE_SET_FOR_RESULT__
 	for (ResultType::size_type i = 0; i < resultVector.size(); ++i) {
 		ResultType::value_type & vec = resultVector[i];
@@ -1136,8 +1204,8 @@ HybridScanner{
   //which isn't a variable dependent on a template parameter.
 
   static void scan(
-    std::vector<const key_type *> & pointsPtrVector, //Points
-    std::vector<const key_type *> & intervalsPtrVector,  //Intervals
+    const std::vector<const key_type *> & pointsPtrVector, //Points
+    const std::vector<const key_type *> & intervalsPtrVector,  //Intervals
     const typename boost::tuples::element<Dim, key_type>::type::first_type & lowerBound,
     const typename boost::tuples::element<Dim, key_type>::type::first_type & upperBound,
     State & state,
@@ -1160,10 +1228,13 @@ HybridScanner{
       pointsPtrVector.size() < state.getCutoff() || 
       intervalsPtrVector.size() < state.getCutoff() 
     ) {
-      sortContainerHead<Dim>(pointsPtrVector);
-      sortContainerHead<Dim>(intervalsPtrVector);
+      std::vector<const key_type *> npointsPtrVector(pointsPtrVector.begin(), pointsPtrVector.end());
+      std::vector<const key_type *> nintervalsPtrVector(intervalsPtrVector.begin(), intervalsPtrVector.end());
+      sortContainerHead<Dim>(npointsPtrVector);
+      sortContainerHead<Dim>(nintervalsPtrVector);
       OneWayScanner<PointsContainQueries, Dim>::
-        scan(pointsPtrVector, intervalsPtrVector, state, resultVector);
+        scan(npointsPtrVector, nintervalsPtrVector, state, resultVector);
+
       return;
     }
     // Set sizes are still above the threshold. We follow a divide and conquer
@@ -1294,8 +1365,8 @@ HybridScanner<PointsContainQueries, 1> {
   *  add to it in OneWayScan
   */
   inline static void scan(
-      std::vector<const key_type *> & pointsPtrVector,
-      std::vector<const key_type *> & intervalsPtrVector,
+      const std::vector<const key_type *> & pointsPtrVector,
+      const std::vector<const key_type *> & intervalsPtrVector,
       const typename boost::tuples::element<LASTDIM, key_type>::type::first_type & lowerBound,
       const typename boost::tuples::element<LASTDIM, key_type>::type::first_type & upperBound,
       typename SETA::State & state,
@@ -1308,11 +1379,14 @@ HybridScanner<PointsContainQueries, 1> {
     ) {
       return;
     }
-    SETA::sortContainerHead<LASTDIM>(pointsPtrVector);
-    SETA::sortContainerHead<LASTDIM>(intervalsPtrVector);
+
+    std::vector<const key_type *> npointsPtrVector(pointsPtrVector.begin(), pointsPtrVector.end());
+    std::vector<const key_type *> nintervalsPtrVector(intervalsPtrVector.begin(), intervalsPtrVector.end());
+    SETA::sortContainerHead<LASTDIM>(npointsPtrVector);
+    SETA::sortContainerHead<LASTDIM>(nintervalsPtrVector);
     SETA::OneWayScanner<PointsContainQueries, LASTDIM>::
-        scan(pointsPtrVector, intervalsPtrVector, state, resultVector);
-  }
+        scan(npointsPtrVector, nintervalsPtrVector, state, resultVector);
+   }
 }; //end struct HybridScanner specialization
 
 
@@ -1353,6 +1427,9 @@ OneWayScanner{
     Comp less;
     CIT pntVectorIt = pointsPtrVector.begin();
     CIT intVectorIt = intervalsPtrVector.begin();
+#ifdef __LIBFBI_USE_MULTITHREADING__
+  boost::lock_guard<boost::mutex> lck(fbi::mutex::__libfbi_mut_);
+#endif
 
 
     while (pntVectorIt != pointsPtrVector.end()){

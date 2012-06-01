@@ -42,13 +42,15 @@
 //c++0x
 #include <random>
 #include <tuple>
-#include <thread>
 //tree
 #include <fbi/config.h>
 #include <fbi/traits.h>
 
 #include <fbi/tuplegenerator.h>
 
+#ifdef __LIBFBI_USE_MULTITHREADING__
+#include <thread>
+#endif
 
 namespace fbi {
 
@@ -74,8 +76,12 @@ namespace fbi {
    *  empty TIndices won't return any results.
    */
 
-
- std::mutex __libfbi_mut_;
+#ifdef __LIBFBI_USE_MULTITHREADING__
+//If we want to use multithreading, we need a global mutex.
+namespace mutex {
+  std::mutex __libfbi_mut_;
+}
+#endif
 
 template <typename BoxType, std::size_t ... TIndices>
 class SetA{
@@ -862,6 +868,7 @@ SetB {
     ResultType resultVector(offset + qdataContainer.size());
     auto dimLimits = std::get<0>(state.getLimits()); 
 
+#ifdef __LIBFBI_USE_MULTITHREADING__
     // Call the hybrid algorithm for stabbing queries in the interval vector.
     std::thread t(std::bind(
     HybridScanner<true, NUMDIMS>::
@@ -887,6 +894,29 @@ SetB {
 
   t.join();
   u.join();
+#endif
+#ifndef __LIBFBI_USE_MULTITHREADING__
+    HybridScanner<true, NUMDIMS>::
+      scan(
+        pointsPtrVector, 
+        intervalsPtrVector, 
+        dimLimits.first, 
+        dimLimits.second,
+        state, 
+        resultVector 
+      );
+    // Reverse the previous call: queries in the "point" vector.
+    HybridScanner<false, NUMDIMS>::
+      scan(
+        intervalsPtrVector, 
+        pointsPtrVector, 
+        dimLimits.first, 
+        dimLimits.second,
+        state, 
+        resultVector
+      );
+#endif
+
 #ifndef __LIBFBI_USE_SET_FOR_RESULT__
   	for (ResultType::size_type i = 0; i < resultVector.size(); ++i) {
 		ResultType::value_type & vec = resultVector[i];
@@ -1459,9 +1489,10 @@ OneWayScanner{
     Comp less;
     CIT pntVectorIt = pointsPtrVector.begin();
     CIT intVectorIt = intervalsPtrVector.begin();
-
-
-      std::lock_guard<std::mutex> lck(__libfbi_mut_);
+ 
+#ifdef __LIBFBI_USE_MULTITHREADING__
+    std::lock_guard<std::mutex> lck(fbi::mutex::__libfbi_mut_);
+#endif    
     while (pntVectorIt != pointsPtrVector.end()){
 
       const key_type * pntPtr = *pntVectorIt;
