@@ -38,9 +38,11 @@
 #include <utility>
 #include <vector>
 #include <iostream>
+#include <functional>
 //c++0x
 #include <random>
 #include <tuple>
+#include <thread>
 //tree
 #include <fbi/config.h>
 #include <fbi/traits.h>
@@ -73,6 +75,7 @@ namespace fbi {
    */
 
 
+ std::mutex __libfbi_mut_;
 
 template <typename BoxType, std::size_t ... TIndices>
 class SetA{
@@ -860,24 +863,30 @@ SetB {
     auto dimLimits = std::get<0>(state.getLimits()); 
 
     // Call the hybrid algorithm for stabbing queries in the interval vector.
+    std::thread t(std::bind(
     HybridScanner<true, NUMDIMS>::
-      scan(
-        pointsPtrVector, 
-        intervalsPtrVector, 
+      scan,
+        std::cref(pointsPtrVector), 
+        std::cref(intervalsPtrVector), 
         dimLimits.first, 
-        dimLimits.second,state, 
-        resultVector 
+        dimLimits.second,
+        std::ref(state), 
+        std::ref(resultVector))
       );
     // Reverse the previous call: queries in the "point" vector.
+    std::thread u(std::bind(
     HybridScanner<false, NUMDIMS>::
-      scan(
-        intervalsPtrVector, 
-        pointsPtrVector, 
+      scan,
+        std::cref(intervalsPtrVector), 
+        std::cref(pointsPtrVector), 
         dimLimits.first, 
-        dimLimits.second,state, 
-        resultVector
+        dimLimits.second,
+        std::ref(state), 
+        std::ref(resultVector))
       );
 
+  t.join();
+  u.join();
 #ifndef __LIBFBI_USE_SET_FOR_RESULT__
   	for (ResultType::size_type i = 0; i < resultVector.size(); ++i) {
 		ResultType::value_type & vec = resultVector[i];
@@ -1228,8 +1237,8 @@ HybridScanner{
   //which isn't a variable dependent on a template parameter.
 
   static void scan(
-    std::vector<const key_type *> & pointsPtrVector, //Points
-    std::vector<const key_type *> & intervalsPtrVector,  //Intervals
+    const std::vector<const key_type *> & pointsPtrVector, //Points
+    const std::vector<const key_type *> & intervalsPtrVector,  //Intervals
     const typename std::tuple_element<Dim, key_type>::type::first_type & lowerBound,
     const typename std::tuple_element<Dim, key_type>::type::first_type & upperBound,
     State & state,
@@ -1252,10 +1261,12 @@ HybridScanner{
       pointsPtrVector.size() < state.getCutoff() || 
       intervalsPtrVector.size() < state.getCutoff() 
     ) {
-      sortContainerHead<Dim>(pointsPtrVector);
-      sortContainerHead<Dim>(intervalsPtrVector);
+      std::vector<const key_type *> npointsPtrVector(pointsPtrVector.begin(), pointsPtrVector.end());
+      std::vector<const key_type *> nintervalsPtrVector(intervalsPtrVector.begin(), intervalsPtrVector.end());
+      sortContainerHead<Dim>(npointsPtrVector);
+      sortContainerHead<Dim>(nintervalsPtrVector);
       OneWayScanner<PointsContainQueries, Dim>::
-        scan(pointsPtrVector, intervalsPtrVector, state, resultVector);
+        scan(npointsPtrVector, nintervalsPtrVector, state, resultVector);
       return;
     }
     // Set sizes are still above the threshold. We follow a divide and conquer
@@ -1387,8 +1398,8 @@ HybridScanner<PointsContainQueries, 1> {
   *  add to it in OneWayScan
   */
   inline static void scan(
-      std::vector<const key_type *> & pointsPtrVector,
-      std::vector<const key_type *> & intervalsPtrVector,
+      const std::vector<const key_type *> & pointsPtrVector,
+      const std::vector<const key_type *> & intervalsPtrVector,
       const typename std::tuple_element<LASTDIM, key_type>::type::first_type & lowerBound,
       const typename std::tuple_element<LASTDIM, key_type>::type::first_type & upperBound,
       SETA::State & state,
@@ -1401,10 +1412,12 @@ HybridScanner<PointsContainQueries, 1> {
     ) {
       return;
     }
-    SETA::sortContainerHead<LASTDIM>(pointsPtrVector);
-    SETA::sortContainerHead<LASTDIM>(intervalsPtrVector);
+    std::vector<const key_type *> npointsPtrVector(pointsPtrVector.begin(), pointsPtrVector.end());
+    std::vector<const key_type *> nintervalsPtrVector(intervalsPtrVector.begin(), intervalsPtrVector.end());
+    SETA::sortContainerHead<LASTDIM>(npointsPtrVector);
+    SETA::sortContainerHead<LASTDIM>(nintervalsPtrVector);
     SETA::OneWayScanner<PointsContainQueries, LASTDIM>::
-        scan(pointsPtrVector, intervalsPtrVector, state, resultVector);
+        scan(npointsPtrVector, nintervalsPtrVector, state, resultVector);
   }
 }; //end struct HybridScanner specialization
 
@@ -1448,6 +1461,7 @@ OneWayScanner{
     CIT intVectorIt = intervalsPtrVector.begin();
 
 
+      std::lock_guard<std::mutex> lck(__libfbi_mut_);
     while (pntVectorIt != pointsPtrVector.end()){
 
       const key_type * pntPtr = *pntVectorIt;
@@ -1485,7 +1499,6 @@ OneWayScanner{
       //add all intersections to the results
       SIT intersectionSetIt = intervalsPtrSet.begin();
       SIT intersectionSetEnd = intervalsPtrSet.end();
-
       for(; intersectionSetIt != intersectionSetEnd; ++intersectionSetIt) {
         if (IntersectionTester<Dim+1, NUMDIMS>::
               test(pntPtr, *intersectionSetIt) ) {
