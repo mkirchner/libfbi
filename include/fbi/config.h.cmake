@@ -42,6 +42,11 @@
   #define __USE_TEMPLATE_ALIASES__
 #endif
 
+#cmakedefine ENABLE_MULTITHREADING
+#ifdef ENABLE_MULTITHREADING
+  #define __LIBFBI_USE_MULTITHREADING__
+#endif
+
 #if _MSC_VER && !__INTEL_COMPILER
   #define __FBI_MSWORKAROUND__ 1
 #else
