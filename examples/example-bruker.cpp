@@ -244,7 +244,9 @@ return centroids;
 int main(int argc, char * argv[]) {
   using namespace fbi;
   using namespace boost::posix_time;
-
+#ifdef __LIBFBI_USE_MULTITHREADING__
+std::cout << "Multithreading enabled" << std::endl;
+#endif
   ProgramOptions options;
   if (!parseProgramOptions(argc, argv, options)) {
     return 0;
@@ -256,6 +258,8 @@ int main(int argc, char * argv[]) {
   SetA<Centroid,1,0>::ResultType centroidResults = SetA<Centroid, 1,0>::intersect(centroids, CentroidBoxGenerator(10,0.51), CentroidBoxGenerator(10,0.51));
   ptime end = microsec_clock::universal_time();
   time_duration td = end - start;
+
+
 
   std::cout << "elapsed time in seconds: " 
     << td.total_seconds()
