@@ -879,7 +879,8 @@ SetB {
       );
 
 #ifndef __LIBFBI_USE_SET_FOR_RESULT__
-	for (auto& vec : resultVector) {
+  	for (ResultType::size_type i = 0; i < resultVector.size(); ++i) {
+		ResultType::value_type & vec = resultVector[i];
 		std::sort(vec.begin(), vec.end());
 		vec.resize(std::unique(vec.begin(), vec.end()) - vec.begin());
 	}
