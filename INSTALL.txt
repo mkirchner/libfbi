@@ -1,0 +1,21 @@
+================================================================================
+                                 libfbi INSTALL
+================================================================================
+
+1. Summary
+----------
+libfbi requires variadic templates or Boost MPL + Preprocessor, which will act as a fallback.
+Via CMake, the capabilities of your compiler will be detected automagically, 
+copying the correct header files to your build directory.
+Make install will copy the correspondent files to the standard include directory.
+
+2. Options
+----------
+By default, variadic templates will be used if available.
+If you are developing for multiple platforms/compilers with different capabilities, 
+you may want to disable the CMake-Option
+"USE_C++1X" so the Boost-Headers will get used instead.
+Multhreading support can be enabled via the option "ENABLE_MULTITHREADING", 
+which requires either C++1X or linking against Boost_THREAD_LIBRARY for your own libraries, 
+you'll be given a warning during the CMake initialization.
+
