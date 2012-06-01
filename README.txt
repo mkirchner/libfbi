@@ -9,14 +9,11 @@ in an arbitrary number of dimensions.
 
 2. Installation
 ---------------
-libfbi comes as an installation package and installs its headers into standard
+libfbi comes as an installation package and installs its headers via make install into standard
 include directories (i.e. /usr/local/include on POSIX systems).
-If that does not work for you, simply download the source distribution and copy
-the header files from the libfbi include/ directory to a suitable location.
 libfbi is a C++ header-only template library; there are no precompiled files.
-Make sure that location is in your include search path and that your compiler
-supports variadic templates (e.g. gcc >= 4.4). Additional details can
-be found in the doc/ subdirectory and in the online documentation at
+Either compiler support for variadic templates (gcc 4.4, clang 2.9) or installed Boost headers(1.30) are required.
+Additional details can be found in the doc/ subdirectory, ./INSTALL.txt and in the online documentation at
 http://software.steenlab.org/libfbi.
 
 3. Documentation
