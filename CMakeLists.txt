@@ -11,7 +11,7 @@ SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 # versioning
 #############################################################################
 set(VERSION_MAJOR 1)
-set(VERSION_MINOR 2)
+set(VERSION_MINOR 3)
 SET(VERSION "${VERSION_MAJOR}.${VERSION_MINOR}")
 
 #############################################################################
