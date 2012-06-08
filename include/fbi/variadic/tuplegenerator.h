@@ -32,10 +32,22 @@
 #include <vector>
 //c++0x
 #include <tuple> //for tuple_element and std::get
+#include <array>
 
 namespace fbi {
 
 namespace mpl {
+
+template <bool b>
+struct Bool2Type {
+  enum {value = b};
+};
+
+template <typename T>
+struct Type2Type {
+  typedef T OriginalType;
+};
+
 
 struct ConstructPair {
   template <typename T>
@@ -196,6 +208,9 @@ struct TraitsGenerator{
   static key_type getLimits(){
     return std::make_tuple(std::make_pair(std::numeric_limits<T>::min(), std::numeric_limits<T>::max())...);
   }
+    enum {
+      defined = 1
+    };
 };
 
 
@@ -220,6 +235,84 @@ struct IndexChecker<T>{
 /** Always return true if there are no indices left*/
     value = true
   };
+};
+
+
+template <bool Defined, class TraitsType, std::size_t ... TIndices>
+struct TypeExtractor {
+  
+  enum {
+  /** TINDICESCORRECT is 1 when all TIndices can be used to access a dimension the 
+    * key_type, otherwise it's 0
+    */ 
+    TINDICESCORRECT =
+    IndexChecker<std::tuple_size<typename TraitsType::key_type>::
+      value, TIndices...>::value 
+  };
+
+  /** Empty TIndices shouldn't work */
+  static_assert(
+    sizeof...(TIndices) > 0, 
+    "Please specify at least one index for the dimensions");
+
+  /** Throw a compile error when the indices aren't correct. */
+  static_assert(TINDICESCORRECT, 
+                "Please check your SetA-Indices again, the \
+                Traits<BoxType>::key_type \
+                does not have enough dimensions to use your indices");
+
+  template <bool Correct, class Placeholder>
+  struct ExtractorImpl {
+  
+   typedef typename std::tuple < 
+      typename std::tuple_element<
+      TIndices, typename TraitsType::key_type 
+      >::type ...
+    > key_type;
+  
+  typedef typename std::tuple <
+      typename std::tuple_element<
+        TIndices, typename TraitsType::dim_type 
+        >
+      ::type::second_type ...
+      > comp_type;   
+      
+  enum {
+    ExtractionSuccessful = true
+  };
+  };
+
+  template<class Placeholder>
+  struct ExtractorImpl<false, Placeholder> {
+  typedef typename TypeExtractor<false, TraitsType, TIndices...>::key_type key_type;
+  typedef typename TypeExtractor<false, TraitsType, TIndices...>::comp_type comp_type;
+  enum {
+    ExtractionSuccessful = false
+  };
+
+  };
+  typedef typename ExtractorImpl<TINDICESCORRECT, Type2Type<TraitsType> >::key_type key_type;
+  typedef typename ExtractorImpl<TINDICESCORRECT, Type2Type<TraitsType> >::comp_type comp_type;
+
+  enum {
+    ExtractionSuccessful = ExtractorImpl<TINDICESCORRECT, Type2Type<TraitsType> >::ExtractionSuccessful
+  };
+
+};
+
+template <class TraitsType, std::size_t ... TIndices> 
+struct TypeExtractor<false, TraitsType, TIndices...>
+{
+/*  static_assert(false,
+                "Please define the Traits specialization for your custom class" 
+                );
+*/
+  enum {
+    ExtractionSuccessful = false
+  };
+  typedef std::array<void *, sizeof...(TIndices)> key_type;
+  typedef std::array<std::pair<void, std::less<void *> >, sizeof...(TIndices) > comp_type;
+
 };
 
 

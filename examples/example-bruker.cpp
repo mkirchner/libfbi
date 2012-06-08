@@ -37,7 +37,7 @@ struct Centroid
 namespace fbi {
 
   template<>
-    struct Traits<Centroid> : mpl::TraitsGenerator<float, float> {};
+  struct Traits<Centroid> : mpl::TraitsGenerator<float, float> {};
 
 } //end namespace fbi
 
@@ -243,6 +243,7 @@ parseFile(ProgramOptions & options, std::vector<std::vector<Centroid>::size_type
 //combining all of the results for the adjacency list afterwards.
 template <typename ResultType>
 struct SNSplitter{
+  typedef typename ResultType::size_type size_type;
 
   //support for two generators, prototyping
   SNSplitter(const std::vector<Centroid>& centroids, const std::vector<std::vector<Centroid>::size_type> & breakpoints, CentroidBoxGenerator b1, CentroidBoxGenerator b2, unsigned int segments, unsigned int rightoverlap):
@@ -253,14 +254,14 @@ struct SNSplitter{
     limits.resize(segments);
     int stepsize = ((unsigned int)breakpoints.size() / segments) + 1;
     offsets[0] = 0;
-    limits[0] = breakpoints[stepsize + rightoverlap];
+    limits[0] = (unsigned int) breakpoints[stepsize + rightoverlap];
 
     for (unsigned int i = 1; i < segments; ++i) {
-      offsets[i] =  breakpoints[i*stepsize];
-      limits[i] = breakpoints[(i+1)* stepsize+ rightoverlap];
+      offsets[i] = (unsigned int) breakpoints [i*stepsize];
+      limits[i] = (unsigned int) breakpoints[(i+1)*stepsize+rightoverlap];
 
     }
-    limits[segments-1] = (int)centroids_.size();    
+    limits[segments-1] = (unsigned int)centroids_.size();    
   }
 
 
@@ -305,7 +306,7 @@ struct SNSplitter{
   const std::vector<Centroid> & centroids_;
   
   
-  std::vector<std::vector<Centroid>::size_type> breakpoints_; 
+  std::vector<size_type> breakpoints_; 
 
   unsigned int segments_;
   unsigned int rightoverlap_;
@@ -335,7 +336,7 @@ int main(int argc, char * argv[]) {
   std::cout << centroids.size() << std::endl;
 
   ptime start = microsec_clock::universal_time();
-  typedef typename SetA<Centroid,1,0>::ResultType ResultType;
+  typedef typename SetA<Centroid,1,0 >::ResultType ResultType;
   //  SetA<Centroid,1,0>::ResultType centroidResults = SetA<Centroid, 1,0>::intersect(centroids, CentroidBoxGenerator(10,0.51), CentroidBoxGenerator(10,0.51));
   SNSplitter<ResultType> splitter(centroids,breakpoints, CentroidBoxGenerator(10,0.51), CentroidBoxGenerator(10,0.51), 16,2);
   ResultType centroidResults = splitter();
