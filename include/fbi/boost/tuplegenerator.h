@@ -321,6 +321,9 @@ typedef
          //return std::make_tuple(std::make_pair(std::numeric_limits<T>::min(), std::numeric_limits<T>::max())...);
         return LimitsHelper<boost::tuples::length<key_type>::value, typename key_type::inherited>::getLimit();
        }
+       enum{
+        defined = 1
+       }
     };
 
     template < BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS,typename T) >

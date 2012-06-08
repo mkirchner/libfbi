@@ -60,6 +60,9 @@ namespace fbi {
  *        std::numeric_limits<int>::max())
  *    )
  *  }
+ * enum {
+ *   defined = 1
+ * }
  * };
  * 
  * // This only works if std::numeric_limits is available for the chosen types,
@@ -74,7 +77,11 @@ namespace fbi {
 
 
 template<typename T> 
-struct Traits; 
+struct Traits:: mpl::TraitsGenerator<>{
+  enum {
+    defined = 0
+  }
+}; 
 
 
 } //end namespace fbi
