@@ -145,7 +145,7 @@ class SetA{
 */
 
 typedef typename 
-    mpl::TypeExtractor<Traits<value_type>::defined, Traits<value_type>, TIndices...>::key_type
+    mpl::TypeExtractor<Traits<value_type>, TIndices...>::key_type
       key_type;
   /**
    * As every dimension can have a different type, 
@@ -162,7 +162,7 @@ typedef typename
       > comp_type;      
 */
 typedef typename 
-    mpl::TypeExtractor<Traits<value_type>::defined, Traits<value_type>, TIndices...>::comp_type
+    mpl::TypeExtractor<Traits<value_type>, TIndices...>::comp_type
       comp_type;
 
  public:
@@ -703,7 +703,7 @@ SetB {
    * depending on the indices we're using.
    */
   typedef typename 
-    mpl::TypeExtractor<Traits<qvalue_type>::defined, Traits<qvalue_type>, QIndices...>::key_type
+    mpl::TypeExtractor<Traits<qvalue_type>, QIndices...>::key_type
       qkey_type;
   /**Ensure that the key_types are equal */
   static_assert(std::is_same<key_type, qkey_type>::value, 
@@ -717,7 +717,7 @@ SetB {
    */
 
 typedef typename 
-    mpl::TypeExtractor<Traits<qvalue_type>::defined, Traits<qvalue_type>, QIndices...>::comp_type
+    mpl::TypeExtractor<Traits<qvalue_type>, QIndices...>::comp_type
       qcomp_type;
     /** Ensure that the comparison operators are equal*/
   static_assert(std::is_same<comp_type, qcomp_type>::value, 
@@ -840,10 +840,8 @@ typedef typename
 
     return intersectImpl(
         mpl::Bool2Type<
-        Traits<value_type>::defined &&
-        Traits<qvalue_type>::defined &&
-        mpl::TypeExtractor<Traits<value_type>::defined, Traits<value_type>, TIndices...>::ExtractionSuccessful && 
-        mpl::TypeExtractor<Traits<qvalue_type>::defined, Traits<qvalue_type>, QIndices...>::ExtractionSuccessful
+        mpl::TypeExtractor<Traits<value_type>, TIndices...>::ExtractionSuccessful && 
+        mpl::TypeExtractor<Traits<qvalue_type>, QIndices...>::ExtractionSuccessful
         >(),
       cutoff, dataContainer, ifunctor, qdataContainer, qfunctors...);
   }

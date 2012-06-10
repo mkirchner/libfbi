@@ -238,7 +238,7 @@ struct IndexChecker<T>{
 };
 
 
-template <bool Defined, class TraitsType, std::size_t ... TIndices>
+template <class TraitsType, std::size_t ... TIndices>
 struct TypeExtractor {
   
   enum {
@@ -247,7 +247,7 @@ struct TypeExtractor {
     */ 
     TINDICESCORRECT =
     IndexChecker<std::tuple_size<typename TraitsType::key_type>::
-      value, TIndices...>::value 
+      value, TIndices...>::value && TraitsType::defined 
   };
 
   /** Empty TIndices shouldn't work */
@@ -284,8 +284,10 @@ struct TypeExtractor {
 
   template<class Placeholder>
   struct ExtractorImpl<false, Placeholder> {
-  typedef typename TypeExtractor<false, TraitsType, TIndices...>::key_type key_type;
-  typedef typename TypeExtractor<false, TraitsType, TIndices...>::comp_type comp_type;
+    
+    typedef std::array<void *, sizeof...(TIndices)> key_type;
+    typedef std::array<std::pair<void, std::less<void *> >, sizeof...(TIndices) > comp_type;
+
   enum {
     ExtractionSuccessful = false
   };
@@ -297,21 +299,6 @@ struct TypeExtractor {
   enum {
     ExtractionSuccessful = ExtractorImpl<TINDICESCORRECT, Type2Type<TraitsType> >::ExtractionSuccessful
   };
-
-};
-
-template <class TraitsType, std::size_t ... TIndices> 
-struct TypeExtractor<false, TraitsType, TIndices...>
-{
-/*  static_assert(false,
-                "Please define the Traits specialization for your custom class" 
-                );
-*/
-  enum {
-    ExtractionSuccessful = false
-  };
-  typedef std::array<void *, sizeof...(TIndices)> key_type;
-  typedef std::array<std::pair<void, std::less<void *> >, sizeof...(TIndices) > comp_type;
 
 };
 
