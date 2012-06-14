@@ -176,11 +176,13 @@ std::vector<Centroid>
 parseFile(ProgramOptions & options, std::vector<std::vector<Centroid>::size_type> & breakpoints) {
   std::vector<Centroid> centroids;
   boost::iostreams::stream<boost::iostreams::mapped_file_source> ifs(options.inputfileName_);
-
   std::string str;
-  double mz, rt, intensity;
-  std::string pol, mode, mslevel, line, massrange;
-  int unknown, numentries, sn;
+  float mz, massrange_lo, massrange_hi, rt;
+  char pol;
+  char mode[100];
+  char mslevel[100];
+  char line[100];
+  int unknown, numentries, intensity, sn;
   typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
   boost::char_separator<char> sep(",");
   sn = 1;
@@ -189,48 +191,17 @@ parseFile(ProgramOptions & options, std::vector<std::vector<Centroid>::size_type
 
     Tokenizer tokens(str, sep);
     Tokenizer::iterator it = tokens.begin();
-    std::stringstream sstream;
-    if (it == tokens.end()) continue;
-    sstream << *(it++);
-    sstream >> rt;
-    sstream.clear();
-    if (it == tokens.end()) continue;
-    sstream << *(it++);
-    sstream >> pol;
-    sstream.clear();
-    if (it == tokens.end()) continue;
-    sstream << *(it++);
-    sstream >> mode;
-    sstream.clear();
-    if (it == tokens.end()) continue;
-    sstream << *(it++);
-    sstream >> mslevel;
-    sstream.clear();
-    if (it == tokens.end()) continue;
-    sstream << *(it++);
-    sstream >> unknown;
-    sstream.clear();
-    if (it == tokens.end()) continue;
-    sstream << *(it++);
-    sstream >> line;
-    sstream.clear();
-    if (it == tokens.end()) continue;
-    sstream << *(it++);
-    sstream >> massrange;
-    sstream.clear();
-    if (it == tokens.end()) continue;
-    sstream << *(it++);
-    sstream >> numentries;
-    sstream.clear();
+	if (sscanf(str.c_str(), "%f,%c,%100[^,],%100[^,],%d,%100[^,],%f-%f,%u,", &rt, &pol, &mode, &mslevel, &unknown, &line, &massrange_lo, &massrange_hi, &numentries) != 9) {
+		continue;
+	}
+	for (int i = 0; i < 8; ++i) ++it;
+	while (it != tokens.end()) {
+		std::string mz_int_pair(*(it++));
+		if (sscanf(mz_int_pair.c_str(), "%f %u", &mz, &intensity) == 2) {
+			centroids.push_back(Centroid(mz, sn));
+		}
+	}
 
-    int numcheck = 0;
-    while(it != tokens.end() && numcheck < numentries) {
-      sstream << *(it++);
-      sstream >> mz >> intensity;
-      sstream.clear();
-      numcheck++;
-      centroids.push_back(Centroid(mz, sn));
-    }
     breakpoints.push_back(centroids.size());
     ++sn;
   } 
@@ -249,18 +220,18 @@ struct SNSplitter{
   SNSplitter(const std::vector<Centroid>& centroids, const std::vector<std::vector<Centroid>::size_type> & breakpoints, CentroidBoxGenerator b1, CentroidBoxGenerator b2, unsigned int segments, unsigned int rightoverlap):
     centroids_(centroids), breakpoints_(breakpoints), segments_(segments), rightoverlap_(rightoverlap), b1_(b1), b2_(b2)
   {
-
+	if (centroids.size() < segments_) segments_ = 1;
     offsets.resize(segments);
     limits.resize(segments);
-    int stepsize = ((unsigned int)breakpoints.size() / segments) + 1;
+    unsigned int stepsize = ((unsigned int)breakpoints.size() / segments) + 1;
     offsets[0] = 0;
     limits[0] = (unsigned int) breakpoints[stepsize + rightoverlap];
 
-    for (unsigned int i = 1; i < segments; ++i) {
+    for (unsigned int i = 1; i < segments - 1; ++i) {
       offsets[i] = (unsigned int) breakpoints [i*stepsize];
       limits[i] = (unsigned int) breakpoints[(i+1)*stepsize+rightoverlap];
-
     }
+	offsets[segments-1] = (unsigned int) breakpoints [(segments - 2)*stepsize];
     limits[segments-1] = (unsigned int)centroids_.size();    
   }
 
@@ -293,12 +264,17 @@ struct SNSplitter{
   ResultType operator()() {
   using namespace fbi;
     ResultType completeResult;
+	try {
     for (unsigned int i = 0; i < segments_; ++i) {
       std::vector<Centroid> shortList(centroids_.begin() + offsets[i], centroids_.begin() + limits[i]);
       ResultType tempResult = SetA<Centroid, 1, 0>::intersect(shortList, b1_, b2_);
       completeResult = join(completeResult, tempResult, i);
     }
     completeResult = makeUnique(completeResult);
+	}
+	catch (const std::exception & e) {
+		std::cout << e.what();
+	}
     return completeResult;
   }
 
@@ -336,7 +312,7 @@ int main(int argc, char * argv[]) {
   std::cout << centroids.size() << std::endl;
 
   ptime start = microsec_clock::universal_time();
-  typedef typename SetA<Centroid,1,0 >::ResultType ResultType;
+  typedef SetA<Centroid,1,0 >::ResultType ResultType;
   //  SetA<Centroid,1,0>::ResultType centroidResults = SetA<Centroid, 1,0>::intersect(centroids, CentroidBoxGenerator(10,0.51), CentroidBoxGenerator(10,0.51));
   SNSplitter<ResultType> splitter(centroids,breakpoints, CentroidBoxGenerator(10,0.51), CentroidBoxGenerator(10,0.51), 16,2);
   ResultType centroidResults = splitter();
