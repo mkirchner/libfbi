@@ -301,7 +301,7 @@ int main(int argc, char * argv[]) {
   ptime start = microsec_clock::universal_time();
   typedef SetA<Centroid,1,0 >::ResultType ResultType;
   //  SetA<Centroid,1,0>::ResultType centroidResults = SetA<Centroid, 1,0>::intersect(centroids, CentroidBoxGenerator(10,0.51), CentroidBoxGenerator(10,0.51));
-  SNSplitter<ResultType> splitter(centroids,breakpoints, CentroidBoxGenerator(10,0.51), CentroidBoxGenerator(10,0.51), 1,0);
+  SNSplitter<ResultType> splitter(centroids,breakpoints, CentroidBoxGenerator(10,0.51), CentroidBoxGenerator(10,0.51), options.segments_,options.overlap_);
   ResultType centroidResults = splitter();
 
 
