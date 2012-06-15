@@ -17,6 +17,8 @@ struct ProgramOptions
 {
   std::string inputfileName_;
   std::string outputfileName_;
+  unsigned int segments_;
+  unsigned int overlap_;
 };
 
 
@@ -112,11 +114,17 @@ int parseProgramOptions(int argc, char* argv[], ProgramOptions& options)
     ;
 
   po::options_description config("Allowed options");
-  config.add_options();
+  config.add_options()
+      ("segments", po::value<unsigned int>(&options.segments_)->default_value(
+        1),
+        "Number of segments the data should be partitioned in before using libfbi)
+      ("overlap", po::value<double>(&options.overlap_)->default_value(
+        0),
+         "Overlap in time-dimension taken into account to not have 'jumps'");
   
   po::options_description cmdline_options("Options available via command line");
-
   cmdline_options.add(generic).add(config);
+
   po::options_description visible("Allowed options");
 
   po::positional_options_description p;
@@ -316,9 +324,9 @@ int main(int argc, char * argv[]) {
   std::vector<unsigned int> labelcounts;
   labelcounts.resize(nComponents, 0);
   for (unsigned int i = 0; i < labels.size(); ++i) {
-	xics[labels[i]].mz_ += centroids[i].mz_;
-	xics[labels[i]].rt_ += centroids[i].rt_;
-	++labelcounts[labels[i]];
+	xics[labels[i] - 1].mz_ += centroids[i].mz_;
+	xics[labels[i] - 1].rt_ += centroids[i].rt_;
+	++labelcounts[labels[i] - 1];
   }
   for (unsigned int i = 0; i < xics.size(); ++i) {
 	xics[i].mz_ /= labelcounts[i];
