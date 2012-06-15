@@ -117,10 +117,10 @@ int parseProgramOptions(int argc, char* argv[], ProgramOptions& options)
   config.add_options()
       ("segments", po::value<unsigned int>(&options.segments_)->default_value(
         1),
-        "Number of segments the data should be partitioned in before using libfbi)
-      ("overlap", po::value<double>(&options.overlap_)->default_value(
+        "Number of segments the data should be partitioned in before using libfbi")
+      ("overlap", po::value<unsigned int>(&options.overlap_)->default_value(
         0),
-         "Overlap in time-dimension taken into account to not have 'jumps'");
+         "Overlap in time-dimension taken into account to not have jumps");
   
   po::options_description cmdline_options("Options available via command line");
   cmdline_options.add(generic).add(config);
