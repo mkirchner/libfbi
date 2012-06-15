@@ -15,10 +15,6 @@
 
 struct ProgramOptions 
 {
-  double mzWindowLow_;
-  int snWindowLow_;
-  double mzWindowHigh_;
-  int snWindowHigh_;
   std::string inputfileName_;
   std::string outputfileName_;
 };
@@ -28,8 +24,9 @@ struct Centroid
 {
   double mz_;
   double sn_;
-  Centroid(const double& mz, const double & sn) 
-    : mz_(mz), sn_(sn){}
+  double rt_;
+  Centroid(const double& mz, const double & sn, const double & rt) 
+    : mz_(mz), sn_(sn), rt_(rt){}
 };
 
 
@@ -92,7 +89,14 @@ CentroidBoxGenerator::get<1>(const Centroid & centroid) const
 }
 
 
-
+struct Xic
+{
+  double mz_;
+  double rt_;
+  Xic(){}
+  Xic(const double& mz, const double & rt) 
+    : mz_(mz), rt_(rt){}
+};
 
 
 
@@ -100,39 +104,20 @@ CentroidBoxGenerator::get<1>(const Centroid & centroid) const
 int parseProgramOptions(int argc, char* argv[], ProgramOptions& options)
 {
   namespace po = boost::program_options;
-  std::string config_file;
   po::options_description generic("Generic options");
   generic.add_options()
     ("help", "Display this help message")
-    ("config,c", po::value<std::string>(&config_file), "config file")
     ("inputfile,i", po::value<std::string>(&options.inputfileName_), "input file")
     ("outputfile,o", po::value<std::string>(&options.outputfileName_), "output file")
     ;
 
   po::options_description config("Allowed options");
-  config.add_options()
-    ("mzLow", po::value<double>(&options.mzWindowLow_)->default_value(
-                                                                      std::numeric_limits<double>::min()),
-     "Lower bound of the query window for m/z")
-    ("snLow", po::value<int>(&options.snWindowLow_)->default_value(
-                                                                   std::numeric_limits<int>::min()),
-     "Lower bound of the query window for the scan number")
-    ("mzHigh", po::value<double>(&options.mzWindowHigh_)->default_value(
-                                                                        std::numeric_limits<double>::max()),
-     "Upper bound of the query window for m/z")
-    ("snHigh", po::value<int>(&options.snWindowHigh_)->default_value(
-                                                                     std::numeric_limits<int>::max()),
-     "Upper bound of the query window for the scan number");
-
+  config.add_options();
+  
   po::options_description cmdline_options("Options available via command line");
+
   cmdline_options.add(generic).add(config);
-
-  po::options_description config_file_options(
-      "Options available in the config file");
-  config_file_options.add(config);
-
   po::options_description visible("Allowed options");
-  visible.add(generic).add(config);
 
   po::positional_options_description p;
   p.add("inputfile", -1);
@@ -142,17 +127,6 @@ int parseProgramOptions(int argc, char* argv[], ProgramOptions& options)
   po::store(po::command_line_parser(argc, argv).options(
         cmdline_options).positional(p).run(), vm);
   po::notify(vm);    
-  if (vm.count("config")){ 
-    std::ifstream ifs(config_file.c_str());
-    if (!ifs) {
-      std::cout << "can't open config file: " << config_file << '\n';
-      return 0;
-    } else {
-      std::cerr << "Using config file" << config_file << '\n';
-      po::store(po::parse_config_file(ifs, config_file_options), vm);
-      po::notify(vm);    
-    }
-  }
 
   if (vm.count("help")) {
     std::cout << visible << "\n";
@@ -186,7 +160,7 @@ parseFile(ProgramOptions & options, std::vector<std::vector<Centroid>::size_type
   typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
   boost::char_separator<char> sep(",");
   sn = 1;
-
+  breakpoints.push_back(0);
   while(getline(ifs, str)) {
 
     Tokenizer tokens(str, sep);
@@ -198,7 +172,7 @@ parseFile(ProgramOptions & options, std::vector<std::vector<Centroid>::size_type
 	while (it != tokens.end()) {
 		std::string mz_int_pair(*(it++));
 		if (sscanf(mz_int_pair.c_str(), "%f %u", &mz, &intensity) == 2) {
-			centroids.push_back(Centroid(mz, sn));
+			centroids.push_back(Centroid(mz, sn, rt));
 		}
 	}
 
@@ -220,19 +194,21 @@ struct SNSplitter{
   SNSplitter(const std::vector<Centroid>& centroids, const std::vector<std::vector<Centroid>::size_type> & breakpoints, CentroidBoxGenerator b1, CentroidBoxGenerator b2, unsigned int segments, unsigned int rightoverlap):
     centroids_(centroids), breakpoints_(breakpoints), segments_(segments), rightoverlap_(rightoverlap), b1_(b1), b2_(b2)
   {
+    if (segments_ == 0) segments_ = 1;
 	if (centroids.size() < segments_) segments_ = 1;
+	
     offsets.resize(segments);
     limits.resize(segments);
-    unsigned int stepsize = ((unsigned int)breakpoints.size() / segments) + 1;
+    unsigned int stepsize = ((unsigned int)breakpoints.size()-1 / segments);
     offsets[0] = 0;
     limits[0] = (unsigned int) breakpoints[stepsize + rightoverlap];
-
     for (unsigned int i = 1; i < segments - 1; ++i) {
       offsets[i] = (unsigned int) breakpoints [i*stepsize];
       limits[i] = (unsigned int) breakpoints[(i+1)*stepsize+rightoverlap];
     }
-	offsets[segments-1] = (unsigned int) breakpoints [(segments - 2)*stepsize];
+	offsets[segments-1] = (unsigned int) breakpoints [(segments - 1)*stepsize];
     limits[segments-1] = (unsigned int)centroids_.size();    
+	
   }
 
 
@@ -266,7 +242,9 @@ struct SNSplitter{
     ResultType completeResult;
 	try {
     for (unsigned int i = 0; i < segments_; ++i) {
+		std::cout << offsets[i] << " " << limits[i] << std::endl;
       std::vector<Centroid> shortList(centroids_.begin() + offsets[i], centroids_.begin() + limits[i]);
+	  
       ResultType tempResult = SetA<Centroid, 1, 0>::intersect(shortList, b1_, b2_);
       completeResult = join(completeResult, tempResult, i);
     }
@@ -314,7 +292,7 @@ int main(int argc, char * argv[]) {
   ptime start = microsec_clock::universal_time();
   typedef SetA<Centroid,1,0 >::ResultType ResultType;
   //  SetA<Centroid,1,0>::ResultType centroidResults = SetA<Centroid, 1,0>::intersect(centroids, CentroidBoxGenerator(10,0.51), CentroidBoxGenerator(10,0.51));
-  SNSplitter<ResultType> splitter(centroids,breakpoints, CentroidBoxGenerator(10,0.51), CentroidBoxGenerator(10,0.51), 16,2);
+  SNSplitter<ResultType> splitter(centroids,breakpoints, CentroidBoxGenerator(10,0.51), CentroidBoxGenerator(10,0.51), 1,0);
   ResultType centroidResults = splitter();
 
 
@@ -332,4 +310,28 @@ int main(int argc, char * argv[]) {
   std::vector<LabelType> labels;
   LabelType nComponents = findConnectedComponents(centroidResults, labels); 
   std::cout << nComponents << " components found." << std::endl;
+  typedef std::vector<LabelType>::const_iterator LabelIter;
+  std::vector<Xic> xics;  
+  xics.resize(nComponents);
+  std::vector<unsigned int> labelcounts;
+  labelcounts.resize(nComponents, 0);
+  for (unsigned int i = 0; i < labels.size(); ++i) {
+	xics[labels[i]].mz_ += centroids[i].mz_;
+	xics[labels[i]].rt_ += centroids[i].rt_;
+	++labelcounts[labels[i]];
+  }
+  for (unsigned int i = 0; i < xics.size(); ++i) {
+	xics[i].mz_ /= labelcounts[i];
+	xics[i].rt_ /= labelcounts[i];
+  }
+
+  std::sort(labelcounts.begin(), labelcounts.end());
+  std::cout << "Biggest clusters: " << std::endl;
+  for (unsigned int i = 1; i < 100; ++i) {
+	  std::cout << i << ": " << labelcounts[labelcounts.size() - i] << std::endl;
+  }
+  std::ofstream ofs(options.outputfileName_.c_str());
+  for (unsigned int i = 0; i < xics.size(); ++i) {
+	  ofs << xics[i].mz_ << "\t" << xics[i].rt_ << std::endl;
+  }
 }
