@@ -126,6 +126,7 @@ int parseProgramOptions(int argc, char* argv[], ProgramOptions& options)
   cmdline_options.add(generic).add(config);
 
   po::options_description visible("Allowed options");
+  visible.add(generic).add(config);
 
   po::positional_options_description p;
   p.add("inputfile", -1);
