@@ -203,21 +203,20 @@ struct SNSplitter{
   SNSplitter(const std::vector<Centroid>& centroids, const std::vector<std::vector<Centroid>::size_type> & breakpoints, CentroidBoxGenerator b1, CentroidBoxGenerator b2, unsigned int segments, unsigned int rightoverlap):
     centroids_(centroids), breakpoints_(breakpoints), segments_(segments), rightoverlap_(rightoverlap), b1_(b1), b2_(b2)
   {
-    if (segments_ == 0) segments_ = 1;
-	if (centroids.size() < segments_) segments_ = 1;
+    //if (segments_ == 0) segments_ = 1;
+	  if (breakpoints.size() < segments_) segments_ = 1;
 	
-    offsets.resize(segments);
-    limits.resize(segments);
-    unsigned int stepsize = ((unsigned int)breakpoints.size()-1 / segments);
+    offsets.resize(segments_);
+    limits.resize(segments_);
+    unsigned int stepsize = ((unsigned int)(breakpoints_.size()-1) / segments_);
     offsets[0] = 0;
-    limits[0] = (unsigned int) breakpoints[stepsize + rightoverlap];
-    for (unsigned int i = 1; i < segments - 1; ++i) {
-      offsets[i] = (unsigned int) breakpoints [i*stepsize];
-      limits[i] = (unsigned int) breakpoints[(i+1)*stepsize+rightoverlap];
+    limits[0] = (unsigned int) breakpoints_[stepsize + rightoverlap];
+    for (unsigned int i = 1; i < segments_ - 1; ++i) {
+      offsets[i] = (unsigned int) breakpoints_[i*stepsize];
+      limits[i] = (unsigned int) breakpoints_[(i+1)*stepsize+rightoverlap];
     }
-	offsets[segments-1] = (unsigned int) breakpoints [(segments - 1)*stepsize];
-    limits[segments-1] = (unsigned int)centroids_.size();    
-	
+	  offsets[segments_-1] = (unsigned int) breakpoints_[(segments_ - 1)*stepsize];
+    limits[segments_-1] = (unsigned int)centroids_.size();    
   }
 
 
@@ -251,7 +250,6 @@ struct SNSplitter{
     ResultType completeResult;
 	try {
     for (unsigned int i = 0; i < segments_; ++i) {
-		std::cout << offsets[i] << " " << limits[i] << std::endl;
       std::vector<Centroid> shortList(centroids_.begin() + offsets[i], centroids_.begin() + limits[i]);
 	  
       ResultType tempResult = SetA<Centroid, 1, 0>::intersect(shortList, b1_, b2_);
