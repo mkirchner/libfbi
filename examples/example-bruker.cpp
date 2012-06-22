@@ -5,6 +5,8 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <map>
+#include <iterator>
 #include <cstdio>
 #include "fbi/tuple.h"
 #include "fbi/tuplegenerator.h"
@@ -195,9 +197,11 @@ parseFile(ProgramOptions & options, std::vector<std::vector<Centroid>::size_type
 
 //With the prior knowledge of having very small "time"-boxes, we can split up data beforehand,
 //combining all of the results for the adjacency list afterwards.
-template <typename ResultType>
+template <typename SetType>
 struct SNSplitter{
+  typedef typename SetType::ResultType ResultType;
   typedef typename ResultType::size_type size_type;
+  typedef typename SetType::IntType LabelType; 
 
   //support for two generators, prototyping
   SNSplitter(const std::vector<Centroid>& centroids, const std::vector<std::vector<Centroid>::size_type> & breakpoints, CentroidBoxGenerator b1, CentroidBoxGenerator b2, unsigned int segments, unsigned int rightoverlap):
@@ -246,28 +250,72 @@ struct SNSplitter{
   }
 
   ResultType operator()() {
-  using namespace fbi;
+    using namespace fbi;
     ResultType completeResult;
-	try {
-    for (unsigned int i = 0; i < segments_; ++i) {
-      std::vector<Centroid> shortList(centroids_.begin() + offsets[i], centroids_.begin() + limits[i]);
-	  
-      ResultType tempResult = SetA<Centroid, 1, 0>::intersect(shortList, b1_, b2_);
-      completeResult = join(completeResult, tempResult, i);
+    try {
+      for (unsigned int i = 0; i < segments_; ++i) {
+        std::vector<Centroid> shortList(centroids_.begin() + offsets[i], centroids_.begin() + limits[i]);
+
+        ResultType tempResult = SetType::intersect(shortList, b1_, b2_);
+        completeResult = join(completeResult, tempResult, i);
+      }
+      completeResult = makeUnique(completeResult);
     }
-    completeResult = makeUnique(completeResult);
-	}
-	catch (const std::exception & e) {
-		std::cout << e.what();
-	}
+    catch (const std::exception & e) {
+      std::cout << e.what();
+    }
     return completeResult;
   }
 
+  ResultType getFilteredResult() {
+    using namespace fbi;
+    ResultType completeResult;
+    try {
+      for (unsigned int i = 0; i < segments_; ++i) {
+        std::vector<Centroid> shortList(centroids_.begin() + offsets[i], centroids_.begin() + limits[i]);
+
+        ResultType tempResult = SetType::intersect(shortList, b1_, b2_);
+        ResultType filteredResult = filter(tempResult);
+
+        completeResult = join(completeResult, filteredResult, i);
+      }
+      completeResult = makeUnique(completeResult);
+    }
+    catch (const std::exception & e) {
+      std::cout << e.what();
+    }
+    return completeResult;
+  }
+
+  ResultType
+  filter(const ResultType & tempResult) {
+    ResultType filteredResult;
+    try {
+      std::vector<LabelType> labels;
+      LabelType nComponents = findConnectedComponents(tempResult, labels); 
+      std::vector<unsigned int> counter(*std::max_element(labels.begin(), labels.end()) + 1, 0);
+      for (std::vector<unsigned int>::size_type i = 0; i < labels.size(); ++i) {
+        ++counter[labels[i]];
+      }
+      filteredResult.resize(tempResult.size());
+      for (typename ResultType::size_type i = 0; i < tempResult.size(); ++i) {
+        if (counter[labels[i]] > rightoverlap_) { 
+          std::copy(tempResult[i].begin(), tempResult[i].end(), std::back_inserter(filteredResult[i]));
+          }
+      }
+
+    }
+    catch (const std::exception & e) {
+      std::cout << e.what();
+    }
+  
+   return filteredResult;
+  }
+
+
 
   const std::vector<Centroid> & centroids_;
-  
-  
-  std::vector<size_type> breakpoints_; 
+  const std::vector<size_type> & breakpoints_; 
 
   unsigned int segments_;
   unsigned int rightoverlap_;
@@ -279,6 +327,36 @@ struct SNSplitter{
   std::vector<unsigned int> limits;
 
 };
+template<typename LabelVectorType>
+std::vector<unsigned int>
+countLabels(const LabelVectorType & labels, unsigned int maxLabel) {
+  
+  std::vector<unsigned int> counts(maxLabel, 0);
+  for (typename LabelVectorType::size_type i = 0; i < labels.size(); ++i) {
+    counts[labels[i] - 1]++;
+  }
+  return counts;
+}
+
+std::map<unsigned int, unsigned int> 
+filterCounts(const std::vector<unsigned int> counts, unsigned int threshold = 0) {
+  
+  std::map<unsigned int, unsigned int> filteredCounts;
+  
+  for (std::vector<unsigned int>::size_type i = 0; i < counts.size(); ++i) {
+    if (counts[i] > threshold) {
+      if (filteredCounts.find(counts[i]) != filteredCounts.end()) {
+        filteredCounts[counts[i]]++;
+      }
+      else {
+        filteredCounts[counts[i]] = 1;
+      }
+
+    }
+  }
+  return filteredCounts;
+
+}
 
 
 
@@ -296,49 +374,81 @@ int main(int argc, char * argv[]) {
   std::vector<Centroid> centroids = parseFile(options, breakpoints);
   std::cout << centroids.size() << std::endl;
 
+  typedef SetA<Centroid,1,0 > SetType;
+  typedef SetType::ResultType ResultType;
+
+
+
   ptime start = microsec_clock::universal_time();
-  typedef SetA<Centroid,1,0 >::ResultType ResultType;
-  //  SetA<Centroid,1,0>::ResultType centroidResults = SetA<Centroid, 1,0>::intersect(centroids, CentroidBoxGenerator(10,0.51), CentroidBoxGenerator(10,0.51));
-  SNSplitter<ResultType> splitter(centroids,breakpoints, CentroidBoxGenerator(10,0.51), CentroidBoxGenerator(10,0.51), options.segments_,options.overlap_);
-  ResultType centroidResults = splitter();
-
-
+  SNSplitter<SetType> splitter(centroids, breakpoints, CentroidBoxGenerator(10,0.51), CentroidBoxGenerator(10,0.51), options.segments_,options.overlap_);
+  ResultType filteredResults = splitter.getFilteredResult();
   ptime end = microsec_clock::universal_time();
   time_duration td = end - start;
-
-
 
   std::cout << "elapsed time in seconds: " 
     << td.total_seconds()
     << std::endl;
 
+  start = microsec_clock::universal_time();
+
+  //ResultType centroidResults = splitter();
+  end = microsec_clock::universal_time();
+  td = end - start;
+
+  std::cout << "elapsed time in seconds: " 
+    << td.total_seconds()
+    << std::endl;
+
+
+
+
+
+
   std::cout << "finding connected components... ";
-  typedef SetA<Centroid, 1,0>::IntType LabelType;
-  std::vector<LabelType> labels;
-  LabelType nComponents = findConnectedComponents(centroidResults, labels); 
-  std::cout << nComponents << " components found." << std::endl;
-  typedef std::vector<LabelType>::const_iterator LabelIter;
-  std::vector<Xic> xics;  
-  xics.resize(nComponents);
-  std::vector<unsigned int> labelcounts;
-  labelcounts.resize(nComponents, 0);
-  for (unsigned int i = 0; i < labels.size(); ++i) {
-	xics[labels[i] - 1].mz_ += centroids[i].mz_;
-	xics[labels[i] - 1].rt_ += centroids[i].rt_;
-	++labelcounts[labels[i] - 1];
-  }
-  for (unsigned int i = 0; i < xics.size(); ++i) {
-	xics[i].mz_ /= labelcounts[i];
-	xics[i].rt_ /= labelcounts[i];
+  typedef SetType::IntType LabelType;
+  std::vector<LabelType> labels, filteredLabels;
+  //LabelType nComponents = findConnectedComponents(centroidResults, labels); 
+  //std::cout << nComponents << " components found." << std::endl;
+  LabelType dComponents = findConnectedComponents(filteredResults, filteredLabels); 
+  std::vector<unsigned int> labelCounts = countLabels(filteredLabels, dComponents);
+  std::map<unsigned int, unsigned int> filteredCounts = 
+    filterCounts(labelCounts, options.overlap_);
+
+  std::cout << filteredCounts.size() << " components found." << std::endl;
+
+  std::ofstream ofs(options.outputfileName_.c_str());
+  ofs << "Label" << "\t" << "Count" << std::endl;
+  typedef std::map<unsigned int, unsigned int>::const_iterator It; 
+  for (It it = filteredCounts.begin(); it != filteredCounts.end(); ++it) {
+    ofs << it->first << "\t" << it->second  << std::endl;
   }
 
-  std::sort(labelcounts.begin(), labelcounts.end());
-  std::cout << "Biggest clusters: " << std::endl;
-  for (unsigned int i = 1; i < 100; ++i) {
-	  std::cout << i << ": " << labelcounts[labelcounts.size() - i] << std::endl;
-  }
-  std::ofstream ofs(options.outputfileName_.c_str());
-  for (unsigned int i = 0; i < xics.size(); ++i) {
-	  ofs << xics[i].mz_ << "\t" << xics[i].rt_ << std::endl;
-  }
+  /*
+     typedef std::vector<LabelType>::const_iterator LabelIter;
+     std::vector<Xic> xics;  
+     xics.resize(nComponents);
+     std::vector<unsigned int> labelcounts;
+     labelcounts.resize(nComponents, 0);
+     for (unsigned int i = 0; i < labels.size(); ++i) {
+     xics[labels[i] - 1].mz_ += centroids[i].mz_;
+     xics[labels[i] - 1].rt_ += centroids[i].rt_;
+     ++labelcounts[labels[i] - 1];
+     }
+     for (unsigned int i = 0; i < xics.size(); ++i) {
+     xics[i].mz_ /= labelcounts[i];
+     xics[i].rt_ /= labelcounts[i];
+     }
+
+     std::sort(labelcounts.begin(), labelcounts.end());
+     std::cout << "Biggest clusters: " << std::endl;
+     for (unsigned int i = 1; i < 100; ++i) {
+     std::cout << i << ": " << labelcounts[labelcounts.size() - i] << std::endl;
+     }
+     std::ofstream ofs(options.outputfileName_.c_str());
+     */
+  /*
+     for (unsigned int i = 0; i < xics.size(); ++i) {
+     ofs << xics[i].mz_ << "\t" << xics[i].rt_ << std::endl;
+     }
+     */
 }
