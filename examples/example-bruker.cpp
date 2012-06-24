@@ -47,6 +47,7 @@ int main(int argc, char * argv[]) {
   //(SetType::*)
   //(const std::vector<Centroid>&,const CentroidBoxGenerator&, const CentroidBoxGenerator&) )
   //&SetType::intersect<const std::vector<Centroid>&,const CentroidBoxGenerator&, const CentroidBoxGenerator&>;
+  ResultType test = std::vector<std::vector<unsigned int> >();
   boost::function<ResultType(std::deque<Centroid>)> boostFunctor =
   boost::bind(
   &SetType::intersect<const std::deque<Centroid>&,const CentroidBoxGenerator&, const CentroidBoxGenerator&>
@@ -55,14 +56,13 @@ int main(int argc, char * argv[]) {
   ResultType fullAdjList = splitter.findOverlaps(boostFunctor);
   ptime end = microsec_clock::universal_time();
   time_duration td = end - start;
-
   std::cout << "elapsed time in seconds: " 
     << td.total_seconds()
     << std::endl;
   std::vector<unsigned int> labels;
   unsigned int nComponents = findConnectedComponents(fullAdjList, labels);
-  for (int i = 0; i < 100; ++i) {
-  //std::cout << fullAdjList[i] << std::endl;
+  for (int i = fullAdjList.size() - 3; i < fullAdjList.size(); ++i) {
+  std::cout << fullAdjList[i] << std::endl;
   }
   std::cout << nComponents << "nComponents" << std::endl;
 
