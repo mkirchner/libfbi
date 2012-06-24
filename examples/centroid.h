@@ -1,6 +1,8 @@
 #include "fbi/tuple.h"
 #include "fbi/tuplegenerator.h"
 
+#ifndef __LIBFBI_EXAMPLES_CENTROID_H__
+#define __LIBFBI_EXAMPLES_CENTROID_H__
 struct Centroid 
 {
   double mz_;
@@ -13,7 +15,7 @@ struct Centroid
 namespace fbi {
 
   template<>
-  struct Traits<Centroid> : mpl::TraitsGenerator<float, float> {};
+  struct Traits<Centroid> : mpl::TraitsGenerator<float, unsigned int> {};
 
 } //end namespace fbi
 
@@ -71,3 +73,4 @@ CentroidBoxGenerator::get<1>(const Centroid & centroid) const
 
 
 
+#endif
