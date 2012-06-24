@@ -370,10 +370,6 @@ class SetA{
    */
   template <
   class BoxContainer,
-        typename = 
-          typename std::enable_if<
-            std::is_same<typename BoxContainer::value_type, value_type>::value>
-          ::type,
         typename IntervalFunctor,
         typename ... QueryFunctors
           >
@@ -757,9 +753,7 @@ SetB {
 
   template <
   class BoxContainer,
-        typename = typename std::enable_if<std::is_same<typename BoxContainer::value_type, value_type>::value>::type,
         class QContainer,
-        typename = typename std::enable_if<std::is_same<typename QContainer::value_type, qvalue_type>::value>::type,
         typename IntervalFunctor, 
         typename ... QueryFunctors
   > static
