@@ -15,7 +15,7 @@ struct Centroid
 namespace fbi {
 
   template<>
-  struct Traits<Centroid> : mpl::TraitsGenerator<float, unsigned int> {};
+  struct Traits<Centroid> : mpl::TraitsGenerator<float, float> {};
 
 } //end namespace fbi
 
@@ -30,9 +30,9 @@ struct CentroidBoxGenerator
   double mzWindowPpm_;
   double rtOffset_;
   double rtWindow_;
-  unsigned int snWindow_;
+  float snWindow_;
 
-  CentroidBoxGenerator(double mzWindowPpm, unsigned int  snWindow)
+  CentroidBoxGenerator(double mzWindowPpm, float snWindow)
     : mzOffset_(0.0), mzWindowPpm_(mzWindowPpm), snWindow_(snWindow)
   {}
   CentroidBoxGenerator(double mzWindowPpm, double rtWindow, unsigned int snWindow)
@@ -61,7 +61,7 @@ CentroidBoxGenerator::get<0>(const Centroid & centroid) const
 
 
 template <>
-std::pair<unsigned int, unsigned int>  
+std::pair<float, float>  
 CentroidBoxGenerator::get<1>(const Centroid & centroid) const 
 {
   return std::make_pair(

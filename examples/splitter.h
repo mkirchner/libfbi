@@ -116,7 +116,7 @@ SNSplitter {
         return numentries;
       }
     ResultType
-      filterAdjList(const ResultType & adjList) {
+      filterAdjList(ResultType & adjList) {
         ResultType filteredAdjList;
         std::vector<LabelType> labels;
         LabelType nComponents = findConnectedComponents(adjList, labels); 
@@ -128,7 +128,8 @@ SNSplitter {
         filteredAdjList.resize(adjList.size());
         for (std::vector<LabelType>::size_type i = 0; i < labels.size(); ++i) {
           if (counter[labels[i]-1] >= options_.minClusterSize_) { 
-            std::copy(adjList[i].begin(), adjList[i].end(), std::back_inserter(filteredAdjList[i]));
+            adjList[i].swap(filteredAdjList[i]);
+            //std::copy(adjList[i].begin(), adjList[i].end(), std::back_inserter(filteredAdjList[i]));
           }
         }
         return filteredAdjList;
@@ -141,7 +142,7 @@ SNSplitter {
         typename ResultType::value_type::const_iterator it1;
         for (index = 0; index < filteredAdjList.size(); ++index) {
           for (it1 = filteredAdjList[index].begin(); it1 != filteredAdjList[index].end(); ++it1) {
-            fullAdjList[index + offset].insert(fullAdjList[index + offset].end(), *it1 + offset);
+            fullAdjList[index + offset].insert(fullAdjList[index + offset].end(), typename ResultType::value_type::value_type(*it1 + offset));
           }
         }
         //std::cout << adjListCounter_ << "adjCounter" << std::endl;
@@ -149,7 +150,8 @@ SNSplitter {
       }
     ResultType
       createShortAdjList(boost::function<ResultType(std::deque<Centroid>)> & intersectFunctor, const std::deque<Centroid> & centroids) {
-        ResultType shortAdjList = intersectFunctor(centroids);
+        //ResultType shortAdjList = intersectFunctor(centroids);
+        ResultType shortAdjList = SetType::intersect(centroids, CentroidBoxGenerator(10,0.51),CentroidBoxGenerator(10,0.51));
 
         ResultType filteredAdjList = filterAdjList(shortAdjList);
         for (int i = 0; i < 10; ++i) {
@@ -214,8 +216,9 @@ SNSplitter {
           }
           
         }
-        
+        std::cout << "beep" << std::endl; 
         ResultType filteredAdjList = createShortAdjList(intersectFunctor, centroids);
+        std::cout << "boop" << std::endl;
         joinAdjLists(filteredAdjList, fullAdjList, oldCentroidCounter);
 
         fullAdjList = makeUnique(fullAdjList);
