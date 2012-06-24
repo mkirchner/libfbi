@@ -6,16 +6,16 @@
 struct Centroid 
 {
   double mz_;
-  unsigned int sn_;
+  int sn_;
   double rt_;
-  Centroid(const double& mz, const unsigned int  & sn, const double & rt) 
+  Centroid(const double& mz, const int  & sn, const double & rt) 
     : mz_(mz), sn_(sn), rt_(rt){}
 };
 
 namespace fbi {
 
   template<>
-  struct Traits<Centroid> : mpl::TraitsGenerator<float, float> {};
+  struct Traits<Centroid> : mpl::TraitsGenerator<float, int> {};
 
 } //end namespace fbi
 
@@ -30,18 +30,18 @@ struct CentroidBoxGenerator
   double mzWindowPpm_;
   double rtOffset_;
   double rtWindow_;
-  float snWindow_;
+  int snWindow_;
 
-  CentroidBoxGenerator(double mzWindowPpm, float snWindow)
+  CentroidBoxGenerator(double mzWindowPpm, int snWindow)
     : mzOffset_(0.0), mzWindowPpm_(mzWindowPpm), snWindow_(snWindow)
   {}
-  CentroidBoxGenerator(double mzWindowPpm, double rtWindow, unsigned int snWindow)
+  CentroidBoxGenerator(double mzWindowPpm, double rtWindow, int snWindow)
     : mzOffset_(0.0), mzWindowPpm_(mzWindowPpm),
     rtOffset_(0.0), rtWindow_(rtWindow), snWindow_(snWindow)
   {}
 
   CentroidBoxGenerator(double mzOffset, double mzWindowPpm, 
-      double rtOffset, double rtWindow, unsigned int snWindow)
+      double rtOffset, double rtWindow, int snWindow)
     : mzOffset_(mzOffset), mzWindowPpm_(mzWindowPpm),
     rtOffset_(rtOffset), rtWindow_(rtWindow), snWindow_(snWindow)
   {}
@@ -61,7 +61,7 @@ CentroidBoxGenerator::get<0>(const Centroid & centroid) const
 
 
 template <>
-std::pair<float, float>  
+std::pair<int, int>  
 CentroidBoxGenerator::get<1>(const Centroid & centroid) const 
 {
   return std::make_pair(
