@@ -39,7 +39,7 @@ int main(int argc, char * argv[]) {
   
   SNSplitter<SetType> splitter(options);
 
-  CentroidBoxGenerator gen(10,0.51);
+  CentroidBoxGenerator gen(10,1);
   //ResultType (*intersectFunctor)
   //(std::vector<Centroid>, CentroidBoxGenerator, CentroidBoxGenerator); 
   
