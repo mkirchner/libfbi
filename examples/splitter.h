@@ -79,15 +79,22 @@ parseString(const std::string & str, ContainerType & centroids, int sn, bool onl
   char mode[101];
   char mslevel[101];
   char line[101];
-  int unknown=0, numentries=0, intensity=0;
+  char unknown[101];
+  int numentries=0, intensity=0, consumed = 0;
   typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
   boost::char_separator<char> sep(",");
 
   Tokenizer tokens(str, sep);
   Tokenizer::iterator it = tokens.begin();
-  if (sscanf(str.c_str(), "%f,%c,%100[^,],%100[^,],%d,%100[^,],%f-%f,%u,", &rt, &pol, mode, mslevel, &unknown, line, &massrange_lo, &massrange_hi, &numentries) != 9 || onlyheader) {
+  if (sscanf(str.c_str(), "%f,%c,%100[^,],%100[^,],%100[^,],%100[^,],%f-%f,%u,%n", &rt, &pol, mode, mslevel, unknown, line, &massrange_lo, &massrange_hi, &numentries, &consumed) != 9) {
+    std::cout << "Problem detected while parsing: " <<std::endl<< str.substr(0,consumed) << std::endl;
+    
+    std::cout << "Parsing result: " << std::endl;
+    std::cout << rt << "," << pol << "," << mode <<","<< mslevel << "," << unknown << "," << line << "," << massrange_lo << "-" << massrange_hi << "," << numentries << std::endl;
     return numentries;
   }
+  if (onlyheader) return numentries;
+
   for (int i = 0; i < 8; ++i) ++it;
   while (it != tokens.end()) {
     std::string mz_int_pair(*(it++));
@@ -186,6 +193,7 @@ SNSplitter {
           countAllCentroids += parseString(str, centroids, segmentCounter, onlyheader);
         }
         fullAdjList.resize(countAllCentroids);
+        std::cout << countAllCentroids << " centroids found" << std::endl;
         ifs.clear();
         ifs.seekg(0);
         while(std::getline(ifs, str)) {

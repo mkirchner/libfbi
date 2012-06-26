@@ -14,6 +14,7 @@
 #include "fbi/connectedcomponents.h"
 #include "centroid.h"
 #include "splitter.h"
+#include "xic.h"
 
 #include "boost/date_time/posix_time/posix_time.hpp"
 
@@ -43,6 +44,7 @@ int main(int argc, char * argv[]) {
   &SetType::intersect<const std::deque<Centroid>&,const CentroidBoxGenerator&, const CentroidBoxGenerator&>
   , _1, gen, gen);
   
+  std::cout << "Looking for overlaps" << std::endl;
   ResultType fullAdjList = splitter.findOverlaps(boostFunctor);
   ptime end = microsec_clock::universal_time();
   time_duration td = end - start;
@@ -52,56 +54,30 @@ int main(int argc, char * argv[]) {
   std::cout << "finding connected components... ";
   std::vector<LabelType> labels;
   unsigned int nComponents = findConnectedComponents(fullAdjList, labels);
-  std::vector<unsigned int> counter(nComponents, 0);
-  for (std::vector<LabelType>::size_type i = 0; i < labels.size(); ++i) {
-    ++counter[labels[i] - 1];
-  }
-  unsigned int bigClusterCounter = 0;
-  for (unsigned int i = 0; i < counter.size(); ++i) {
-    if (counter[i] >= options.minClusterSize_) bigClusterCounter++;
-  }
+  fullAdjList.clear();
+  ResultType().swap(fullAdjList);
 
-  std::cout << "Number of clusters after filtering: " << bigClusterCounter << std::endl;
-  std::sort(counter.begin(), counter.end());
-  std::reverse(counter.begin(), counter.end());
-  
-/*
-  std::ofstream ofs((options.outputfileName_ + ".counts").c_str());
-  ofs << "Count" << std::endl;
-  typedef std::map<unsigned int, unsigned int>::const_iterator It; 
-  for (It it = counter.begin(); it != counter.end(); ++it) {
-    ofs << *it << std::endl;
-  }
-  std::ifstream ifs(options.inputfileName_.c_str());
+  std::cout << "Rereading centroids file" << std::endl;
   std::vector<Centroid> centroids;
-  int sn = 0;
+  std::ifstream ifs(options.inputfileName_);
   std::string str;
   while (std::getline(ifs, str)) {
-    parseString(str, centroids, sn);
+    parseString(str, centroids, 0);
   }
+  ifs.close();
 
+  std::vector<unsigned int> counter(nComponents);
+  std::cout << "Creating Xics" << std::endl;
+  std::vector<Xic> xics = createXicVector(centroids.begin(), centroids.end(), labels.begin(), labels.end(), counter);
 
-  typedef std::vector<LabelType>::const_iterator LabelIter;
-  std::vector<Xic> xics;  
-  xics.resize(bifgClusterCounter);
-  std::vector<unsigned int> labelcounts;
-  labelcounts.resize(nComponents, 0);
-  for (unsigned int i = 0; i < labels.size(); ++i) {
-    xics[labels[i] - 1].mz_ += centroids[i].mz_;
-    xics[labels[i] - 1].rt_ += centroids[i].rt_;
-    ++labelcounts[labels[i] - 1];
-  }
-  for (unsigned int i = 0; i < xics.size(); ++i) {
-    xics[i].mz_ /= labelcounts[i];
-    xics[i].rt_ /= labelcounts[i];
-  }
-
-  std::sort(labelcounts.begin(), labelcounts.end());
-  std::cout << "Biggest clusters: " << std::endl;
-  for (unsigned int i = 1; i < 100; ++i) {
-    std::cout << i << ": " << labelcounts[labelcounts.size() - i] << std::endl;
-  }
   std::ofstream ofs(options.outputfileName_.c_str());
-*/
 
+
+  std::cout << "Writing xics to outputfile" << std::endl;
+  for (std::vector<Xic>::size_type i = 0; i < xics.size(); ++i) {
+    if (counter[i] >= options.minClusterSize_) {
+      ofs << xics[i] << "\t" << counter[i] <<std::endl;
+    }
+  }
 }
+
