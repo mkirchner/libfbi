@@ -124,6 +124,10 @@ class SetA{
                 does not have enough dimensions to use your indices");
 
 
+  static_assert(Traits<value_type>::defined == 1,
+                "Please define Traits for your custom type"
+                );
+
   /**
    *  The key is represented by a pair of values for each dimension that 
    *  should be considered for intersection tests, 
@@ -132,25 +136,34 @@ class SetA{
    * \note This key_type is a subset of the original key_type, 
    * depending on the indices we're using.
    */
+  /*
   typedef typename std::tuple < 
       typename std::tuple_element<
       TIndices, typename Traits<value_type>::key_type 
       >::type ...
     > key_type;
+*/
 
-
+typedef typename 
+    mpl::TypeExtractor<Traits<value_type>, TIndices...>::key_type
+      key_type;
   /**
    * As every dimension can have a different type, 
    * the appropriate comparison-operator
    * has to be known during compile-time. 
    * \see \ref fbi::Traits
    */
+  /*
   typedef typename std::tuple <
       typename std::tuple_element<
         TIndices, typename Traits<value_type>::dim_type 
         >
       ::type::second_type ...
       > comp_type;      
+*/
+typedef typename 
+    mpl::TypeExtractor<Traits<value_type>, TIndices...>::comp_type
+      comp_type;
 
  public:
   /** 
@@ -685,11 +698,9 @@ SetB {
    * \note This key_type is a subset of the original key_type, 
    * depending on the indices we're using.
    */
-  typedef typename std::tuple <
-      typename std::tuple_element<
-      QIndices, typename Traits<qvalue_type>::key_type
-      >::type ...
-      > qkey_type;
+  typedef typename 
+    mpl::TypeExtractor<Traits<qvalue_type>, QIndices...>::key_type
+      qkey_type;
   /**Ensure that the key_types are equal */
   static_assert(std::is_same<key_type, qkey_type>::value, 
     "Keytypes don't match");
@@ -701,10 +712,9 @@ SetB {
    * \see \ref fbi::Traits
    */
 
-  typedef typename std::tuple <
-        typename std::tuple_element<QIndices, typename Traits<qvalue_type>::dim_type
-      >::type::second_type ...
-    > qcomp_type;      
+typedef typename 
+    mpl::TypeExtractor<Traits<qvalue_type>, QIndices...>::comp_type
+      qcomp_type;
     /** Ensure that the comparison operators are equal*/
   static_assert(std::is_same<comp_type, qcomp_type>::value, 
     "CompTypes don't match");
@@ -765,6 +775,9 @@ SetB {
       ) {
     return thetaIntersect(State::defaultCutoff, dataContainer, ifunctor, qdataContainer, qfunctors...);
   }
+
+
+
    /**
    * \callgraph
    * \brief The public interface for the user to start the algorithm. 
@@ -803,7 +816,7 @@ SetB {
    * Note that every edge is inserted twice as intersection is reflective and 
    * the result an undirected graph.
    */
-  template <
+   template <
   class BoxContainer,
         typename = typename std::enable_if<std::is_same<typename BoxContainer::value_type, value_type>::value>::type,
         class QContainer,
@@ -812,6 +825,52 @@ SetB {
         typename ... QueryFunctors
   > static
   ResultType thetaIntersect(
+      const size_t cutoff,
+      const BoxContainer & dataContainer, 
+      const IntervalFunctor & ifunctor, 
+      const QContainer & qdataContainer,
+      const QueryFunctors& ... qfunctors
+      ) {
+
+    return intersectImpl(
+        mpl::Bool2Type<
+        mpl::TypeExtractor<Traits<value_type>, TIndices...>::ExtractionSuccessful && 
+        mpl::TypeExtractor<Traits<qvalue_type>, QIndices...>::ExtractionSuccessful
+        >(),
+      cutoff, dataContainer, ifunctor, qdataContainer, qfunctors...);
+  }
+
+   template <
+  class BoxContainer,
+        typename = typename std::enable_if<std::is_same<typename BoxContainer::value_type, value_type>::value>::type,
+        class QContainer,
+        typename = typename std::enable_if<std::is_same<typename QContainer::value_type, qvalue_type>::value>::type,
+        typename IntervalFunctor, 
+        typename ... QueryFunctors
+  >  
+  ResultType static 
+      intersectImpl(
+      mpl::Bool2Type<false>,
+      const size_t cutoff,
+      const BoxContainer & dataContainer, 
+      const IntervalFunctor & ifunctor, 
+      const QContainer & qdataContainer,
+      const QueryFunctors& ... qfunctors
+      ) { 
+        return ResultType();
+      }
+
+ template <
+  class BoxContainer,
+        typename = typename std::enable_if<std::is_same<typename BoxContainer::value_type, value_type>::value>::type,
+        class QContainer,
+        typename = typename std::enable_if<std::is_same<typename QContainer::value_type, qvalue_type>::value>::type,
+        typename IntervalFunctor, 
+        typename ... QueryFunctors
+  > 
+  ResultType static 
+      intersectImpl(
+      mpl::Bool2Type<true>,
       const size_t cutoff,
       const BoxContainer & dataContainer, 
       const IntervalFunctor & ifunctor, 
@@ -919,7 +978,12 @@ SetB {
 	}
 #endif
     return resultVector;
-  }
+}
+
+
+
+
+
 }; //end class SetB
 
 template <typename BoxType, std::size_t ... TIndices>

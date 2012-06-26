@@ -71,8 +71,32 @@ int parseProgramOptions(int argc, char* argv[], ProgramOptions& options)
   }
   return 1;
 }
+template <ContainerType>
+unsigned int 
+parseString(const std::string & str, ContainerType & centroids, int sn, bool onlyheader = false) {
+  float mz=0, massrange_lo=0, massrange_hi=0, rt=0;
+  char pol=0;
+  char mode[101];
+  char mslevel[101];
+  char line[101];
+  int unknown=0, numentries=0, intensity=0;
+  typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
+  boost::char_separator<char> sep(",");
 
-
+  Tokenizer tokens(str, sep);
+  Tokenizer::iterator it = tokens.begin();
+  if (sscanf(str.c_str(), "%f,%c,%100[^,],%100[^,],%d,%100[^,],%f-%f,%u,", &rt, &pol, mode, mslevel, &unknown, line, &massrange_lo, &massrange_hi, &numentries) != 9 || onlyheader) {
+    return numentries;
+  }
+  for (int i = 0; i < 8; ++i) ++it;
+  while (it != tokens.end()) {
+    std::string mz_int_pair(*(it++));
+    if (sscanf(mz_int_pair.c_str(), "%f %u", &mz, &intensity) == 2) {
+      centroids.push_back(Centroid(mz, sn, rt));
+    }
+  }
+  return numentries;
+}
 
 template <class SetType>
 struct
@@ -83,38 +107,14 @@ SNSplitter {
     unsigned int adjListCounter_;
 
   public:
-  typedef typename SetType::ResultType ResultType;
-  typedef unsigned int LabelType;
+    typedef typename SetType::ResultType ResultType;
+    typedef unsigned int LabelType;
     SNSplitter(const ProgramOptions& options) : options_(options) {
 
       overlap_ = std::max(options_.minClusterSize_ * options_.snWindowSize_ - 1, options_.snWindowSize_);
       adjListCounter_ = 0;
     }
-     unsigned int 
-      parseString(const std::string & str, std::deque<Centroid> & centroids, int sn, bool onlyheader = false) {
-        float mz=0, massrange_lo=0, massrange_hi=0, rt=0;
-        char pol=0;
-        char mode[101];
-        char mslevel[101];
-        char line[101];
-        int unknown=0, numentries=0, intensity=0;
-        typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
-        boost::char_separator<char> sep(",");
 
-        Tokenizer tokens(str, sep);
-        Tokenizer::iterator it = tokens.begin();
-        if (sscanf(str.c_str(), "%f,%c,%100[^,],%100[^,],%d,%100[^,],%f-%f,%u,", &rt, &pol, mode, mslevel, &unknown, line, &massrange_lo, &massrange_hi, &numentries) != 9 || onlyheader) {
-          return numentries;
-        }
-        for (int i = 0; i < 8; ++i) ++it;
-        while (it != tokens.end()) {
-          std::string mz_int_pair(*(it++));
-          if (sscanf(mz_int_pair.c_str(), "%f %u", &mz, &intensity) == 2) {
-            centroids.push_back(Centroid(mz, sn, rt));
-          }
-        }
-        return numentries;
-      }
     ResultType
       filterAdjList(ResultType & adjList) {
         std::vector<LabelType> labels;
@@ -132,7 +132,7 @@ SNSplitter {
         }
         return adjList;
       }
-      ResultType
+    ResultType
       joinAdjLists(const ResultType & filteredAdjList, ResultType & fullAdjList, typename ResultType::size_type offset) {
         //fullAdjList.resize(filteredAdjList.size() + offset);
         typename ResultType::size_type index;
@@ -145,7 +145,7 @@ SNSplitter {
           }
           //InnerType().swap(filteredAdjList[index]);
         }
-        
+
         return fullAdjList;
       }
     ResultType
@@ -157,15 +157,15 @@ SNSplitter {
         return shortAdjList;
       }
     template <typename IteratorType>
-IteratorType
-    makeUnique(IteratorType begin, IteratorType end) {
-      for (;begin != end; ++begin) {
-        typename ResultType::value_type & vec = *begin;
-        std::sort(vec.begin(), vec.end());
-        vec.resize(std::unique(vec.begin(), vec.end()) - vec.begin());
+      IteratorType
+      makeUnique(IteratorType begin, IteratorType end) {
+        for (;begin != end; ++begin) {
+          typename ResultType::value_type & vec = *begin;
+          std::sort(vec.begin(), vec.end());
+          vec.resize(std::unique(vec.begin(), vec.end()) - vec.begin());
+        }
+        return begin;
       }
-      return begin;
-    }
 
 
     ResultType
@@ -178,7 +178,7 @@ IteratorType
         unsigned int centroidCounter = 0;
         unsigned int oldCentroidCounter = 0;
         unsigned int nextCentroidCounter = 0;
-        
+
         ResultType fullAdjList;
         unsigned int countAllCentroids = 0;
         while(std::getline(ifs, str)) {
@@ -195,10 +195,10 @@ IteratorType
           if (segmentCounter % options_.segmentSize_ == 0) {
             nextCentroidCounter = centroidCounter;
           }
-          
+
           if (segmentCounter % options_.segmentSize_ == overlap_ && segmentCounter >= options_.segmentSize_) {
             ResultType filteredAdjList = createShortAdjList(intersectFunctor, centroids);
-            
+
             joinAdjLists(filteredAdjList, fullAdjList, oldCentroidCounter);
             makeUnique(fullAdjList.begin() + oldCentroidCounter, fullAdjList.begin() + centroidCounter);
             unsigned int numNewCentroids = nextCentroidCounter - oldCentroidCounter;

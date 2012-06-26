@@ -23,7 +23,7 @@ MACRO_REQUIRE_OUT_OF_SRC_BUILD("LIBFBI requires out-of-source builds.")
 
 # more warnings against everything
 IF(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG)
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wconversion -Wall -Wextra -Wno-unused-parameter" )
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-parameter" )
 OPTION(USE_C++1X "Enable C++1x compilation (requires a compliant compiler)" ON)
 IF (USE_C++1X)
 SET(CMAKE_CXX0X_FLAGS "-std=c++0x" )
@@ -44,10 +44,6 @@ TRY_COMPILE (HAS_UNIFORM_INT_DISTRIBUTION
 TRY_COMPILE (HAS_VARIADIC_TEMPLATES
     ${CMAKE_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/testvariadic.cxx
-)
-TRY_COMPILE (HAS_TEMPLATE_ALIASES
-    ${CMAKE_BINARY_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/testtemplatealias.cxx
 )
 
 OPTION(ENABLE_MULTITHREADING "Use Multithreading in LIBFBI" OFF)

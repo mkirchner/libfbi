@@ -27,6 +27,8 @@
 #ifndef __LIBFBI_INCLUDE_FBI_TRAITS_H__
 #define __LIBFBI_INCLUDE_FBI_TRAITS_H__
 
+#include <fbi/tuplegenerator.h>
+
 namespace fbi {
 
 /**
@@ -60,6 +62,9 @@ namespace fbi {
  *        std::numeric_limits<int>::max())
  *    )
  *  }
+ * enum {
+ *   defined = 1
+ * }
  * };
  * 
  * // This only works if std::numeric_limits is available for the chosen types,
@@ -74,7 +79,11 @@ namespace fbi {
 
 
 template<typename T> 
-struct Traits; 
+struct Traits: public mpl::TraitsGenerator<boost::mpl::void_>{
+  enum {
+    defined = 0
+  };
+}; 
 
 
 } //end namespace fbi

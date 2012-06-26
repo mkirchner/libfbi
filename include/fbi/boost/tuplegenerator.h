@@ -39,7 +39,6 @@
 
 #include <functional>
 #include <fbi/config.h>
-#include <fbi/traits.h>
 
 #include <boost/preprocessor.hpp>
 
@@ -54,6 +53,8 @@
 #include <boost/mpl/equal_to.hpp>
 #include <boost/mpl/arithmetic.hpp>
 #include <boost/mpl/assert.hpp>
+#include <boost/mpl/greater.hpp>
+
 #include <boost/tuple/tuple.hpp> 
 
 
@@ -61,6 +62,15 @@ namespace fbi {
 
   namespace mpl {
 
+template <bool b>
+struct Bool2Type {
+  enum {value = b};
+};
+
+template <typename T>
+struct Type2Type {
+  typedef T OriginalType;
+};
 
 template<typename T>
 struct pairTT
@@ -83,11 +93,24 @@ struct extractSecondType
 };
 
 
+template <typename Container, typename T, int N>
+struct createUniformContainer {
+  typedef typename boost::mpl::push_back<
+  typename createUniformContainer<Container, T, N-1>::type,
+  T>::type type;
+};
+
+template <typename Container, typename T>
+struct createUniformContainer<Container, T, 0> {
+  typedef typename Container::type type;
+};
+
+
 template<typename Vector, int N>
-struct convertVectorToTuple {};
+struct convertVectorToTuple;
 
 template<int N, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, typename T)>
-struct CreateTuple {};
+struct CreateTuple;
 
 
 #define VECTORAT(z,n,text) typename boost::mpl::at_c<text, n>::type
@@ -98,11 +121,11 @@ struct convertVectorToTuple<Vec, n> { \
   typedef boost::tuples::tuple<BOOST_PP_ENUM(n, VECTORAT, Vec)> type; \
 }; 
 
-#define BOOST_PP_LOCAL_LIMITS (1, MAX_DIMENSIONS)
+#define BOOST_PP_LOCAL_LIMITS (0, MAX_DIMENSIONS)
 #include BOOST_PP_LOCAL_ITERATE()
 
 template<typename Tuple, int N>
-struct convertTupleToVector {};
+struct convertTupleToVector;
 
 #define TUPLEAT(z,n,text) typename boost::tuples::element<n, text>::type
 
@@ -321,6 +344,9 @@ typedef
          //return std::make_tuple(std::make_pair(std::numeric_limits<T>::min(), std::numeric_limits<T>::max())...);
         return LimitsHelper<boost::tuples::length<key_type>::value, typename key_type::inherited>::getLimit();
        }
+       enum{
+        defined = 1
+       };
     };
 
     template < BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS,typename T) >
@@ -352,29 +378,22 @@ typedef
 
 
   ///** Base template class*/
-  //template <size_t ...>
-  //struct IndexChecker;
-  //
-  ///** Check if any of the indices are bigger than T*/
-  //template <size_t T, size_t FirstIndex, size_t ... Indices>
-  //struct IndexChecker<T, FirstIndex, Indices...>{ 
-  //  /** enum for compile-time checks*/
-  //  enum {
-  //    /** value == false if any index is greater or equal than T*/
-  //    value = (FirstIndex < T) && IndexChecker<T, Indices...>::value
-  //  };
-  //};
-  ///** Always return true if there are no indices left*/
-  //template <size_t T>
-  //struct IndexChecker<T>{
-  //  /** enum for compile-time checks*/
-  //  enum {
-  ///** Always return true if there are no indices left*/
-  //    value = true
-  //  };
-  //};
-  //
-  //
+  template <int limit, class BoostMplVector>
+  struct IndexChecker {
+    
+    typedef typename boost::mpl::remove_if<
+      BoostMplVector,
+      boost::mpl::greater<boost::mpl::_, boost::mpl::int_<limit - 1> > 
+    >::type 
+    compareToType;
+
+    enum {
+      value = (boost::mpl::size<compareToType>::value == 
+        boost::mpl::size<BoostMplVector>::value)
+    };
+  };
+
+
   /** 
    * Templated helper class, returns the number of functors passed.
    * As we should be able to pass multiple types of functors and even
@@ -434,17 +453,12 @@ struct CountNonNegative {
   
 };
 
+template <bool Correct, class TIndexWrapper, class key_tuple, class dim_tuple>
+struct ExtractorImpl {
 
-template <typename value_type, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex)>
-struct indexFilter {
-  typedef typename boost::mpl::vector_c<int, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)> TIndexAllWrapper;
-  typedef typename boost::mpl::remove<TIndexAllWrapper, boost::mpl::integral_c<int, -1>::type>::type TIndexWrapper;
   enum {
     NUMDIMS = boost::mpl::size<TIndexWrapper>::value
   };
-  typedef typename Traits<value_type>::key_type key_tuple;
-  typedef typename Traits<value_type>::dim_type dim_tuple;
-
 
   typedef typename fbi::mpl::convertTupleToVector<key_tuple, boost::tuples::length<key_tuple>::value >
     ::type key_type_prefilter;
@@ -452,6 +466,7 @@ struct indexFilter {
   typedef typename fbi::mpl::convertTupleToVector<dim_tuple, boost::tuples::length<dim_tuple>::value >
     ::type dim_type_prefilter;
 
+ 
 
   typedef typename boost::mpl::lambda<boost::mpl::at<key_type_prefilter, boost::mpl::placeholders::_1> >::type key_extractor;
   typedef typename boost::mpl::transform<TIndexWrapper, key_extractor>::type key_type_vector;
@@ -463,29 +478,90 @@ struct indexFilter {
 
   typedef typename fbi::mpl::convertVectorToTuple<comp_type_vector, NUMDIMS>::type comp_type;
 
-template <int N, int Dummy>
-struct TupleGetter;
+  enum{
+    ExtractionSuccessful = true
+  };
+};
+
+template <class TIndexWrapper, class key_tuple, class dim_tuple>
+struct ExtractorImpl<false, TIndexWrapper, key_tuple, dim_tuple> {
+  
+  enum {
+    NUMDIMS = boost::mpl::size<TIndexWrapper>::value
+  };
+  typedef void * DefaultType;
+  typedef std::pair<DefaultType, DefaultType> single_key_type;
+  typedef std::pair<DefaultType, std::less<DefaultType> > single_comp_type;
+
+
+  typedef typename createUniformContainer<boost::mpl::vector<>, single_key_type, NUMDIMS>::type key_type_vector;
+  typedef typename createUniformContainer<boost::mpl::vector<>, single_comp_type, NUMDIMS>::type comp_type_vector;
+
+  typedef typename fbi::mpl::convertVectorToTuple<key_type_vector, NUMDIMS>::type key_type;
+  typedef typename fbi::mpl::convertVectorToTuple<comp_type_vector, NUMDIMS>::type comp_type;
+
+  enum{
+    ExtractionSuccessful = false
+  };
 
 };
-/*
-  #define BOOST_PP_LOCAL_MACRO(n)\
-  template <int N, typename boost::lazy_enable_if_c<n == NUMDIMS, int>::type = 0>\
-  static key_type\
-  getLimits() {}\
+
+
+
+
+template <class TraitsType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex)>
+struct TypeExtractor {
+  typedef typename boost::mpl::vector_c<int, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)> TIndexAllWrapper;
+  typedef typename boost::mpl::remove<TIndexAllWrapper, boost::mpl::integral_c<int, -1>::type>::type TIndexWrapper;
+  typedef typename TraitsType::key_type key_tuple;
+  typedef typename TraitsType::dim_type dim_tuple;
+
+ typedef IndexChecker<boost::tuples::length<key_tuple>::value, TIndexWrapper> ICheckType;
+  enum {
+    TINDICESCORRECT = 
+    ICheckType::value && 
+    TraitsType::defined
+  };
+  BOOST_MPL_ASSERT_MSG(ICheckType::value,
+  INDEX_OUT_OF_RANGE, (TIndexWrapper, boost::mpl::int_<boost::tuples::length<key_tuple>::value>));
   
-  #define BOOST_PP_LOCAL_LIMITS (1, MAX_DIMENSIONS)
-  #include BOOST_PP_LOCAL_ITERATE()
-*/
+  BOOST_MPL_ASSERT_MSG(TraitsType::defined,
+  TRAITS_NOT_SPECIALIZED_FOR_CUSTOM_TYPE,
+  (TraitsType));
+
+ typedef ExtractorImpl<TINDICESCORRECT, TIndexWrapper, key_tuple, dim_tuple> Extracted;
+
+ 
+ typedef typename Extracted::key_type key_type;
+
+ typedef typename Extracted::comp_type comp_type;
+
+  enum {
+    ExtractionSuccessful = Extracted::ExtractionSuccessful
+  };
+  enum {
+    NUMDIMS = Extracted::NUMDIMS
+  };
+
+  template <int N, int Dummy>
+  struct TupleGetter;
+
+};
+
+
+
+
+
 
 #define BOOST_PP_LOCAL_MACRO(n) \
-template <typename value_type, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex)>\
+template <typename TraitsType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, int TIndex)>\
 template <int Dummy>\
-struct indexFilter<value_type, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::\
+struct TypeExtractor<TraitsType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::\
 TupleGetter<n, Dummy>{\
-typedef typename indexFilter<value_type, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::key_type key_type;\
+typedef typename TypeExtractor<TraitsType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::key_type key_type;\
   static key_type get() {\
     return boost::tuples::make_tuple(\
-      BOOST_PP_ENUM(n, PREPOSTWRAPPER, (boost::tuples::get<)(TIndex)(>(Traits<value_type>::getLimits()))\
+      BOOST_PP_ENUM(n, PREPOSTWRAPPER, (boost::tuples::get<)(TIndex)(>(TraitsType::getLimits()))\
       )\
     );\
   }\

@@ -76,7 +76,7 @@ namespace fbi {
     /** Small self-referencing typedef */
     typedef SetA<BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)> SETA;
     /** Helper-struct, encapsulating most typedefs to extract necessary types */
-    typedef fbi::mpl::indexFilter<BoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)> typeHelper;
+    typedef fbi::mpl::TypeExtractor<Traits<BoxType>, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)> typeHelper;
   
   /** A compile-time constant to mark recursion tails.*/
   enum {
@@ -618,7 +618,7 @@ SetB {
 
 
   /** Helper-struct, encapsulating most typedefs to extract necessary types */
-  typedef fbi::mpl::indexFilter<QBoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, QIndex)> qTypeHelper;
+  typedef fbi::mpl::TypeExtractor<Traits<QBoxType>, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, QIndex)> qTypeHelper;
 
   /** A compile-time constant to mark recursion tails.*/
   enum {
@@ -739,13 +739,57 @@ BOOST_MPL_ASSERT_MSG((boost::is_same<key_type, qkey_type>::value), KEY_TYPES_DON
 
 
 
-  template <
+template <
   class BoxContainer,
         class QContainer,
         typename IntervalFunctor, 
         typename QueryFunctors
   > static
   ResultType wrappedIntersect(
+      const size_type & cutoff,
+      const BoxContainer & dataContainer, 
+      const IntervalFunctor & ifunctor, 
+      const QContainer & qdataContainer,
+      const QueryFunctors& qfunctors
+      ) {
+      return intersectImpl(
+      mpl::Bool2Type<
+      typeHelper::ExtractionSuccessful &&
+      qTypeHelper::ExtractionSuccessful
+      >(),
+      cutoff, dataContainer, ifunctor, qdataContainer, qfunctors);
+    
+    }
+
+
+  template <
+  class BoxContainer,
+        class QContainer,
+        typename IntervalFunctor, 
+        typename QueryFunctors
+  > static
+  ResultType intersectImpl(
+      mpl::Bool2Type<false>,
+      const size_type & cutoff,
+      const BoxContainer & dataContainer, 
+      const IntervalFunctor & ifunctor, 
+      const QContainer & qdataContainer,
+      const QueryFunctors& qfunctors
+      ) {
+      return ResultType();
+    }
+
+
+
+
+  template <
+  class BoxContainer,
+        class QContainer,
+        typename IntervalFunctor, 
+        typename QueryFunctors
+  > static
+  ResultType intersectImpl(
+      mpl::Bool2Type<true>,
       const size_type & cutoff,
       const BoxContainer & dataContainer, 
       const IntervalFunctor & ifunctor, 
@@ -865,7 +909,7 @@ struct SetA<BoxType,BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, TIndex)>::
 KeyCreator{
 
     /** Helper-struct, encapsulating most typedefs to extract necessary types */
-    typedef fbi::mpl::indexFilter<KeyBoxType, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, KeyCreatorIndex)> keyTypeHelper;
+    typedef fbi::mpl::TypeExtractor<Traits<KeyBoxType>, BOOST_PP_ENUM_PARAMS(MAX_DIMENSIONS, KeyCreatorIndex)> keyTypeHelper;
   
   /**
    * Calculate the intervals every value_type object is representing and save it
