@@ -30,10 +30,11 @@ int main(int argc, char * argv[]) {
   }
   typedef SetA<Centroid,1,0 > SetType;
   typedef SetType::ResultType ResultType;
+  typedef unsigned int LabelType;
 
   ptime start = microsec_clock::universal_time();
   
-  SNSplitter<SetType> splitter(options);
+  SNSplitter<SetType, LabelType> splitter(options);
 
   CentroidBoxGenerator gen(10,1);
   ResultType test = std::vector<std::vector<unsigned int> >();
@@ -49,7 +50,7 @@ int main(int argc, char * argv[]) {
     << td.total_seconds()
     << std::endl;
   std::cout << "finding connected components... ";
-  std::vector<unsigned int> labels;
+  std::vector<LabelType> labels;
   unsigned int nComponents = findConnectedComponents(fullAdjList, labels);
   std::vector<unsigned int> counter(nComponents, 0);
   for (std::vector<LabelType>::size_type i = 0; i < labels.size(); ++i) {
@@ -64,14 +65,13 @@ int main(int argc, char * argv[]) {
   std::sort(counter.begin(), counter.end());
   std::reverse(counter.begin(), counter.end());
   
-
+/*
   std::ofstream ofs((options.outputfileName_ + ".counts").c_str());
   ofs << "Count" << std::endl;
   typedef std::map<unsigned int, unsigned int>::const_iterator It; 
   for (It it = counter.begin(); it != counter.end(); ++it) {
     ofs << *it << std::endl;
   }
-
   std::ifstream ifs(options.inputfileName_.c_str());
   std::vector<Centroid> centroids;
   int sn = 0;
@@ -102,6 +102,6 @@ int main(int argc, char * argv[]) {
     std::cout << i << ": " << labelcounts[labelcounts.size() - i] << std::endl;
   }
   std::ofstream ofs(options.outputfileName_.c_str());
-
+*/
 
 }

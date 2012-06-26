@@ -71,7 +71,7 @@ int parseProgramOptions(int argc, char* argv[], ProgramOptions& options)
   }
   return 1;
 }
-template <ContainerType>
+template <typename ContainerType>
 unsigned int 
 parseString(const std::string & str, ContainerType & centroids, int sn, bool onlyheader = false) {
   float mz=0, massrange_lo=0, massrange_hi=0, rt=0;
@@ -98,7 +98,7 @@ parseString(const std::string & str, ContainerType & centroids, int sn, bool onl
   return numentries;
 }
 
-template <class SetType>
+template <class SetType, class LabelType = unsigned int>
 struct
 SNSplitter {
   private:
@@ -108,7 +108,7 @@ SNSplitter {
 
   public:
     typedef typename SetType::ResultType ResultType;
-    typedef unsigned int LabelType;
+    typedef typename std::vector<unsigned int>::size_type size_type;
     SNSplitter(const ProgramOptions& options) : options_(options) {
 
       overlap_ = std::max(options_.minClusterSize_ * options_.snWindowSize_ - 1, options_.snWindowSize_);
@@ -120,11 +120,11 @@ SNSplitter {
         std::vector<LabelType> labels;
         LabelType nComponents = findConnectedComponents(adjList, labels); 
         std::vector<unsigned int> counter(nComponents, 0);
-        for (std::vector<LabelType>::size_type i = 0; i < labels.size(); ++i) {
+        for (size_type i = 0; i < labels.size(); ++i) {
           ++counter[labels[i] - 1];
         }
         typedef typename ResultType::value_type InnerType;
-        for (std::vector<LabelType>::size_type i = 0; i < labels.size(); ++i) {
+        for (size_type i = 0; i < labels.size(); ++i) {
           if (counter[labels[i]-1] < options_.minClusterSize_) { 
             InnerType().swap(adjList[i]);
             //std::copy(adjList[i].begin(), adjList[i].end(), std::back_inserter(filteredAdjList[i]));
@@ -133,9 +133,9 @@ SNSplitter {
         return adjList;
       }
     ResultType
-      joinAdjLists(const ResultType & filteredAdjList, ResultType & fullAdjList, typename ResultType::size_type offset) {
+      joinAdjLists(const ResultType & filteredAdjList, ResultType & fullAdjList, size_type offset) {
         //fullAdjList.resize(filteredAdjList.size() + offset);
-        typename ResultType::size_type index;
+        size_type index;
         typedef typename ResultType::value_type InnerType;
         typename ResultType::value_type::const_iterator it1;
         for (index = 0; index < filteredAdjList.size(); ++index) {
